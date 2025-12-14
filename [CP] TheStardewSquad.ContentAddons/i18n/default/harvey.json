@@ -1,0 +1,217 @@
+{
+  // ==========================================
+  // --- FRIENDSHIP TOO LOW ---
+  // ==========================================
+
+  "dialogue.friendship_too_low.harvey.1": "I appreciate the offer, but I don't know you well enough to leave my practice unattended. Perhaps another time.",
+  "dialogue.friendship_too_low.harvey.2": "That's a kind thought, but my patients rely on me. I can't just leave.",
+  "dialogue.friendship_too_low.harvey.3": "I'm flattered, but I have a responsibility to the town's health. I must decline.",
+  "dialogue.friendship_too_low.harvey.4": "While I enjoy your company, I have a professional duty to attend to. I'm sorry.",
+  "dialogue.friendship_too_low.harvey.5": "My schedule is quite full with appointments. I can't join you right now.",
+
+  // ==========================================
+  // --- LOW FRIENDSHIP (< 6 HEARTS) ---
+  // ==========================================
+
+  "dialogue.recruit.harvey.low_hearts.1": "You need assistance? Very well. As a doctor, it's my duty to help. Where are we headed?",
+  "dialogue.recruit.harvey.low_hearts.2": "I suppose I can spare some time. It's important to get some fresh air. Lead the way.",
+  "dialogue.recruit.harvey.low_hearts.3": "Alright, I'll come along. Just... try to avoid any unnecessary risks, please.",
+  "dialogue.recruit.harvey.low_hearts.4": "Of course. Let me just grab my medical kit, just in case. Ready when you are.",
+  "dialogue.recruit.harvey.low_hearts.5": "An expedition? Sounds... interesting. I'll join you. For health and safety oversight, of course.",
+
+  "dialogue.dismiss.harvey.low_hearts.1": "Understood. I have some medical journals I've been meaning to catch up on anyway.",
+  "dialogue.dismiss.harvey.low_hearts.2": "Very well. I'll be heading back to the clinic, then. Stay safe.",
+  "dialogue.dismiss.harvey.low_hearts.3": "It was... an experience. Let me know if you need any medical attention later.",
+  "dialogue.dismiss.harvey.low_hearts.4": "Alright. Time for me to get back to my routine. Farewell for now.",
+  "dialogue.dismiss.harvey.low_hearts.5": "Dismissed? Understood. Try to eat a balanced meal when you get home.",
+
+  "dialogue.idle.harvey.low_hearts.generic.1": "Remember to stay hydrated. It's essential for good health.",
+  "dialogue.idle.harvey.low_hearts.generic.2": "I should probably restock some bandages at the clinic.",
+  "dialogue.idle.harvey.low_hearts.generic.3": "I should check on George's knee later. It acts up in this weather.",
+  "dialogue.idle.harvey.low_hearts.generic.4": "I hope everyone in town is remembering to take their vitamins.",
+  "dialogue.idle.harvey.low_hearts.generic.5": "A steady routine is the cornerstone of a healthy lifestyle.",
+
+  "dialogue.idle.harvey.low_hearts.farm.1": "Physical labor like this is good for cardiovascular health, in moderation.",
+  "dialogue.idle.harvey.low_hearts.farm.2": "These crops look quite healthy. A good source of essential nutrients.",
+  "dialogue.idle.harvey.low_hearts.farm.3": "Make sure you're using proper lifting techniques to avoid back strain.",
+  "dialogue.idle.harvey.low_hearts.farm.4": "The fresh country air is certainly invigorating.",
+  "dialogue.idle.harvey.low_hearts.farm.5": "Farming seems to be a very demanding, yet rewarding, profession.",
+
+  "dialogue.idle.harvey.low_hearts.mines.1": "The air in here is quite dusty. It's best not to exert oneself too much.",
+  "dialogue.idle.harvey.low_hearts.mines.2": "Please be careful. These mines can be treacherous.",
+  "dialogue.idle.harvey.low_hearts.mines.3": "I've read about 'caver's cough'. Let's try to avoid that.",
+  "dialogue.idle.harvey.low_hearts.mines.4": "Watch your step. A fall in here could be quite serious.",
+  "dialogue.idle.harvey.low_hearts.mines.5": "This is hardly a sterile environment. Try not to touch your face.",
+
+  "dialogue.idle.harvey.low_hearts.town.1": "It's good to see the town bustling. A healthy community is a happy community.",
+  "dialogue.idle.harvey.low_hearts.town.2": "The air quality out here is excellent. Good for the lungs.",
+  "dialogue.idle.harvey.low_hearts.town.3": "I wonder if anyone needs a check-up today.",
+  "dialogue.idle.harvey.low_hearts.town.4": "A brisk walk through town is a good way to get some light exercise.",
+  "dialogue.idle.harvey.low_hearts.town.5": "Pelican Town is a peaceful place. It's good for one's mental health.",
+
+  "dialogue.idle.harvey.low_hearts.house.1": "It's important to maintain a clean living space to prevent illness.",
+  "dialogue.idle.harvey.low_hearts.house.2": "A well-organized home can lead to a well-organized mind.",
+  "dialogue.idle.harvey.low_hearts.house.3": "Do you get enough sleep? Eight hours is recommended for optimal health.",
+  "dialogue.idle.harvey.low_hearts.house.4": "This is a comfortable temperature. Good for preventing a chill.",
+  "dialogue.idle.harvey.low_hearts.house.5": "A quiet moment indoors is a good way to recharge.",
+
+  "dialogue.attacking.harvey.low_hearts.1": "Try to keep your distance! Safety first!",
+  "dialogue.attacking.harvey.low_hearts.2": "Avoid direct confrontation if possible!",
+  "dialogue.attacking.harvey.low_hearts.3": "This is not advisable! Retreat if you can!",
+  "dialogue.attacking.harvey.low_hearts.4": "Be careful! A single injury can get infected!",
+  "dialogue.attacking.harvey.low_hearts.5": "As a doctor, I must advise against this!",
+
+  "dialogue.lumbering.harvey.low_hearts.1": "That's quite a workout. Don't over-exert yourself.",
+  "dialogue.lumbering.harvey.low_hearts.2": "Watch out for splinters. They can be a nuisance.",
+  "dialogue.lumbering.harvey.low_hearts.3": "The scent of fresh-cut wood is quite distinct.",
+  "dialogue.lumbering.harvey.low_hearts.4": "This requires a good deal of strength and precision.",
+  "dialogue.lumbering.harvey.low_hearts.5": "Remember to take breaks to avoid muscle fatigue.",
+
+  "dialogue.mining.harvey.low_hearts.1": "The reverberations are quite strong. I hope this area is stable.",
+  "dialogue.mining.harvey.low_hearts.2": "These minerals are interesting from a geological standpoint.",
+  "dialogue.mining.harvey.low_hearts.3": "Be sure to wear protective gear if you do this often.",
+  "dialogue.mining.harvey.low_hearts.4": "This is strenuous work. Are you feeling alright?",
+  "dialogue.mining.harvey.low_hearts.5": "Let's hope we don't cause a cave-in.",
+
+  "dialogue.watering.harvey.low_hearts.1": "Proper hydration is key, for plants and for people.",
+  "dialogue.watering.harvey.low_hearts.2": "A simple, yet necessary task.",
+  "dialogue.watering.harvey.low_hearts.3": "This is quite methodical. Almost meditative.",
+  "dialogue.watering.harvey.low_hearts.4": "It's important for the crops to get enough water.",
+  "dialogue.watering.harvey.low_hearts.5": "The sound of the watering can is quite gentle.",
+
+  "dialogue.harvesting.harvey.low_hearts.1": "A fine harvest. This will make for some nutritious meals.",
+  "dialogue.harvesting.harvey.low_hearts.2": "The fruits of your labor, quite literally.",
+  "dialogue.harvesting.harvey.low_hearts.3": "It's satisfying to see such healthy produce.",
+  "dialogue.harvesting.harvey.low_hearts.4": "This is a good source of vitamins and minerals.",
+  "dialogue.harvesting.harvey.low_hearts.5": "Be sure to wash these thoroughly before consumption.",
+
+  "dialogue.foraging.harvey.low_hearts.1": "I believe this one is edible, but it's always best to be certain.",
+  "dialogue.foraging.harvey.low_hearts.2": "Nature provides, but one must be knowledgeable.",
+  "dialogue.foraging.harvey.low_hearts.3": "Some of these plants have medicinal properties, you know.",
+  "dialogue.foraging.harvey.low_hearts.4": "A good walk and some fresh food. Excellent for one's well-being.",
+  "dialogue.foraging.harvey.low_hearts.5": "Let's be careful about what we pick. Some plants can be toxic.",
+
+  // ==========================================
+  // --- HIGH FRIENDSHIP (>= 6 HEARTS) ---
+  // ==========================================
+
+  "dialogue.recruit.harvey.high_hearts.1": "Of course, {{name}}! I'd be happy to join you. It'll be a nice break from the clinic.",
+  "dialogue.recruit.harvey.high_hearts.2": "An adventure with you? Sounds like fun! Let's go.",
+  "dialogue.recruit.harvey.high_hearts.3": "I could use the company. Thanks for inviting me along!",
+  "dialogue.recruit.harvey.high_hearts.4": "Anywhere you're going, I'm happy to follow. What's the plan?",
+  "dialogue.recruit.harvey.high_hearts.5": "Absolutely! Spending time with you is always a pleasure.",
+
+  "dialogue.dismiss.harvey.high_hearts.1": "Alright, I'll see you later, {{name}}. Take care of yourself!",
+  "dialogue.dismiss.harvey.high_hearts.2": "It was fun! Let's do this again sometime soon.",
+  "dialogue.dismiss.harvey.high_hearts.3": "Heading back now. Don't work too hard without me!",
+  "dialogue.dismiss.harvey.high_hearts.4": "Okay, see you back in town. Be safe!",
+  "dialogue.dismiss.harvey.high_hearts.5": "Thanks for having me along. I had a great time.",
+
+  "dialogue.idle.harvey.high_hearts.generic.1": "On a clear day like this, I'd love to be up in the sky, flying my model plane.",
+  "dialogue.idle.harvey.high_hearts.generic.2": "Have you ever listened to any jazz? I have a great collection of records we could listen to sometime.",
+  "dialogue.idle.harvey.high_hearts.generic.3": "It's just nice to be out here with you, away from all the medical charts.",
+  "dialogue.idle.harvey.high_hearts.generic.4": "I was just thinking about a new radio frequency I want to try and tune into. It's a fun puzzle.",
+  "dialogue.idle.harvey.high_hearts.generic.5": "This is really pleasant. I'm glad we're friends.",
+
+  "dialogue.idle.harvey.high_hearts.farm.1": "Your farm has such a peaceful atmosphere. It's a wonderful place to be.",
+  "dialogue.idle.harvey.high_hearts.farm.2": "You've done an amazing job with this place.",
+  "dialogue.idle.harvey.high_hearts.farm.3": "Being out here with you... it's my favorite way to spend the day.",
+  "dialogue.idle.harvey.high_hearts.farm.4": "Sometimes I think about retiring and getting a small model plane workshop. A man can dream, right?",
+  "dialogue.idle.harvey.high_hearts.farm.5": "The sounds of the farm are so much more relaxing than the beeping of my medical equipment.",
+
+  "dialogue.idle.harvey.high_hearts.mines.1": "This is exciting, in a nerve-wracking sort of way! Stick close, okay?",
+  "dialogue.idle.harvey.high_hearts.mines.2": "I feel like we're on a real expedition. Just like the adventurers in my books!",
+  "dialogue.idle.harvey.high_hearts.mines.3": "Do you think there are any rare crystals down here? The geology is fascinating.",
+  "dialogue.idle.harvey.high_hearts.mines.4": "As long as I'm with you, I'm not even scared of the bats. Well, maybe a little.",
+  "dialogue.idle.harvey.high_hearts.mines.5": "This is much more exciting than my usual routine. Thanks for bringing me along.",
+
+  "dialogue.idle.harvey.high_hearts.volcano.1": "A volcano! This is incredible! And incredibly dangerous! Please be careful.",
+  "dialogue.idle.harvey.high_hearts.volcano.2": "The heat is intense. Make sure you're drinking plenty of water.",
+  "dialogue.idle.harvey.high_hearts.volcano.3": "I've only read about places like this in textbooks. It's amazing to see it in person.",
+  "dialogue.idle.harvey.high_hearts.volcano.4": "I'm a doctor, not a geologist, but this is truly a once-in-a-lifetime experience.",
+  "dialogue.idle.harvey.high_hearts.volcano.5": "Stick with me, okay? I'd never forgive myself if something happened to you here.",
+
+  "dialogue.idle.harvey.high_hearts.town.1": "It's a lovely day for a walk around town, especially with you.",
+  "dialogue.idle.harvey.high_hearts.town.2": "Seeing you always brightens my day, you know that?",
+  "dialogue.idle.harvey.high_hearts.town.3": "Maybe we could stop by the saloon later for a quiet drink?",
+  "dialogue.idle.harvey.high_hearts.town.4": "I'm glad you moved to Pelican Town, {{name}}.",
+  "dialogue.idle.harvey.high_hearts.town.5": "Everything seems a little bit better when you're around.",
+
+  "dialogue.idle.harvey.high_hearts.house.1": "Your place is so cozy.",
+  "dialogue.idle.harvey.high_hearts.house.2": "It's nice to just relax with you. No monsters, no chores, just... us.",
+  "dialogue.idle.harvey.high_hearts.house.3": "Can I make you a cup of coffee? I make a pretty good brew.",
+  "dialogue.idle.harvey.high_hearts.house.4": "I feel comfortable here with you.",
+  "dialogue.idle.harvey.high_hearts.house.5": "Being with you is all the adventure I need.",
+
+  "dialogue.attacking.harvey.high_hearts.1": "Stay behind me! I'll protect you!",
+  "dialogue.attacking.harvey.high_hearts.2": "We can do this! Just be careful!",
+  "dialogue.attacking.harvey.high_hearts.3": "Watch out! Are you alright?",
+  "dialogue.attacking.harvey.high_hearts.4": "Don't worry, I'm right here with you!",
+  "dialogue.attacking.harvey.high_hearts.5": "A little excitement to get the heart pumping, eh?",
+
+  "dialogue.lumbering.harvey.high_hearts.1": "Need a hand with that?",
+  "dialogue.lumbering.harvey.high_hearts.2": "It's good to do something physical for a change. Clears the mind.",
+  "dialogue.lumbering.harvey.high_hearts.3": "You're really strong, you know that?",
+  "dialogue.lumbering.harvey.high_hearts.4": "This is much more fun than filling out paperwork.",
+  "dialogue.lumbering.harvey.high_hearts.5": "Let's get this done and then we can relax.",
+
+  "dialogue.mining.harvey.high_hearts.1": "Look at that! We found some ore! We're a great team.",
+  "dialogue.mining.harvey.high_hearts.2": "This is kind of fun, actually. Like a treasure hunt.",
+  "dialogue.mining.harvey.high_hearts.3": "I'll keep an eye out for monsters while you work.",
+  "dialogue.mining.harvey.high_hearts.4": "Finding these gems is almost as rewarding as a correct diagnosis!",
+  "dialogue.mining.harvey.high_hearts.5": "Let's see what treasures we can unearth together.",
+
+  "dialogue.watering.harvey.high_hearts.1": "It's nice doing these simple chores with you.",
+  "dialogue.watering.harvey.high_hearts.2": "Everything grows better with a little love and care.",
+  "dialogue.watering.harvey.high_hearts.3": "Let me help you with that. Many hands make light work.",
+  "dialogue.watering.harvey.high_hearts.4": "This is so peaceful. I can see why you love farming.",
+  "dialogue.watering.harvey.high_hearts.5": "Just a little water, and soon you'll have a beautiful harvest.",
+
+  "dialogue.harvesting.harvey.high_hearts.1": "Wow, look at all this! Your hard work really paid off, {{name}}.",
+  "dialogue.harvesting.harvey.high_hearts.2": "This all looks delicious! What are you going to cook with it?",
+  "dialogue.harvesting.harvey.high_hearts.3": "It feels good to harvest something you've grown yourself, doesn't it?",
+  "dialogue.harvesting.harvey.high_hearts.4": "You should have a big dinner with all of this to celebrate.",
+  "dialogue.harvesting.harvey.high_hearts.5": "This is fantastic! You're a natural at this.",
+
+  "dialogue.foraging.harvey.high_hearts.1": "Oh, what a find! You have a great eye for these things.",
+  "dialogue.foraging.harvey.high_hearts.2": "Walking with you is my idea of a perfect day.",
+  "dialogue.foraging.harvey.high_hearts.3": "I think this one is your favorite, isn't it?",
+  "dialogue.foraging.harvey.high_hearts.4": "It's like a little treasure hunt. What else can we find?",
+  "dialogue.foraging.harvey.high_hearts.5": "Being out in nature with you is so refreshing.",
+
+  "dialogue.fishing_waiting.harvey.low_hearts.1": "Fishing requires patience and stillness. Both are good for stress reduction.",
+  "dialogue.fishing_waiting.harvey.low_hearts.2": "The fish in this area are likely quite healthy. Fresh water, good ecosystem.",
+  "dialogue.fishing_waiting.harvey.low_hearts.3": "Be careful with the hook. Puncture wounds can be serious.",
+  "dialogue.fishing_waiting.harvey.low_hearts.4": "Sitting for extended periods isn't ideal. Remember to stretch occasionally.",
+  "dialogue.fishing_waiting.harvey.low_hearts.5": "I hope you're wearing sunscreen. Prolonged sun exposure can be harmful.",
+
+  "dialogue.fishing_caught.harvey.low_hearts.1": "Ah, I caught one. That's a healthy specimen.",
+  "dialogue.fishing_caught.harvey.low_hearts.2": "Success. I maintained proper form on the reel-in.",
+  "dialogue.fishing_caught.harvey.low_hearts.3": "Fresh fish. Excellent source of omega-3 fatty acids.",
+  "dialogue.fishing_caught.harvey.low_hearts.4": "I'll need to be careful removing the hook.",
+  "dialogue.fishing_caught.harvey.low_hearts.5": "A successful catch. I'll make sure to clean it properly.",
+
+  "dialogue.petting.harvey.low_hearts.1": "Animals can carry pathogens. Be sure to wash your hands afterward.",
+  "dialogue.petting.harvey.low_hearts.2": "The animals appear to be in good health. Well done.",
+  "dialogue.petting.harvey.low_hearts.3": "Interaction with animals has been shown to reduce blood pressure.",
+  "dialogue.petting.harvey.low_hearts.4": "That one seems docile enough. Approach calmly to avoid startling it.",
+  "dialogue.petting.harvey.low_hearts.5": "Make sure they've had their veterinary check-ups.",
+
+  "dialogue.fishing_waiting.harvey.high_hearts.1": "This is nice. I don't get out fishing nearly enough.",
+  "dialogue.fishing_waiting.harvey.high_hearts.2": "There's something therapeutic about fishing. The rhythm, the waiting...",
+  "dialogue.fishing_waiting.harvey.high_hearts.3": "I'm glad you invited me. It's good to spend time together like this.",
+  "dialogue.fishing_waiting.harvey.high_hearts.4": "The fresh air out here is wonderful for the lungs.",
+  "dialogue.fishing_waiting.harvey.high_hearts.5": "I could get used to this. Maybe we could make it a regular thing?",
+
+  "dialogue.fishing_caught.harvey.high_hearts.1": "I got one! That's quite a catch!",
+  "dialogue.fishing_caught.harvey.high_hearts.2": "Well, would you look at that! My technique is really improving!",
+  "dialogue.fishing_caught.harvey.high_hearts.3": "That's a beauty! Fresh fish for dinner sounds wonderful.",
+  "dialogue.fishing_caught.harvey.high_hearts.4": "Success! I'm quite pleased with that catch.",
+  "dialogue.fishing_caught.harvey.high_hearts.5": "Wonderful! This has been such a productive outing.",
+
+  "dialogue.petting.harvey.high_hearts.1": "They really respond to gentle care. You're doing a wonderful job.",
+  "dialogue.petting.harvey.high_hearts.2": "Animals are remarkable, aren't they? So trusting and affectionate.",
+  "dialogue.petting.harvey.high_hearts.3": "This is genuinely relaxing. Thank you for sharing this with me.",
+  "dialogue.petting.harvey.high_hearts.4": "I can see why you enjoy this. It's very grounding.",
+  "dialogue.petting.harvey.high_hearts.5": "Your animals are lucky to have such a caring owner."
+}

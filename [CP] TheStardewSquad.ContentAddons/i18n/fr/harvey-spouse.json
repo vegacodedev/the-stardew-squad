@@ -1,0 +1,91 @@
+{
+  "dialogue.recruit.harvey.spouse.1": "Bien sûr, mon amour. Où que tu ailles, je serai là avec toi.",
+  "dialogue.recruit.harvey.spouse.2": "Je suis prêt pour une aventure. Allons-y. Fais juste attention, d'accord ?",
+  "dialogue.recruit.harvey.spouse.3": "N'importe quoi pour toi, chéri(e). Je vais juste prendre mon sac. On ne sait jamais quand un peu de premiers soins pourrait être nécessaire.",
+  "dialogue.recruit.harvey.spouse.4": "Travailler ensemble ? Ça m'a l'air merveilleux. Je suis prêt quand tu l'es.",
+  "dialogue.recruit.harvey.spouse.5": "J'espérais que tu demanderais ! Passer la journée avec toi est la meilleure prescription pour le bonheur.",
+
+  "dialogue.dismiss.harvey.spouse.1": "D'accord, chéri(e). On se voit à la maison. Ne rentre pas trop tard.",
+  "dialogue.dismiss.harvey.spouse.2": "C'était tout, chéri(e) ? Je rentre. Je t'aime.",
+  "dialogue.dismiss.harvey.spouse.3": "Tu vas me manquer ! Fais attention à toi, d'accord ?",
+  "dialogue.dismiss.harvey.spouse.4": "D'accord, mon amour. Je vais probablement ranger un peu la maison. À bientôt.",
+  "dialogue.dismiss.harvey.spouse.5": "C'était merveilleux de travailler avec toi, comme toujours. Je t'attendrai à la maison.",
+
+  "dialogue.idle.harvey.spouse.generic.1": "Le temps aujourd'hui est parfait pour voler. Ça me rappelle le modèle réduit d'avion que je construis.",
+  "dialogue.idle.harvey.spouse.generic.2": "As-tu pensé à prendre ton petit-déjeuner, chéri(e) ? C'est le repas le plus important de la journée, tu sais.",
+  "dialogue.idle.harvey.spouse.generic.3": "Je pensais... je suis si heureux de t'avoir épousé. Chaque jour est une nouvelle aventure.",
+  "dialogue.idle.harvey.spouse.generic.4": "Peut-être que plus tard, nous pourrons écouter certains de mes disques de jazz ? Ce serait une fin de journée parfaite.",
+  "dialogue.idle.harvey.spouse.generic.5": "J'étais debout tard à essayer de capter un signal d'une station lointaine sur ma radio.",
+
+  "dialogue.idle.harvey.spouse.farm.1": "Notre ferme est un si bel endroit. C'est notre petit coin de paradis.",
+  "dialogue.idle.harvey.spouse.farm.2": "Tu travailles si dur, mon amour. N'oublie pas de faire des pauses et de ne pas trop te pousser.",
+  "dialogue.idle.harvey.spouse.farm.3": "L'espace ouvert de la ferme me fait toujours penser à l'aérodynamique. C'est si différent des espaces clos de la clinique.",
+  "dialogue.idle.harvey.spouse.farm.4": "J'adore l'odeur de la terre fraîche et le soleil chaud. C'est bien mieux que l'odeur stérile de la clinique.",
+  "dialogue.idle.harvey.spouse.farm.5": "Chaque petite plante ici témoigne de tes soins et de ton dévouement.",
+
+  "dialogue.idle.harvey.spouse.mines.1": "S'il te plaît, sois très prudent(e) ici. Je m'inquiète pour toi dans ces endroits dangereux.",
+  "dialogue.idle.harvey.spouse.mines.2": "Tiens ma main, d'accord ? C'est un peu effrayant ici, mais je n'ai pas peur tant que nous sommes ensemble.",
+  "dialogue.idle.harvey.spouse.mines.3": "Promets-moi de ne prendre aucun risque inutile. Mon cœur ne le supporterait pas si tu te blessais.",
+  "dialogue.idle.harvey.spouse.mines.4": "Même dans les endroits les plus sombres, tu es ma lumière. C'est ringard, je sais, mais c'est vrai.",
+  "dialogue.idle.harvey.spouse.mines.5": "Trouvons ce dont nous avons besoin et retournons au soleil. Je me sentirai beaucoup mieux quand tu seras en sécurité.",
+
+  "dialogue.idle.harvey.spouse.house.1": "On est bien chez soi. Et ce n'est 'chez soi' que parce que tu es là.",
+  "dialogue.idle.harvey.spouse.house.2": "Y a-t-il quelque chose que je puisse faire pour toi, chéri(e) ? Une tasse de café ? Un examen médical ?",
+  "dialogue.idle.harvey.spouse.house.3": "J'adore ces moments de calme avec toi. Juste se détendre dans la maison que nous avons transformée en foyer.",
+  "dialogue.idle.harvey.spouse.house.4": "Tu as l'air un peu fatigué, chéri(e). Te reposes-tu assez ?",
+  "dialogue.idle.harvey.spouse.house.5": "C'est agréable. Se détendre à la maison avec toi est le moyen idéal de se relaxer après une longue journée.",
+
+  "dialogue.attacking.harvey.spouse.1": "Reste en arrière, mon amour ! Je ne laisserai rien te faire de mal !",
+  "dialogue.attacking.harvey.spouse.2": "Nous sommes une équipe ! Nous pouvons gérer ça ensemble !",
+  "dialogue.attacking.harvey.spouse.3": "Attention ! Chéri(e), ça va ?",
+  "dialogue.attacking.harvey.spouse.4": "Je suis là ! Ne t'inquiète pas !",
+  "dialogue.attacking.harvey.spouse.5": "Mon cœur bat la chamade ! Pas dans le bon sens ! Finissons-en vite !",
+
+  "dialogue.lumbering.harvey.spouse.1": "Tu es si fort(e), mon amour. C'est impressionnant.",
+  "dialogue.lumbering.harvey.spouse.2": "Laisse-moi t'aider avec ça. On peut le faire plus vite ensemble.",
+  "dialogue.lumbering.harvey.spouse.3": "C'est un bon exercice, mais fais attention à ton dos, d'accord ?",
+  "dialogue.lumbering.harvey.spouse.4": "Travailler côte à côte avec toi... c'est génial.",
+  "dialogue.lumbering.harvey.spouse.5": "J'aime à quel point tu es capable. Tu peux faire tout ce que tu décides de faire.",
+
+  "dialogue.mining.harvey.spouse.1": "Quelle trouvaille ! Tu as le chic pour ça.",
+  "dialogue.mining.harvey.spouse.2": "C'est beaucoup plus amusant quand je suis avec toi. Même la poussière ne me dérange pas.",
+  "dialogue.mining.harvey.spouse.3": "Je surveille tes arrières. Concentre-toi juste sur la recherche de ces gemmes.",
+  "dialogue.mining.harvey.spouse.4": "Notre propre chasse au trésor ! Que ferons-nous de nos trouvailles ?",
+  "dialogue.mining.harvey.spouse.5": "Le simple fait d'être avec toi rend même une grotte sombre lumineuse.",
+
+  "dialogue.watering.harvey.spouse.1": "Tiens, laisse-moi faire. Tu en fais déjà tellement.",
+  "dialogue.watering.harvey.spouse.2": "Celui-ci a l'air d'avoir soif.",
+  "dialogue.watering.harvey.spouse.3": "Tout semble mieux pousser quand tu es là. Tu as un don magique.",
+  "dialogue.watering.harvey.spouse.4": "Ce sont les choses simples, comme celle-ci, que je chéris le plus.",
+  "dialogue.watering.harvey.spouse.5": "Tout comme ces plantes, mon amour pour toi grandit chaque jour.",
+
+  "dialogue.harvesting.harvey.spouse.1": "Regarde cette abondance !",
+  "dialogue.harvesting.harvey.spouse.2": "Tu as créé une ferme si incroyable.",
+  "dialogue.harvesting.harvey.spouse.3": "Quel délicieux repas devrions-nous préparer avec tout ça ?",
+  "dialogue.harvesting.harvey.spouse.4": "C'est merveilleux ! De la nourriture fraîche et saine, cultivée avec amour.",
+  "dialogue.harvesting.harvey.spouse.5": "Récolter avec toi est la récompense parfaite après une longue saison.",
+
+  "dialogue.foraging.harvey.spouse.1": "Qu'as-tu trouvé, chéri(e) ? Tu repères toujours les meilleures choses.",
+  "dialogue.foraging.harvey.spouse.2": "Une promenade avec ma personne préférée. Il n'y a rien de mieux.",
+  "dialogue.foraging.harvey.spouse.3": "C'est superbe. Juste toi, moi, et les bruits de la nature.",
+  "dialogue.foraging.harvey.spouse.4": "Voyons ce que nous pouvons trouver pour le dîner de ce soir. Quelque chose de spécial, je pense.",
+  "dialogue.foraging.harvey.spouse.5": "Certaines de ces herbes ont des propriétés médicinales intéressantes. C'est toujours bon de savoir ce qui pousse à proximité.",
+
+  "dialogue.fishing_waiting.harvey.spouse.1": "Juste nous deux et la nature. Je ne pourrais pas demander un meilleur après-midi.",
+  "dialogue.fishing_waiting.harvey.spouse.2": "Tu sais, pêcher avec toi est devenu l'une de mes activités préférées.",
+  "dialogue.fishing_waiting.harvey.spouse.3": "Qu'on attrape quelque chose ou pas, je suis juste heureux d'être ici avec toi.",
+  "dialogue.fishing_waiting.harvey.spouse.4": "Après une longue semaine à la clinique, c'est exactement ce dont j'avais besoin. Merci, {{endearment}}.",
+  "dialogue.fishing_waiting.harvey.spouse.5": "Chaque moment avec toi est un cadeau. Même les moments tranquilles.",
+
+  "dialogue.fishing_caught.harvey.spouse.1": "Oui ! J'en ai attrapé un, {{endearment}} !",
+  "dialogue.fishing_caught.harvey.spouse.2": "Quelle prise !",
+  "dialogue.fishing_caught.harvey.spouse.3": "Je l'ai eu ! Notre dîner va être délicieux ce soir.",
+  "dialogue.fishing_caught.harvey.spouse.4": "J'espère que je t'ai rendu fier(ère) avec cette prise !",
+  "dialogue.fishing_caught.harvey.spouse.5": "Encore un !",
+
+  "dialogue.petting.harvey.spouse.1": "Prendre soin des animaux ensemble... c'est l'une des nos joies simples.",
+  "dialogue.petting.harvey.spouse.2": "Ils nous font entièrement confiance. C'est une belle responsabilité que nous partageons.",
+  "dialogue.petting.harvey.spouse.3": "Tu m'as tellement appris sur comment prendre soin de ces animaux, {{endearment}}.",
+  "dialogue.petting.harvey.spouse.4": "Notre petite famille continue de grandir, n'est-ce pas ? J'adore ça.",
+  "dialogue.petting.harvey.spouse.5": "Te regarder avec les animaux me rappelle pourquoi je suis tombé amoureux de toi."
+}

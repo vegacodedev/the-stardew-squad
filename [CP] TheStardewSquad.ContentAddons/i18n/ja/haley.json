@@ -1,0 +1,181 @@
+{
+  // ==========================================
+  // --- FRIENDSHIP TOO LOW ---　友好度が低すぎるとき
+  // ==========================================
+
+  "dialogue.friendship_too_low.haley.1": "あなたと……付き合えですって？一日中？あー、私、忙しいのね。そう。無理ってくらい忙しい。",
+  "dialogue.friendship_too_low.haley.2": "ごめんね。私は現実の友人としか「冒険」の類には出かけないのよ。",
+  "dialogue.friendship_too_low.haley.3": "良い考えね。でも……断るわ。今は無理。",
+  "dialogue.friendship_too_low.haley.4": "私、実際あなたのことをそんなに知らないのよね。全く。それでそれって、ちょっと気まずいものだと思わない？",
+  "dialogue.friendship_too_low.haley.5": "多分あなたは下ろし立ての服を最初に手に入れたとしても。今着ているものは……じゃないわね。",
+
+  // ==========================================
+  // --- LOW FRIENDSHIP (< 6 HEARTS) ---　低い友好度（6以下）
+  // ==========================================
+
+  "dialogue.recruit.haley.low_hearts.1": "私に……あなたの後ろに付いてきてほしいですって？うー、いいわよ。でも私の服を汚さない限りにおいて、よ。",
+  "dialogue.recruit.haley.low_hearts.2": "本気ぃ？私をあなたに付いてこさせたいと？まぁ、いいかも。でもカバンの一個を見たら離れるから。",
+  "dialogue.recruit.haley.low_hearts.3": "なにもできないと思うけど。私が楽しむことを期待しないでね。",
+  "dialogue.recruit.haley.low_hearts.4": "なんで私？あぁ、どうでもいいわ。さっさと終わらせましょう。",
+  "dialogue.recruit.haley.low_hearts.5": "わかったわ。でもプレイリストを管理しているの。待って、あなたって携帯を持ってないわよね？あ゛ー…",
+
+  "dialogue.dismiss.haley.low_hearts.1": "やれやれ。髪を直さなくっちゃ。じゃぁね。",
+  "dialogue.dismiss.haley.low_hearts.2": "そうだったの？よし。私は文明に戻るわ。",
+  "dialogue.dismiss.haley.low_hearts.3": "わかったわ。もう一日分の「アウトドア」をしたわ。Bye(バイ)。",
+  "dialogue.dismiss.haley.low_hearts.4": "私を呼ばないで。私があなたを呼ぶから。と言っても期待しないでね。",
+  "dialogue.dismiss.haley.low_hearts.5": "じゃぁ別れるわ。この服はそういったものようじゃなくて……見たままの意味よ。",
+
+  "dialogue.idle.haley.low_hearts.generic.1": "それで、このままここに立っているつもり？すごくつまらないわね",
+  "dialogue.idle.haley.low_hearts.generic.2": "ここ、圏外ね。どんな人間がこんなところに住むの？",
+  "dialogue.idle.haley.low_hearts.generic.3": "絶対クモを見たわ。言っただけよ",
+  "dialogue.idle.haley.low_hearts.generic.4": "あのさぁ、もうちょっと、早く歩いてくれない？それかゆっくり？どうでもいいけど何かして",
+  "dialogue.idle.haley.low_hearts.generic.5": "現実のダンスフロアがある場所へ行くんだったら教えて",
+
+  "dialogue.idle.haley.low_hearts.farm.1": "マジでこれがアンタの過ごす一日？すっごく汚くなるわね…",
+  "dialogue.idle.haley.low_hearts.farm.2": "なんか…芝生の香りがする。それど泥。うぇっ",
+  "dialogue.idle.haley.low_hearts.farm.3": "あなたの家…素朴ね。えぇ、良い言葉を選んだわ",
+  "dialogue.idle.haley.low_hearts.farm.4": "動物を飼ってるの？噛んでこない？",
+  "dialogue.idle.haley.low_hearts.farm.5": "農業の可愛らしい服装について想像しようとしているの。何も思い付かないわ",
+
+  "dialogue.idle.haley.low_hearts.mines.1": "うえぇ、ここ気持ち悪い臭いがする！それと暗い！私の靴がダメになりそうだわ",
+  "dialogue.idle.haley.low_hearts.mines.2": "ここ多分コウモリがいるわよ。*コウモリ*が。嫌いなのよ、ソイツら",
+  "dialogue.idle.haley.low_hearts.mines.3": "わかった。ハッキリ言って、私が今まで行った場所で全然ワクワクしないところだわ",
+  "dialogue.idle.haley.low_hearts.mines.4": "このジメジメした空気で髪が縮れたら、文句言うわよ",
+  "dialogue.idle.haley.low_hearts.mines.5": "なんで全部の石が…点々としているの？この場所に美はないわね",
+
+  "dialogue.idle.haley.low_hearts.town.1": "ペリカンタウンの最高なところは、道路が外へ続いていることね。冗談よ！大部分は",
+  "dialogue.idle.haley.low_hearts.town.2": "ぐぅ、みんなが凝視してくる視線を感じるわ。この町が一つのデカいゴシップ団体なのよ",
+  "dialogue.idle.haley.low_hearts.town.3": "ここの「ファッション」を見て。歴史の博物館みたい。でもオーバーオールが多い",
+  "dialogue.idle.haley.low_hearts.town.4": "もう一回あのつまんなファッションを見なきゃいけないなら、叫ぶわよ",
+  "dialogue.idle.haley.low_hearts.town.5": "ここで他にすることがあるなら…歩き回る？嫌？最高ね",
+
+  "dialogue.idle.haley.low_hearts.house.1": "私のおんぼろな家へようこそ。そのままの意味よ",
+  "dialogue.idle.haley.low_hearts.house.2": "エミリーの変なものは気にしないで。私はセージの香りを無視しようとしてるから",
+  "dialogue.idle.haley.low_hearts.house.3": "私の部屋がこの家で唯一の本物の流行がある場所よ",
+  "dialogue.idle.haley.low_hearts.house.4": "確か、またエミリーがカウチに裁縫道具を置き去りにしていたら…",
+  "dialogue.idle.haley.low_hearts.house.5": "ここはとても静かね。静かすぎる。都会のノイズが必要だわ",
+
+  "dialogue.attacking.haley.low_hearts.1": "私から離れて！このっ、キモイ！",
+  "dialogue.attacking.haley.low_hearts.2": "うぇ、ぇ、げぇ！シッシッ！",
+  "dialogue.attacking.haley.low_hearts.3": "私に触らないで！",
+  "dialogue.attacking.haley.low_hearts.4": "ウザい！何とかして！",
+  "dialogue.attacking.haley.low_hearts.5": "げぇ！ネバネバするんだけど！",
+
+  "dialogue.lumbering.haley.low_hearts.1": "私がオノを振るところを期待してる？ツ・メ！",
+  "dialogue.lumbering.haley.low_hearts.2": "肉体労働ね。したくないわ",
+  "dialogue.lumbering.haley.low_hearts.3": "木材くらい買わないの？店でよ？",
+  "dialogue.lumbering.haley.low_hearts.4": "クモがそこら中にいる！悪夢よ",
+  "dialogue.lumbering.haley.low_hearts.5": "OK、一回だけね。残りはアンタよ",
+
+  "dialogue.mining.haley.low_hearts.1": "これでタコを作りたく*ない*。知ってるでしょ",
+  "dialogue.mining.haley.low_hearts.2": "それで…これを打てと？ツルハシで？原始人っぽいわね",
+  "dialogue.mining.haley.low_hearts.3": "私のマニキュアがグチャグチャになりそう",
+  "dialogue.mining.haley.low_hearts.4": "なんで割れる寸前の石を売らないのよ？",
+  "dialogue.mining.haley.low_hearts.5": "虫が絶対いませんように。絶対…",
+
+  "dialogue.watering.haley.low_hearts.1": "植物に水やり。革新的ね",
+  "dialogue.watering.haley.low_hearts.2": "すごいわ。もう私の靴が泥だらけよ",
+  "dialogue.watering.haley.low_hearts.3": "それであなたはただ…土に水を注いでる。楽しいわけ？",
+  "dialogue.watering.haley.low_hearts.4": "長靴を履いてくるべきだったかも",
+  "dialogue.watering.haley.low_hearts.5": "まさに見た目通りのつまらなさね",
+
+  "dialogue.harvesting.haley.low_hearts.1": "これを素手で触らなきゃいけないわけ？冗談でしょ？",
+  "dialogue.harvesting.haley.low_hearts.2": "わかったわ。これは……粘り気がないようね。多分。取るわ",
+  "dialogue.harvesting.haley.low_hearts.3": "自分でできないの？あなた農家でしょ",
+  "dialogue.harvesting.haley.low_hearts.4": "多分虫がいるわね。いたら触らないわよ",
+  "dialogue.harvesting.haley.low_hearts.5": "うげぇ、いいわよ。でも手を洗う予定だからね。大体、一時間くらい",
+
+  "dialogue.foraging.haley.low_hearts.1": "これ、毒のあるツタか何かじゃないことわかる？",
+  "dialogue.foraging.haley.low_hearts.2": "これを私に拾ってほしいの？実際地面に落ちていたものを？嫌よ",
+  "dialogue.foraging.haley.low_hearts.3": "これ食べれるわけ？雑草に見えるわよ",
+  "dialogue.foraging.haley.low_hearts.4": "私の姉は多分この「天然」物を気に入るでしょうね。私は、どういうわけだか、好まないわ",
+  "dialogue.foraging.haley.low_hearts.5": "やらないわよ。毒がありそうだもの",
+
+  // ==========================================
+  // --- HIGH FRIENDSHIP (>= 6 HEARTS) ---友好度が6以上（ヘイリーだとちょうど砂浜ブレスレットのイベントが解放される付近）
+  // ==========================================
+
+  "dialogue.recruit.haley.high_hearts.1": "あなたと一緒に冒険？もちろん！楽しそうね。素晴らしい写真を撮りましょ！",
+  "dialogue.recruit.haley.high_hearts.2": "あなたが誘ってくれないかなと思っていたの！私の予定は開けたわ。さぁ、連れてって！",
+  "dialogue.recruit.haley.high_hearts.3": "うん！あなたと一緒に行きたいわ。今日はどんな予定？",
+  "dialogue.recruit.haley.high_hearts.4": "もちろんよ！いつだって一緒にいた方がいいもの。",
+  "dialogue.recruit.haley.high_hearts.5": "どこへでも付いていくわ。思い出を作りに出かけましょう！",
+
+  "dialogue.dismiss.haley.high_hearts.1": "わかったわ！楽しかったわね。いつかまたこれをやりましょうね。わかった？",
+  "dialogue.dismiss.haley.high_hearts.2": "了解、帰るわ。私を誘ってくれてありがとう！",
+  "dialogue.dismiss.haley.high_hearts.3": "あなたと一緒に過ごせてとても良かったわ。また後で話しましょうね！",
+  "dialogue.dismiss.haley.high_hearts.4": "多分今すぐ行くべきね。とても素敵な一日だったわ！",
+  "dialogue.dismiss.haley.high_hearts.5": "わかったわ、気を付けてね！あなたが家に着いたら知らせてね。",
+
+  "dialogue.idle.haley.high_hearts.generic.1": "とても素敵な時間を私は過ごしてるの。わかる？ただあなたといるだけでよ",
+  "dialogue.idle.haley.high_hearts.generic.2": "家にいるだけよりもすごく楽しい方法だわ",
+  "dialogue.idle.haley.high_hearts.generic.3": "ちょうど今の光はとてもいいわね。笑って！",
+  "dialogue.idle.haley.high_hearts.generic.4": "昔はこの町が退屈だなって思ってたけど、あなたのおかげでワクワクするものに変わったわ",
+  "dialogue.idle.haley.high_hearts.generic.5": "私たちが次にするものが何であろうと、きっと素晴らしいものになるわよ",
+
+  "dialogue.idle.haley.high_hearts.farm.1": "本当の本当にここの外は素敵だわ。光が写真に完璧",
+  "dialogue.idle.haley.high_hearts.farm.2": "あなたの動物たちはとてもかわいいわね！写真を一枚撮ってもいい？",
+  "dialogue.idle.haley.high_hearts.farm.3": "この場所で一生懸命働いているのね。それが本当に表れてるわ",
+  "dialogue.idle.haley.high_hearts.farm.4": "空気はとても新鮮に感じるし、隅々までキレイ。素敵ね",
+  "dialogue.idle.haley.high_hearts.farm.5": "あなたの植えた花たちを見るのが大好きなの。こんなに素敵な色をしている",
+
+  "dialogue.idle.haley.high_hearts.mines.1": "ちょっと不気味ね。でもあなたと一緒なら怖くないわ。キラキラ光る宝石を見付けましょ！",
+  "dialogue.idle.haley.high_hearts.mines.2": "壁に反射するタイマツの明かり、なんだか美しいわね？",
+  "dialogue.idle.haley.high_hearts.mines.3": "近くにいて！モンスターを見張ってるから",
+  "dialogue.idle.haley.high_hearts.mines.4": "私たちはアメジストを見付けるかしら？それ、エミリーが大好きなの",
+  "dialogue.idle.haley.high_hearts.mines.5": "私が思ってた以上にスリル満点ね！",
+
+  "dialogue.idle.haley.high_hearts.volcano.1": "ワオ、暑いわね！でも全部素晴らしい色合いをしているわ。写真家の夢そのものよ！",
+  "dialogue.idle.haley.high_hearts.volcano.2": "マグマの近くでは気を付けて！あなたに火傷してほしくないもの",
+  "dialogue.idle.haley.high_hearts.volcano.3": "私が今まで見た中で最もエキゾチックだわ。すごいわよね！",
+  "dialogue.idle.haley.high_hearts.volcano.4": "今まで一人でここに来るだけの勇気を持てなかった。連れて来てくれてありがとう",
+  "dialogue.idle.haley.high_hearts.volcano.5": "この旅行で撮れる写真は伝説になるわよ！",
+
+  "dialogue.idle.haley.high_hearts.town.1": "町を歩いてみんなに挨拶するのは良いわね。今じゃすっかりみんなを知ってるわ！",
+  "dialogue.idle.haley.high_hearts.town.2": "本当、この町の花壇は可愛らしいわね。エヴリンさんがよく面倒を見ているのよ",
+  "dialogue.idle.haley.high_hearts.town.3": "時々、川の傍で座りたくなるわ。とても穏やかになるし、素晴らしい写真も撮れるわ",
+  "dialogue.idle.haley.high_hearts.town.4": "あのね、この小さな町はある魅力を持っているわ。ここの人がそれを好きな理由がわかったの。",
+  "dialogue.idle.haley.high_hearts.town.5": "多分アレックスに会うわね。彼はいつもここで練習しているのよ。自分のグリッドボールで",
+
+  "dialogue.idle.haley.high_hearts.house.1": "ちょっとだけ家にいるのはいいわね。落ち着くでしょ？",
+  "dialogue.idle.haley.high_hearts.house.2": "暗室にいたところだったわ。素晴らしく美しい一枚を本当に撮れた気がするの",
+  "dialogue.idle.haley.high_hearts.house.3": "時々エミリーの水晶コレクションが良い感じに光をつかむの。意外と、なんか心地良いわ",
+  "dialogue.idle.haley.high_hearts.house.4": "この場所にはたくさんの思い出があるの。ほとんどは良いものよ",
+  "dialogue.idle.haley.high_hearts.house.5": "多分あとでエミリーの片付けに協力すべきね、私。何しろ私たちの家なのだから",
+
+  "dialogue.attacking.haley.high_hearts.1": "心配しないで、助けるわ！後ろにいて！",
+  "dialogue.attacking.haley.high_hearts.2": "背中を守るわ！やぁ！",
+  "dialogue.attacking.haley.high_hearts.3": "私の友達に近付かないで！",
+  "dialogue.attacking.haley.high_hearts.4": "私たちならできるわ！一緒に！",
+  "dialogue.attacking.haley.high_hearts.5": "アンタ、たかが農家と写真家だと…見誤ったわね！", //原文だと "You messed with the wrong farmer... and photographer! (あなたは間違った/狂った/不適切な農家と写真家にケンカを始めた/深入りした)" 大体バトル漫画風にこれがわかるように意訳した。
+
+  "dialogue.lumbering.haley.high_hearts.1": "チームワークよ！この辺りをキレイにしましょ。驚くほど良い運動になるわ",
+  "dialogue.lumbering.haley.high_hearts.2": "ほら、手伝えるわよ。一振りさせて！",
+  "dialogue.lumbering.haley.high_hearts.3": "気を付けて！",
+  "dialogue.lumbering.haley.high_hearts.4": "私たち二人でやれば早く済むわ",
+  "dialogue.lumbering.haley.high_hearts.5": "あなたの農場にもっと木を。せめて私にやらせてちょうだい",
+
+  "dialogue.mining.haley.high_hearts.1": "多分私たちは良い水晶を見付けられるかも！",
+  "dialogue.mining.haley.high_hearts.2": "これを叩いて中身を開けましょ。ジオードが入ってるかも！",
+  "dialogue.mining.haley.high_hearts.3": "ねっ、見た目より強いでしょ？",
+  "dialogue.mining.haley.high_hearts.4": "これくらいできるわ。あなたは体力を温存して",
+  "dialogue.mining.haley.high_hearts.5": "意外とこれ、なんか楽しいわ！",
+
+  "dialogue.watering.haley.high_hearts.1": "ほら、手伝わせてよ。あなたの農場にあるものは全部、とても素敵ね",
+  "dialogue.watering.haley.high_hearts.2": "植物たちはとても喜びそうだわ！彼らは大きく強く育つでしょうね",
+  "dialogue.watering.haley.high_hearts.3": "手伝うと良い気分になるわね。あなたの農場がとても美しくなっていくわ。",
+  "dialogue.watering.haley.high_hearts.4": "手はたくさんあった方が仕事が楽になる、でしょ？",
+  "dialogue.watering.haley.high_hearts.5": "見て！十分に水をやり終えたわ",
+
+  "dialogue.harvesting.haley.high_hearts.1": "これを見て！完璧よ。とても鮮やかな色をしているわね",
+  "dialogue.harvesting.haley.high_hearts.2": "私が思ってた以上に、すごく楽しいものね",
+  "dialogue.harvesting.haley.high_hearts.3": "今夜の夕食をすごいものにしてくれそう。新鮮なフルーツと野菜は素晴らしいわ",
+  "dialogue.harvesting.haley.high_hearts.4": "こんな風にあなたの大変な仕事が全部報われてるのを見るのは良いわね",
+  "dialogue.harvesting.haley.high_hearts.5": "ほら、あなたの為に一つ取ったわ。良いチームになるわね！",
+
+  "dialogue.foraging.haley.high_hearts.1": "おぉ、かなり良いわね！この色を見て",
+  "dialogue.foraging.haley.high_hearts.2": "ちょっとここで宝探しをしているようね。楽しいわ！",
+  "dialogue.foraging.haley.high_hearts.3": "これはとても良いわね。私たちが拾う前に写真を撮りたいな…",
+  "dialogue.foraging.haley.high_hearts.4": "自然にあるものを見付けることは意外と、なんだかリラックスするわね",
+  "dialogue.foraging.haley.high_hearts.5": "抜け目ないわね！もう少しで見逃すところだったわ"
+}

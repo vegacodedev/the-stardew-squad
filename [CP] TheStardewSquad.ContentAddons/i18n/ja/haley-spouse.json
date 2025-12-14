@@ -1,0 +1,73 @@
+{
+  "dialogue.recruit.haley.spouse.1": "冒険？すっごい良いタイミング！今日新しい写真のインスピレーションを探していたところだったの。",
+  "dialogue.recruit.haley.spouse.2": "もちろんよ、ハニー。家の外に出て世界を見ることは大切よ。",
+  "dialogue.recruit.haley.spouse.3": "えぇ！行きましょう。外で撮りたかった新しいレンズを買ったところなの。", //原文だと "I just got a new lens" ヘイリーの周囲でカメラ仲間がいないため、「手に入れた（譲り受けた含む）」ではなく「購入した」の文脈で翻訳。また、ヘイリーの新しいものを購入してすぐに試したかったショッピング癖が転化されていることも示したかった意図もある。
+  "dialogue.recruit.haley.spouse.4": "あなたと一緒ならどこだって行くわ。",
+  "dialogue.recruit.haley.spouse.5": "えぇ！今日は一緒に出掛けられるかなって思ってたの。",
+
+  "dialogue.dismiss.haley.spouse.1": "わかったわ、ハニー。帰るわね。挑戦してみたい新しいケーキのレシピがあるのよ！",
+  "dialogue.dismiss.haley.spouse.2": "わかったわ、{{endearment}}。今日撮った写真の現像をしてくるわ。どうなっているのかを見るのが楽しみだわ！", //原文だと "Can't wait to see how they turned out!" フィルム式（アナログ）カメラの場合、一度撮ったものは現像するまで写真に撮ったものはどのように撮られているのか――写真の仕上がりがわからない。そのため、このように意訳した。
+  "dialogue.dismiss.haley.spouse.3": "それじゃぁ夕食の準備をしてくるわ。気を付けてね！",
+  "dialogue.dismiss.haley.spouse.4": "いつ帰るか教えてね。愛してるわ！",
+  "dialogue.dismiss.haley.spouse.5": "それで大丈夫？じゃぁ、自宅でまた会いましょう。",
+
+  "dialogue.idle.haley.spouse.generic.1": "私たちはポートレート用のちょっとした屋外スタジオを構えるべきだったかも。ここの自然の光は素晴らしいわ",
+  "dialogue.idle.haley.spouse.generic.2": "こんな外へあなたと出ていると頭がすっきりするわ。様々なレンズを通して世界を見せてくれる…とも言えるわね",
+  "dialogue.idle.haley.spouse.generic.3": "景色を楽しんでいるところ……あなたが一番の見所ね",
+  "dialogue.idle.haley.spouse.generic.4": "あなたと結婚できてとても嬉しいわ、{{endearment}}。あなたといて飽きることがないわ",
+  "dialogue.idle.haley.spouse.generic.5": "この瞬間を思い出すために私たちは写真を一枚撮るべきかしら？",
+
+  "dialogue.idle.haley.spouse.farm.1": "正午の太陽があぁした葉に光を当てる角度は……最高のシャッターチャンスなの",
+  "dialogue.idle.haley.spouse.farm.2": "私たちの農場は谷一番の美しい場所ね。",
+  "dialogue.idle.haley.spouse.farm.3": "あなたの動物たちはとっても個性的ね。彼らをテーマにした写真集を組めたらなぁ",
+  "dialogue.idle.haley.spouse.farm.4": "この景色を見ていると、私の人生がどれだけ良く変わったかを思い出させてくれるわ",
+  "dialogue.idle.haley.spouse.farm.5": "ここには幸福と成長、繁栄が詰まってるわね。まるで私たちみたいに",
+
+  "dialogue.idle.haley.spouse.mines.1": "私たちの最初のデートの一つっぽいわね？でも今じゃ私は冷静に対処する方法を心得てるわ",
+  "dialogue.idle.haley.spouse.mines.2": "あなたと一緒にいて安全に感じるわ。私たちなら何でもできるわ",
+  "dialogue.idle.haley.spouse.mines.3": "水晶のきらめき方は色んな撮り方を教えてくれるわ", //原文だと "The way the light glints off these crystals gives me ideas for my photography." 一瞬で意味を理解する字数の都合上、短く短縮した翻訳にした。
+  "dialogue.idle.haley.spouse.mines.4": "この場所で私が怖がったことを思い出す？今じゃ恥ずかしいわね",
+  "dialogue.idle.haley.spouse.mines.5": "私たちのちょっとしたお宝ハントね。大好きよ",
+
+  "dialogue.idle.haley.spouse.house.1": "ここへ戻ってくるのはおかしく感じるわね。昔はこの場所を小さくて窮屈だと感じてたの",
+  "dialogue.idle.haley.spouse.house.2": "ここにいる間に私はエミリーを確認するべきね。彼女が自分の植物への水やりを覚えてるといいんだけど。",
+  "dialogue.idle.haley.spouse.house.3": "私たちの家はとても、かなり素敵よ。でも、ここは変わらずちょっと特別なままかも。",
+  "dialogue.idle.haley.spouse.house.4": "私の昔の部屋を見ると……すっごく成長したじゃない？私を誇りに思うわ", //原文だと "I'm glad I did." 直訳すると「私は私が成長したことが嬉しい」ここまでの流れで「自分の成長を嬉しく思う」を「誇りに思う」と訳しても通じると考えることから、こう訳した。
+  "dialogue.idle.haley.spouse.house.5": "私の両親に挨拶しましょ。あっ、待って…まだ旅行中だったわ。時々忘れるのよね",
+
+  "dialogue.attacking.haley.spouse.1": "ちょっと！私の{{endearment}}から離れて！", //原文だと "spouse" だが日本語だとしっくりこないため、{{endearment}}で代用した。この文脈だと spouse＝endearment が機能してしっくりくる（はず）
+  "dialogue.attacking.haley.spouse.2": "私は見た目より強いわよ。この野郎！", //原文だと "you monster!" だが日本語では伝わりにくいので「この野郎」と荒っぽい言葉で訳した。
+  "dialogue.attacking.haley.spouse.3": "やめなさい！", //原文だと "Don't you DARE!" 同じ意味だが大文字強調を再現できにくかったため、掲載。
+  "dialogue.attacking.haley.spouse.4": "守るわ！当然！",
+  "dialogue.attacking.haley.spouse.5": "最初に私を狙うべきね！",
+
+  "dialogue.lumbering.haley.spouse.1": "私たちはこんなに良いチームよ。すぐに終わらせられるわ",
+  "dialogue.lumbering.haley.spouse.2": "私にそれを取らせて、ハニー。重いカメラを持ち続けるために腕を鍛えさせて！",
+  "dialogue.lumbering.haley.spouse.3": "私たちを見て、私たちの世界のために一緒に働いているのよ。完璧",
+  "dialogue.lumbering.haley.spouse.4": "家を温かくさせるためにたくさんの木材を。良い考えだわ",
+  "dialogue.lumbering.haley.spouse.5": "ちょっと気を付けて！やりすぎちゃダメ",
+
+  "dialogue.mining.haley.spouse.1": "私がこれをやるわ！あなたを観察してたくさんのことを学んだの",
+  "dialogue.mining.haley.spouse.2": "私たちってパワーカップルじゃない？", //原文まま。日本語でも伝わる。
+  "dialogue.mining.haley.spouse.3": "わぁ、ダイアモンドが入ってるといいな！すばらしい写真の被写体になるの", //原文だと "It would make a great subject for a still-life photo." 意訳。
+  "dialogue.mining.haley.spouse.4": "なんだってあなたの役に立つわ、私のダーリン",
+  "dialogue.mining.haley.spouse.5": "あともうちょっとであなたの欲しがった新しい通り道を作れるわ", //意訳。大体こういう意味かも。
+
+  "dialogue.watering.haley.spouse.1": "水やりがかなり上手くなったわ！やっぱ私って才能あるかも", //原文だと "Maybe I have a green thumb after all." 緑の親指は植物才能がある人を指す熟語っぽいもので、あまり日本語で浸透していない言い方だから「才能」と訳した。前後の文脈で「緑の親指」に近いことを指すってわかると思う。
+  "dialogue.watering.haley.spouse.2": "私たちの住まいを美しくする手伝いがしたいの",
+  "dialogue.watering.haley.spouse.3": "幸せな農場には堅実な計画を、幸せな農場は写真の最高な背景に！",
+  "dialogue.watering.haley.spouse.4": "私の次のケーキに使う新鮮な材料が今ここに！",
+  "dialogue.watering.haley.spouse.5": "とっても幸せだわ！あなたと共にこの人生を送ってる",
+
+  "dialogue.harvesting.haley.spouse.1": "私たちの農場からの恵みよ！私たちが築き上げたものをとても誇りに思うわ、{{endearment}}",
+  "dialogue.harvesting.haley.spouse.2": "私のケーキ用に取っておくわ。私たちの新鮮な材料にだけ！",
+  "dialogue.harvesting.haley.spouse.3": "この完璧な実りを見て",
+  "dialogue.harvesting.haley.spouse.4": "あなたと収穫することは、私の大好きなことの一つなの",
+  "dialogue.harvesting.haley.spouse.5": "これらを集めましょう。今晩は何を作ろうかもう考えているの",
+
+  "dialogue.foraging.haley.spouse.1": "自然からのささやかな贈り物ね、私たちだけの",
+  "dialogue.foraging.haley.spouse.2": "この静かな瞬間が大好きだわ。あなたと一緒に歩いて宝物を見付ける",
+  "dialogue.foraging.haley.spouse.3": "あら、これは完璧ね！家の花瓶にとても合いそう",
+  "dialogue.foraging.haley.spouse.4": "見て、{{endearment}}!谷からのささやかな贈り物よ。散歩する私たちへのオヤツかしら？",
+  "dialogue.foraging.haley.spouse.5": "あなたと一緒に見ていると、あらゆることがもっと美しく見えるわ"
+}

@@ -1,0 +1,91 @@
+{
+  "dialogue.recruit.harvey.spouse.1": "Of course, my love. Wherever you go, I'll be right there with you.",
+  "dialogue.recruit.harvey.spouse.2": "Ready for an adventure, honey? Let's go. Just... be careful, okay?",
+  "dialogue.recruit.harvey.spouse.3": "Anything for you, dear. I'll just grab my bag. You never know when a little first aid might be needed.",
+  "dialogue.recruit.harvey.spouse.4": "Working together? It sounds wonderful. I'm ready when you are.",
+  "dialogue.recruit.harvey.spouse.5": "I was hoping you'd ask! Spending the day with you is the best prescription for happiness.",
+
+  "dialogue.dismiss.harvey.spouse.1": "Alright, sweetheart. I'll see you back at home. Don't be out too late.",
+  "dialogue.dismiss.harvey.spouse.2": "Was that everything, dear? I'll head back. I love you.",
+  "dialogue.dismiss.harvey.spouse.3": "I'll miss you! Come home safe, okay?",
+  "dialogue.dismiss.harvey.spouse.4": "Okay, my love. I'll probably tidy up the house a bit. See you soon.",
+  "dialogue.dismiss.harvey.spouse.5": "It was wonderful working with you, as always. I'll be waiting for you at home.",
+
+  "dialogue.idle.harvey.spouse.generic.1": "The weather today is perfect for flying. It reminds me of the model plane I'm building.",
+  "dialogue.idle.harvey.spouse.generic.2": "Did you remember to eat breakfast, dear? It's the most important meal of the day, you know.",
+  "dialogue.idle.harvey.spouse.generic.3": "I was just thinking... I'm so glad I married you. Every day is a new adventure.",
+  "dialogue.idle.harvey.spouse.generic.4": "Maybe later we can listen to some of my jazz records? It would be a perfect end to the day.",
+  "dialogue.idle.harvey.spouse.generic.5": "I was up late trying to catch a signal from a distant station on my radio.",
+
+  "dialogue.idle.harvey.spouse.farm.1": "Our farm is such a beautiful place. It's our own little slice of paradise.",
+  "dialogue.idle.harvey.spouse.farm.2": "You work so hard, my love. Remember to take breaks and don't push yourself too much.",
+  "dialogue.idle.harvey.spouse.farm.3": "The open space on the farm always makes me think about aerodynamics. It's so different from the enclosed spaces of the clinic.",
+  "dialogue.idle.harvey.spouse.farm.4": "I love the smell of the fresh soil and the warm sun. It's much better than the sterile scent of the clinic.",
+  "dialogue.idle.harvey.spouse.farm.5": "Every little plant here is a testament to your care and dedication.",
+
+  "dialogue.idle.harvey.spouse.mines.1": "Please be extra careful in here, sweetheart. I worry about you in these dangerous places.",
+  "dialogue.idle.harvey.spouse.mines.2": "Hold my hand, okay? It's a bit spooky in here, but I'm not scared as long as we're together.",
+  "dialogue.idle.harvey.spouse.mines.3": "Promise me you won't take any unnecessary risks. My heart couldn't take it if you got hurt.",
+  "dialogue.idle.harvey.spouse.mines.4": "Even in the darkest places, you're my light. Cheesy, I know, but it's true.",
+  "dialogue.idle.harvey.spouse.mines.5": "Let's find what we need and get back to the sunshine. I'll feel much better when you're safe.",
+
+  "dialogue.idle.harvey.spouse.house.1": "Home sweet home. And it's only 'home' because you're here.",
+  "dialogue.idle.harvey.spouse.house.2": "Is there anything I can get for you, dear? A cup of coffee? A check-up?",
+  "dialogue.idle.harvey.spouse.house.3": "I love these quiet moments with you. Just relaxing in the house we've made a home.",
+  "dialogue.idle.harvey.spouse.house.4": "You look a little tired, honey. Are you getting enough rest?",
+  "dialogue.idle.harvey.spouse.house.5": "This is nice. Just relaxing at home with you is the perfect way to unwind after a long day.",
+
+  "dialogue.attacking.harvey.spouse.1": "Stay back, my love! I won't let anything hurt you!",
+  "dialogue.attacking.harvey.spouse.2": "We're a team! We can handle this together!",
+  "dialogue.attacking.harvey.spouse.3": "Watch it! Darling, are you okay?",
+  "dialogue.attacking.harvey.spouse.4": "I'm right here! Don't you worry!",
+  "dialogue.attacking.harvey.spouse.5": "My heart is racing! Not in a good way! Let's finish this quickly!",
+
+  "dialogue.lumbering.harvey.spouse.1": "You're so strong, my love. It's very impressive.",
+  "dialogue.lumbering.harvey.spouse.2": "Let me help you with that. We can do it faster together.",
+  "dialogue.lumbering.harvey.spouse.3": "This is good exercise, but be mindful of your back, okay?",
+  "dialogue.lumbering.harvey.spouse.4": "Working side-by-side with you... it's the best.",
+  "dialogue.lumbering.harvey.spouse.5": "I love how capable you are. You can do anything you set your mind to.",
+
+  "dialogue.mining.harvey.spouse.1": "What a find, sweetheart! You have a knack for this.",
+  "dialogue.mining.harvey.spouse.2": "This is much more fun when I'm with you. Even the dust doesn't bother me.",
+  "dialogue.mining.harvey.spouse.3": "I'll keep watch. You just focus on finding those gems.",
+  "dialogue.mining.harvey.spouse.4": "Our own treasure hunt! What do you say we do with our findings?",
+  "dialogue.mining.harvey.spouse.5": "Just being with you makes even a dark cave feel bright.",
+
+  "dialogue.watering.harvey.spouse.1": "Here, let me get that. You do so much already.",
+  "dialogue.watering.harvey.spouse.2": "This one seems thirsty.",
+  "dialogue.watering.harvey.spouse.3": "Everything seems to grow better with you around. You have a magic touch.",
+  "dialogue.watering.harvey.spouse.4": "It's the simple things, like this, that I cherish the most.",
+  "dialogue.watering.harvey.spouse.5": "Just like these plants, my love for you grows every day.",
+
+  "dialogue.harvesting.harvey.spouse.1": "Look at this bounty!",
+  "dialogue.harvesting.harvey.spouse.2": "You've created such an amazing farm.",
+  "dialogue.harvesting.harvey.spouse.3": "What delicious meal should we make with all this?",
+  "dialogue.harvesting.harvey.spouse.4": "This is wonderful! Fresh, healthy food, grown with love.",
+  "dialogue.harvesting.harvey.spouse.5": "Harvesting with you is the perfect reward after a long season.",
+
+  "dialogue.foraging.harvey.spouse.1": "What have you found, dear? You always spot the best things.",
+  "dialogue.foraging.harvey.spouse.2": "A walk with my favorite person. It doesn't get any better than this.",
+  "dialogue.foraging.harvey.spouse.3": "This is lovely. Just you, me, and the sounds of nature.",
+  "dialogue.foraging.harvey.spouse.4": "Let's see what we can find for dinner tonight. Something special, I think.",
+  "dialogue.foraging.harvey.spouse.5": "Some of these herbs have interesting medicinal properties. It's always good to know what's growing nearby.",
+
+  "dialogue.fishing_waiting.harvey.spouse.1": "Just the two of us and nature. I couldn't ask for a better afternoon, my dear.",
+  "dialogue.fishing_waiting.harvey.spouse.2": "You know, fishing with you has become one of my favorite things.",
+  "dialogue.fishing_waiting.harvey.spouse.3": "Whether we catch anything or not, I'm just happy to be here with you.",
+  "dialogue.fishing_waiting.harvey.spouse.4": "After a long week at the clinic, this is exactly what I needed. Thank you, {{endearment}}.",
+  "dialogue.fishing_waiting.harvey.spouse.5": "Every moment with you is a gift. Even the quiet ones.",
+
+  "dialogue.fishing_caught.harvey.spouse.1": "Yes! I caught one, {{endearment}}!",
+  "dialogue.fishing_caught.harvey.spouse.2": "What a catch! This will make a wonderful meal for us, my dear!",
+  "dialogue.fishing_caught.harvey.spouse.3": "I got it! Our dinner is going to be delicious tonight.",
+  "dialogue.fishing_caught.harvey.spouse.4": "Success! I hope I made you proud with that catch!",
+  "dialogue.fishing_caught.harvey.spouse.5": "Another one! Fishing with you brings me such joy.",
+
+  "dialogue.petting.harvey.spouse.1": "Taking care of the animals together... it's one of the simple joys of our life.",
+  "dialogue.petting.harvey.spouse.2": "They trust us completely. It's a beautiful responsibility we share.",
+  "dialogue.petting.harvey.spouse.3": "You've taught me so much about caring for these creatures, {{endearment}}.",
+  "dialogue.petting.harvey.spouse.4": "Our little family keeps growing, doesn't it? I love it.",
+  "dialogue.petting.harvey.spouse.5": "Watching you with the animals reminds me why I fell in love with you."
+}

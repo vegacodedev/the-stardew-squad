@@ -1,0 +1,850 @@
+{
+  "Changes": [
+    {
+      "Action": "EditData",
+      "Target": "ThaliaFawnheart.TheStardewSquad/NpcConfig",
+      "Entries": {
+        // ===================================
+        // Generic Defaults
+        // ===================================
+        // The "Generic" key defines default dialogue and sprites for ALL NPCs.
+        // Individual NPCs will use these defaults unless they have specific overrides.
+        "Generic": {
+          "Sprites": {
+            // Generic sprite animations using NPC's base sprite sheet
+            // Walk frame (baseFrame) for 400ms, then idle frame (baseFrame-1) for 400ms
+            "Attacking": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 400,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            "Mining": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 400,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            "Watering": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 400,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            "Lumbering": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 400,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            "Harvesting": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 400,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            "Foraging": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 400,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            "Petting": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 400,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            "Fishing": {
+              "FramesByDirection": {
+                "Down": [0, 1],
+                "Right": [4, 5],
+                "Up": [8, 9],
+                "Left": [12, 13]
+              },
+              "FrameDuration": 600,
+              "Loop": true,
+              "FallbackFrame": 0
+            },
+            "Sitting": {
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [4],
+                "Up": [8],
+                "Left": [12]
+              },
+              "FrameDuration": 800,
+              "Loop": true,
+              "FallbackFrame": 0
+            }
+          },
+          "Dialogue": {
+            // Recruit dialogue - exclusive spouse/non-spouse
+            "Recruit": [
+              // Spouse only (when married)
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 600 2199",
+                "Lines": [
+                  "{{i18n:dialogue.recruit.spouse.generic.1}}",
+                  "{{i18n:dialogue.recruit.spouse.generic.2}}",
+                  "{{i18n:dialogue.recruit.spouse.generic.3}}",
+                  "{{i18n:dialogue.recruit.spouse.generic.4}}",
+                  "{{i18n:dialogue.recruit.spouse.generic.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 2200 2999",
+                "Lines": ["{{i18n:dialogue.recruit.spouse.generic.night.1}}"]
+              },
+              // Non-spouse only (when not married)
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 600 2199",
+                "Lines": [
+                  "{{i18n:dialogue.recruit.generic.1}}",
+                  "{{i18n:dialogue.recruit.generic.2}}",
+                  "{{i18n:dialogue.recruit.generic.3}}",
+                  "{{i18n:dialogue.recruit.generic.4}}",
+                  "{{i18n:dialogue.recruit.generic.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 2200 2999",
+                "Lines": [
+                  "{{i18n:dialogue.recruit.generic.night.1}}",
+                  "{{i18n:dialogue.recruit.generic.night.2}}"
+                ]
+              }
+            ],
+
+            // Dismiss dialogue - exclusive spouse/non-spouse
+            "Dismiss": [
+              // Spouse only (when married)
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 600 2199",
+                "Lines": [
+                  "{{i18n:dialogue.dismiss.spouse.generic.1}}",
+                  "{{i18n:dialogue.dismiss.spouse.generic.2}}",
+                  "{{i18n:dialogue.dismiss.spouse.generic.3}}",
+                  "{{i18n:dialogue.dismiss.spouse.generic.4}}",
+                  "{{i18n:dialogue.dismiss.spouse.generic.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 2200 2999",
+                "Lines": ["{{i18n:dialogue.dismiss.spouse.generic.night.1}}"]
+              },
+              // Non-spouse only (when not married)
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 600 2199",
+                "Lines": [
+                  "{{i18n:dialogue.dismiss.generic.1}}",
+                  "{{i18n:dialogue.dismiss.generic.2}}",
+                  "{{i18n:dialogue.dismiss.generic.3}}",
+                  "{{i18n:dialogue.dismiss.generic.4}}",
+                  "{{i18n:dialogue.dismiss.generic.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 2200 2999",
+                "Lines": [
+                  "{{i18n:dialogue.dismiss.generic.night.1}}",
+                  "{{i18n:dialogue.dismiss.generic.night.2}}"
+                ]
+              }
+            ],
+
+            // Generic idle dialogue
+            "Idle": [
+              // Spouse generic idle
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 600 2199",
+                "Lines": [
+                  "{{i18n:dialogue.idle.spouse.generic.generic.1}}",
+                  "{{i18n:dialogue.idle.spouse.generic.generic.2}}",
+                  "{{i18n:dialogue.idle.spouse.generic.generic.3}}",
+                  "{{i18n:dialogue.idle.spouse.generic.generic.4}}",
+                  "{{i18n:dialogue.idle.spouse.generic.generic.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 2200 2999",
+                "Lines": [
+                  "{{i18n:dialogue.idle.spouse.generic.generic.night.1}}",
+                  "{{i18n:dialogue.idle.spouse.generic.generic.night.2}}"
+                ]
+              },
+              // Generic villager idle
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 600 2199",
+                "Lines": [
+                  "{{i18n:dialogue.idle.generic.generic.1}}",
+                  "{{i18n:dialogue.idle.generic.generic.2}}",
+                  "{{i18n:dialogue.idle.generic.generic.3}}",
+                  "{{i18n:dialogue.idle.generic.generic.4}}",
+                  "{{i18n:dialogue.idle.generic.generic.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married, TIME 2200 2999",
+                "Lines": [
+                  "{{i18n:dialogue.idle.generic.generic.night.1}}",
+                  "{{i18n:dialogue.idle.generic.generic.night.2}}",
+                  "{{i18n:dialogue.idle.generic.generic.night.3}}"
+                ]
+              },
+              // Location-specific idle
+              {
+                "Condition": "LOCATION_NAME Target Farm",
+                "Lines": [
+                  "{{i18n:dialogue.idle.generic.Farm.1}}",
+                  "{{i18n:dialogue.idle.generic.Farm.2}}",
+                  "{{i18n:dialogue.idle.generic.Farm.3}}",
+                  "{{i18n:dialogue.idle.generic.Farm.4}}",
+                  "{{i18n:dialogue.idle.generic.Farm.5}}"
+                ]
+              },
+              {
+                "Condition": "LOCATION_NAME Target MineShaft",
+                "Lines": [
+                  "{{i18n:dialogue.idle.generic.MineShaft.1}}",
+                  "{{i18n:dialogue.idle.generic.MineShaft.2}}",
+                  "{{i18n:dialogue.idle.generic.MineShaft.3}}",
+                  "{{i18n:dialogue.idle.generic.MineShaft.4}}",
+                  "{{i18n:dialogue.idle.generic.MineShaft.5}}"
+                ]
+              },
+              {
+                "Condition": "LOCATION_NAME Target VolcanoDungeon",
+                "Lines": [
+                  "{{i18n:dialogue.idle.generic.VolcanoDungeon.1}}",
+                  "{{i18n:dialogue.idle.generic.VolcanoDungeon.2}}",
+                  "{{i18n:dialogue.idle.generic.VolcanoDungeon.3}}",
+                  "{{i18n:dialogue.idle.generic.VolcanoDungeon.4}}",
+                  "{{i18n:dialogue.idle.generic.VolcanoDungeon.5}}"
+                ]
+              }
+            ],
+
+            // Generic attacking dialogue
+            "Attacking": [
+              // Spouse attacking
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.attacking.spouse.generic.generic.1}}",
+                  "{{i18n:dialogue.attacking.spouse.generic.generic.2}}",
+                  "{{i18n:dialogue.attacking.spouse.generic.generic.3}}",
+                  "{{i18n:dialogue.attacking.spouse.generic.generic.4}}",
+                  "{{i18n:dialogue.attacking.spouse.generic.generic.5}}"
+                ]
+              },
+              // Generic villager attacking
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.attacking.generic.generic.1}}",
+                  "{{i18n:dialogue.attacking.generic.generic.2}}",
+                  "{{i18n:dialogue.attacking.generic.generic.3}}",
+                  "{{i18n:dialogue.attacking.generic.generic.4}}",
+                  "{{i18n:dialogue.attacking.generic.generic.5}}"
+                ]
+              },
+              // Location-specific attacking
+              {
+                "Condition": "LOCATION_NAME Target MineShaft",
+                "Lines": [
+                  "{{i18n:dialogue.attacking.generic.MineShaft.1}}",
+                  "{{i18n:dialogue.attacking.generic.MineShaft.2}}",
+                  "{{i18n:dialogue.attacking.generic.MineShaft.3}}",
+                  "{{i18n:dialogue.attacking.generic.MineShaft.4}}",
+                  "{{i18n:dialogue.attacking.generic.MineShaft.5}}"
+                ]
+              }
+            ],
+
+            // Generic watering dialogue
+            "Watering": [
+              // Spouse watering
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.watering.spouse.generic.generic.1}}",
+                  "{{i18n:dialogue.watering.spouse.generic.generic.2}}",
+                  "{{i18n:dialogue.watering.spouse.generic.generic.3}}",
+                  "{{i18n:dialogue.watering.spouse.generic.generic.4}}",
+                  "{{i18n:dialogue.watering.spouse.generic.generic.5}}"
+                ]
+              },
+              // Generic villager watering
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.watering.generic.generic.1}}",
+                  "{{i18n:dialogue.watering.generic.generic.2}}",
+                  "{{i18n:dialogue.watering.generic.generic.3}}",
+                  "{{i18n:dialogue.watering.generic.generic.4}}",
+                  "{{i18n:dialogue.watering.generic.generic.5}}"
+                ]
+              },
+              // Location-specific watering
+              {
+                "Condition": "LOCATION_NAME Target Farm",
+                "Lines": [
+                  "{{i18n:dialogue.watering.generic.Farm.1}}",
+                  "{{i18n:dialogue.watering.generic.Farm.2}}",
+                  "{{i18n:dialogue.watering.generic.Farm.3}}",
+                  "{{i18n:dialogue.watering.generic.Farm.4}}",
+                  "{{i18n:dialogue.watering.generic.Farm.5}}"
+                ]
+              }
+            ],
+
+            // Generic lumbering dialogue
+            "Lumbering": [
+              // Spouse lumbering
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.lumbering.spouse.generic.generic.1}}",
+                  "{{i18n:dialogue.lumbering.spouse.generic.generic.2}}",
+                  "{{i18n:dialogue.lumbering.spouse.generic.generic.3}}",
+                  "{{i18n:dialogue.lumbering.spouse.generic.generic.4}}",
+                  "{{i18n:dialogue.lumbering.spouse.generic.generic.5}}"
+                ]
+              },
+              // Generic villager lumbering
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.lumbering.generic.generic.1}}",
+                  "{{i18n:dialogue.lumbering.generic.generic.2}}",
+                  "{{i18n:dialogue.lumbering.generic.generic.3}}",
+                  "{{i18n:dialogue.lumbering.generic.generic.4}}",
+                  "{{i18n:dialogue.lumbering.generic.generic.5}}"
+                ]
+              }
+            ],
+
+            // Generic mining dialogue
+            "Mining": [
+              // Spouse mining
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.mining.spouse.generic.generic.1}}",
+                  "{{i18n:dialogue.mining.spouse.generic.generic.2}}",
+                  "{{i18n:dialogue.mining.spouse.generic.generic.3}}",
+                  "{{i18n:dialogue.mining.spouse.generic.generic.4}}",
+                  "{{i18n:dialogue.mining.spouse.generic.generic.5}}"
+                ]
+              },
+              // Generic villager mining
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.mining.generic.generic.1}}",
+                  "{{i18n:dialogue.mining.generic.generic.2}}",
+                  "{{i18n:dialogue.mining.generic.generic.3}}",
+                  "{{i18n:dialogue.mining.generic.generic.4}}",
+                  "{{i18n:dialogue.mining.generic.generic.5}}"
+                ]
+              }
+            ],
+
+            // Generic harvesting dialogue
+            "Harvesting": [
+              // Spouse harvesting
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.harvesting.spouse.generic.generic.1}}",
+                  "{{i18n:dialogue.harvesting.spouse.generic.generic.2}}",
+                  "{{i18n:dialogue.harvesting.spouse.generic.generic.3}}",
+                  "{{i18n:dialogue.harvesting.spouse.generic.generic.4}}",
+                  "{{i18n:dialogue.harvesting.spouse.generic.generic.5}}"
+                ]
+              },
+              // Generic villager harvesting
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.harvesting.generic.generic.1}}",
+                  "{{i18n:dialogue.harvesting.generic.generic.2}}",
+                  "{{i18n:dialogue.harvesting.generic.generic.3}}",
+                  "{{i18n:dialogue.harvesting.generic.generic.4}}",
+                  "{{i18n:dialogue.harvesting.generic.generic.5}}"
+                ]
+              }
+            ],
+
+            // Generic foraging dialogue
+            "Foraging": [
+              // Spouse foraging
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.foraging.spouse.generic.generic.1}}",
+                  "{{i18n:dialogue.foraging.spouse.generic.generic.2}}",
+                  "{{i18n:dialogue.foraging.spouse.generic.generic.3}}",
+                  "{{i18n:dialogue.foraging.spouse.generic.generic.4}}",
+                  "{{i18n:dialogue.foraging.spouse.generic.generic.5}}"
+                ]
+              },
+              // Generic villager foraging
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current {CurrentNpc} Married",
+                "Lines": [
+                  "{{i18n:dialogue.foraging.generic.generic.1}}",
+                  "{{i18n:dialogue.foraging.generic.generic.2}}",
+                  "{{i18n:dialogue.foraging.generic.generic.3}}",
+                  "{{i18n:dialogue.foraging.generic.generic.4}}",
+                  "{{i18n:dialogue.foraging.generic.generic.5}}"
+                ]
+              }
+            ],
+
+            // Generic fishing dialogue
+            "Fishing_Waiting": [
+              "{{i18n:dialogue.fishing_waiting.generic.generic.1}}",
+              "{{i18n:dialogue.fishing_waiting.generic.generic.2}}",
+              "{{i18n:dialogue.fishing_waiting.generic.generic.3}}",
+              "{{i18n:dialogue.fishing_waiting.generic.generic.4}}",
+              "{{i18n:dialogue.fishing_waiting.generic.generic.5}}"
+            ],
+
+            "Fishing_Caught": [
+              "{{i18n:dialogue.fishing_caught.generic.generic.1}}",
+              "{{i18n:dialogue.fishing_caught.generic.generic.2}}",
+              "{{i18n:dialogue.fishing_caught.generic.generic.3}}",
+              "{{i18n:dialogue.fishing_caught.generic.generic.4}}",
+              "{{i18n:dialogue.fishing_caught.generic.generic.5}}"
+            ],
+
+            // Generic petting dialogue
+            "Petting": [
+              "{{i18n:dialogue.petting.generic.generic.1}}",
+              "{{i18n:dialogue.petting.generic.generic.2}}",
+              "{{i18n:dialogue.petting.generic.generic.3}}",
+              "{{i18n:dialogue.petting.generic.generic.4}}",
+              "{{i18n:dialogue.petting.generic.generic.5}}"
+            ],
+
+            // Friendship too low dialogue
+            "FriendshipTooLow": [
+              "{{i18n:dialogue.friendship_too_low.generic.1}}",
+              "{{i18n:dialogue.friendship_too_low.generic.2}}",
+              "{{i18n:dialogue.friendship_too_low.generic.3}}",
+              "{{i18n:dialogue.friendship_too_low.generic.4}}"
+            ],
+
+            // Recruitment refusal dialogue
+            "RecruitmentRefusal": [
+              "{{i18n:dialogue.recruitment_refusal.generic.1}}"
+            ]
+          }
+        },
+
+        // ===================================
+        // Individual NPC Idle Animations
+        // ===================================
+        "Abigail": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Abigail",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": ["abigail_flute"]
+          }
+        },
+
+        "Penny": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Penny",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": ["penny_read", "penny_sit_down"]
+          }
+        },
+
+        "Elliott": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Elliott",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": ["elliott_read"]
+          }
+        },
+
+        "Alex": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Alex",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": ["alex_football"]
+          }
+        },
+
+        "Leah": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Leah",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": ["leah_draw"]
+          }
+        },
+
+        "Maru": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Maru",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": ["maru_tinker"]
+          }
+        },
+
+        "Demetrius": {
+          "Behavior": {
+            "IdleAnimations": ["demetrius_read", "demetrius_notes"]
+          }
+        },
+
+        "Emily": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Emily",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": ["emily_exercise"]
+          }
+        },
+
+        "Caroline": {
+          "Behavior": {
+            "IdleAnimations": ["caroline_read"]
+          }
+        },
+
+        "Vincent": {
+          "Behavior": {
+            "IdleAnimations": ["vincent_beach"]
+          }
+        },
+
+        "Jas": {
+          "Behavior": {
+            "IdleAnimations": ["jas_jumprope"]
+          }
+        },
+
+        "Sebastian": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Sebastian",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": ["sebastian_smoking"]
+          }
+        },
+
+        "Shane": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Shane",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": [
+              {
+                "Condition": "PLAYER_HEARTS Current Shane 0 6",
+                "Animations": ["shane_drink"]
+              }
+            ]
+          }
+        },
+
+        "Sam": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Sam",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": ["sam_guitar", "sam_gameboy", "sam_skateboarding"]
+          }
+        },
+
+        "Krobus": {
+          "Sprites": {
+            "Sitting": {
+              "IsVanilla": true,
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Krobus",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": ["krobus_happy"]
+          }
+        },
+
+        // ===================================
+        // Pet Configurations
+        // ===================================
+        "All_Cat": {
+          "NpcType": "Cat",
+          "Sprites": {
+            // Cats attack faster than humanoid NPCs (250ms instead of 400ms)
+            "Attacking": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 250,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            // Cat sitting animation - frames 28-29 looping
+            // Right direction uses flipped frames
+            "Sitting": {
+              "FramesByDirection": {
+                "Down": [28, 29],
+                "Right": [
+                  { "Frame": 28, "Flip": true },
+                  { "Frame": 29, "Flip": true }
+                ],
+                "Up": [28, 29],
+                "Left": [28, 29]
+              },
+              "FrameDuration": 1000,
+              "Loop": true,
+              "FallbackFrame": 28
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": [
+              { "Id": "TSS_cat_sit", "Loop": false },
+              { "Id": "TSS_cat_flop", "Loop": true }
+            ]
+          }
+        },
+
+        "All_Dog": {
+          "NpcType": "Dog",
+          "Sprites": {
+            // Dogs attack faster than humanoid NPCs (250ms instead of 400ms)
+            "Attacking": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 250,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            // Dog sitting animation - frames 28-29 looping
+            // Left direction uses flipped frames
+            "Sitting": {
+              "FramesByDirection": {
+                "Down": [28, 29],
+                "Right": [28, 29],
+                "Up": [28, 29],
+                "Left": [
+                  { "Frame": 28, "Flip": true },
+                  { "Frame": 29, "Flip": true }
+                ]
+              },
+              "FrameDuration": 1000,
+              "Loop": true,
+              "FallbackFrame": 28
+            }
+          },
+          "Behavior": {
+            "IdleAnimations": [
+              { "Id": "TSS_dog_sit", "Loop": false },
+              { "Id": "TSS_dog_sit_loop", "Loop": true }
+            ]
+          }
+        },
+
+        "All_Turtle": {
+          "NpcType": "Turtle",
+          "Sprites": {
+            // Turtles attack faster than humanoid NPCs (250ms instead of 400ms)
+            "Attacking": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 250,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            // Turtle sitting animation - different frame per direction
+            // Left direction uses flipped frame 30 (same as Right)
+            "Sitting": {
+              "FramesByDirection": {
+                "Down": [28],
+                "Right": [30],
+                "Up": [8],
+                "Left": [{ "Frame": 30, "Flip": true }]
+              },
+              "FrameDuration": 1000,
+              "Loop": true,
+              "FallbackFrame": 28
+            }
+          }
+        }
+      }
+    }
+  ]
+}

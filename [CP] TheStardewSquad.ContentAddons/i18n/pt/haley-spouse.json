@@ -1,0 +1,61 @@
+{
+  "dialogue.recruit.haley.spouse.1": "Uma aventura? Perfeito! Estava precisando de inspiração para fotos hoje.",
+  "dialogue.recruit.haley.spouse.2": "Claro, querido. Sempre bom sair de casa e ver o mundo.",
+  "dialogue.recruit.haley.spouse.3": "Sim! Vamos lá. Acabei de conseguir uma lente nova que quero testar.",
+  "dialogue.recruit.haley.spouse.4": "Para qualquer lugar, desde que seja com você.",
+  "dialogue.recruit.haley.spouse.5": "Sim! Esperava que pudéssemos sair hoje.",
+
+  "dialogue.dismiss.haley.spouse.1": "Tudo bem, querido. Vou voltar. Tenho uma ideia para uma nova receita de bolo!",
+  "dialogue.dismiss.haley.spouse.2": "Ok, {{endearment}}. Vou revelar as fotos de hoje. Mal posso esperar para vê-las!",
+  "dialogue.dismiss.haley.spouse.3": "Vou começar a preparar o jantar então. Tome cuidado!",
+  "dialogue.dismiss.haley.spouse.4": "Me avise quando estiver voltando. Eu te amo!",
+  "dialogue.dismiss.haley.spouse.5": "Era só isso? Então te encontro na fazenda.",
+
+  "dialogue.idle.haley.spouse.generic.1": "Estava pensando que devíamos montar um estúdio ao ar livre para retratos. A luz natural aqui é incrível.",
+  "dialogue.idle.haley.spouse.generic.2": "Estar aqui com você me ajuda a clarear a mente. Me faz ver o mundo de outra perspectiva.",
+  "dialogue.idle.haley.spouse.generic.3": "Aproveitando a vista... e você é a melhor parte dela.",
+  "dialogue.idle.haley.spouse.generic.4": "Estou tão feliz por ter me casado com você, {{endearment}}. A vida nunca é chata.",
+  "dialogue.idle.haley.spouse.generic.5": "Vamos tirar uma foto para lembrar desse momento?",
+
+  "dialogue.idle.haley.spouse.farm.1": "O jeito que o sol da tarde ilumina essas folhas... Uma ótima oportunidade para fotos.",
+  "dialogue.idle.haley.spouse.farm.2": "Nossa fazenda é o lugar mais lindo de todo o vale.",
+  "dialogue.idle.haley.spouse.farm.3": "Seus animais têm tanta personalidade. Daria para fazer uma série de fotos só com eles.",
+  "dialogue.idle.haley.spouse.farm.4": "Ver tudo isso me lembra como minha vida mudou para melhor.",
+  "dialogue.idle.haley.spouse.farm.5": "Tudo aqui está prosperando. Assim como nós.",
+
+  "dialogue.idle.haley.spouse.mines.1": "Parece um dos nossos primeiros encontros, né? Mas agora eu sei me virar.",
+  "dialogue.idle.haley.spouse.mines.2": "Me sinto segura aqui com você. Damos conta de qualquer coisa.",
+  "dialogue.idle.haley.spouse.mines.3": "O jeito que a luz reflete nesses cristais me dá ideias para minhas fotos.",
+  "dialogue.idle.haley.spouse.mines.4": "Lembra quando eu tinha medo daqui? Parece tão bobo agora.",
+  "dialogue.idle.haley.spouse.mines.5": "Nossa própria caça ao tesouro. Adoro isso.",
+
+  "dialogue.idle.haley.spouse.house.1": "É engraçado voltar aqui. Esse lugar costumava parecer pequeno e limitante.",
+  "dialogue.idle.haley.spouse.house.2": "Eu devia ver como está a Emily. Espero que ela lembre de regar as plantas.",
+  "dialogue.idle.haley.spouse.house.3": "Nossa casa na fazenda é muito melhor, mas esse lugar sempre será especial.",
+  "dialogue.idle.haley.spouse.house.4": "Olhando para meu quarto antigo... Eu cresci muito, né? Fico feliz por isso.",
+  "dialogue.idle.haley.spouse.house.5": "Vamos dar oi para meus pais. Ah, espera... eles ainda estão viajando. Às vezes eu esqueço.",
+
+  "dialogue.attacking.haley.spouse.1": "Ei! Sai de perto do meu esposo/minha esposa!",
+  "dialogue.attacking.haley.spouse.2": "Sou mais forte do que pareço, seu monstro!",
+  "dialogue.attacking.haley.spouse.3": "NÃO SE ATREVA!",
+  "dialogue.attacking.haley.spouse.4": "Eu te protejo! Sempre!",
+  "dialogue.attacking.haley.spouse.5": "Você vai ter que passar por mim primeiro!",
+
+  "dialogue.lumbering.haley.spouse.1": "Somos um ótimo time. Vamos terminar isso rapidinho.",
+  "dialogue.lumbering.haley.spouse.2": "Deixa que eu cuido disso, querido. Preciso manter os braços fortes para segurar minha câmera pesada!",
+  "dialogue.lumbering.haley.spouse.3": "Olha a gente, trabalhando juntos pela nossa terra. É perfeito.",
+  "dialogue.lumbering.haley.spouse.4": "Mais madeira para manter nossa casa aquecida. Boa ideia.",
+  "dialogue.lumbering.haley.spouse.5": "Cuidado agora! Não exagere.",
+
+  "dialogue.mining.haley.spouse.1": "Eu cuido dessa! Aprendi muito observando você.",
+  "dialogue.mining.haley.spouse.2": "Somos um casal poderoso, né?",
+  "dialogue.mining.haley.spouse.3": "Ooh, espero que tenha um diamante aqui! Seria um ótimo tema para uma foto.",
+  "dialogue.mining.haley.spouse.4": "Qualquer coisa para te ajudar, meu amor.",
+  "dialogue.mining.haley.spouse.5": "Só mais um pouco e podemos construir aquele caminho novo que você queria.",
+
+  "dialogue.watering.haley.spouse.1": "Estou ficando boa nisso! Talvez eu tenha jeito para jardinagem.",
+  "dialogue.watering.haley.spouse.2": "Adoro te ajudar a deixar nosso lar mais bonito.",
+  "dialogue.watering.haley.spouse.3": "Plantas saudáveis fazem uma fazenda feliz, e uma fazenda feliz é o melhor cenário para fotos!",
+  "dialogue.watering.haley.spouse.4": "Os ingredientes mais frescos para meu próximo bolo estão bem aqui!",
+  "dialogue.watering.haley.spouse.5": "Estou tão feliz por ter essa vida com você."
+}

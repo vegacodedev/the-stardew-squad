@@ -1,0 +1,35 @@
+{
+  "Format": "2.0.0",
+  "Changes": [
+    {
+      "LogName": "Unified NPC Configuration",
+      "Action": "Include",
+      "FromFile": "assets/NpcConfig.json"
+    },
+    {
+      "LogName": "Animation Descriptions",
+      "Action": "Include",
+      "FromFile": "assets/animationDescriptions.json"
+    },
+    {
+      "LogName": "Haley's NPC Config",
+      "Action": "Include",
+      "FromFile": "assets/Haley.json"
+    },
+    {
+      "LogName": "Harvey's NPC Config",
+      "Action": "Include",
+      "FromFile": "assets/Harvey.json"
+    },
+    {
+      "LogName": "Custom Cat NPCs Config",
+      "Action": "Include",
+      "FromFile": "assets/CustomCatNpcs.json"
+    },
+    {
+      "LogName": "Sitting Sprites",
+      "Action": "Include",
+      "FromFile": "assets/SittingSprites.json"
+    }
+  ]
+}

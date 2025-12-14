@@ -1,0 +1,181 @@
+{
+  // ==========================================
+  // --- FRIENDSHIP TOO LOW ---
+  // ==========================================
+
+  "dialogue.friendship_too_low.harvey.1": "제안은 감사하지만, 진료소를 비워둘 만큼 당신을 잘 알지는 못해서요. 다음 기회에 같이 가요.",
+  "dialogue.friendship_too_low.harvey.2": "마음은 고맙지만, 제 환자들이 저를 기다리고 있어서 자리를 비울 수는 없겠어요.",
+  "dialogue.friendship_too_low.harvey.3": "과분한 제안이지만, 마을의 건강을 책임지는 입장에서는 거절할 수밖에 없네요.",
+  "dialogue.friendship_too_low.harvey.4": "함께 있는 건 즐겁겠지만 지금은 제 직업적인 책임이 우선이라서요. 미안해요.",
+  "dialogue.friendship_too_low.harvey.5": "예약이 꽉 차 있어서 지금은 함께할 수 없겠어요.",
+
+  // ==========================================
+  // --- LOW FRIENDSHIP (< 6 HEARTS) ---
+  // ==========================================
+
+  "dialogue.recruit.harvey.low_hearts.1": "도움이 필요하시다고요? 좋아요, 의사로서 도와드리는 게 제 의무니까요. 어디로 가실 건가요?",
+  "dialogue.recruit.harvey.low_hearts.2": "잠깐 시간은 낼 수 있을 것 같네요. 바깥 공기를 쐬는 것도 중요하겠죠. 안내해 주세요.",
+  "dialogue.recruit.harvey.low_hearts.3": "알겠어요, 함께 가 드릴게요. 다만... 불필요한 위험은 피해주시길 바라요.",
+  "dialogue.recruit.harvey.low_hearts.4": "물론이에요. 혹시 모르니 의료 키트를 챙겨야겠네요. 준비 다 하셨으면 알려주세요.",
+  "dialogue.recruit.harvey.low_hearts.5": "탐험이라니... 흥미롭네요, 함께할게요. 어디까지나 건강과 안전을 위한 감독 차원으로요.",
+
+  "dialogue.dismiss.harvey.low_hearts.1": "알겠어요. 마침 읽으려고 했던 의학 저널이 있었는데 잘됐네요.",
+  "dialogue.dismiss.harvey.low_hearts.2": "좋아요. 그럼 저는 병원으로 돌아갈게요, 부디 조심하세요.",
+  "dialogue.dismiss.harvey.low_hearts.3": "음... 나름 의미 있는 경험이었어요. 나중에 의료 도움이 필요하시면 알려주세요.",
+  "dialogue.dismiss.harvey.low_hearts.4": "그럼 저는 다시 제 일상으로 돌아가야겠네요. 조심히 들어가세요.",
+  "dialogue.dismiss.harvey.low_hearts.5": "해산이네요. 집에 돌아가서 균형 잡힌 식사를 꼭 챙기시길 바라요.",
+
+  "dialogue.idle.harvey.low_hearts.generic.1": "수분 섭취를 잊지 마세요. 건강에 매우 중요해요.",
+  "dialogue.idle.harvey.low_hearts.generic.2": "병원에 붕대를 다시 보충해 둬야겠네요.",
+  "dialogue.idle.harvey.low_hearts.generic.3": "조지 씨의 무릎 상태를 확인해야겠어요. 이런 날씨에는 더 안 좋아지기 마련이니까요.",
+  "dialogue.idle.harvey.low_hearts.generic.4": "마을 분들이 비타민을 잘 챙겨 드시고 계셨으면 좋겠어요.",
+  "dialogue.idle.harvey.low_hearts.generic.5": "규칙적인 생활이야말로 건강한 삶의 기본이에요.",
+
+  "dialogue.idle.harvey.low_hearts.farm.1": "이런 육체노동은 심혈관 건강에 도움이 돼요. 물론 적당한 선에서 말이죠.",
+  "dialogue.idle.harvey.low_hearts.farm.2": "작물들이 꽤 건강해 보이네요. 필수 영양소의 좋은 공급원이 될 거예요.",
+  "dialogue.idle.harvey.low_hearts.farm.3": "허리를 다치지 않도록 올바른 자세로 드는 게 중요해요.",
+  "dialogue.idle.harvey.low_hearts.farm.4": "이 시골의 맑은 공기는 정말 상쾌해요.",
+  "dialogue.idle.harvey.low_hearts.farm.5": "농사는 매우 고된 일이지만 그만큼 보람도 큰 것 같네요.",
+
+  "dialogue.idle.harvey.low_hearts.mines.1": "이곳의 공기에는 먼지가 꽤 많네요. 너무 무리하지 않는 게 좋아요.",
+  "dialogue.idle.harvey.low_hearts.mines.2": "조심하세요. 이 광산은 위험할 수 있어요.",
+  "dialogue.idle.harvey.low_hearts.mines.3": "'광부 기침'이라는 증상을 들어본 적 있어요. 그런 건 피하는 게 좋겠죠.",
+  "dialogue.idle.harvey.low_hearts.mines.4": "발 밑을 조심하세요. 여기서는 한 번 넘어져도 크게 다칠 수 있어요.",
+  "dialogue.idle.harvey.low_hearts.mines.5": "이곳은 위생적으로 그리 좋지 않네요. 얼굴은 가급적 만지지 마세요.",
+
+  "dialogue.idle.harvey.low_hearts.town.1": "마을이 활기찬 모습을 보니 좋네요. 건강한 공동체는 행복한 공동체예요.",
+  "dialogue.idle.harvey.low_hearts.town.2": "이곳 공기는 매우 좋아요. 폐 건강에 도움이 되죠.",
+  "dialogue.idle.harvey.low_hearts.town.3": "오늘 건강검진이 필요한 분이 계실지 궁금하네요.",
+  "dialogue.idle.harvey.low_hearts.town.4": "마을을 산책하는 것도 가벼운 운동으로 아주 좋아요.",
+  "dialogue.idle.harvey.low_hearts.town.5": "펠리컨 마을은 정말 평화로운 곳이에요. 정신 건강에도 긍정적인 영향을 주죠.",
+
+  "dialogue.idle.harvey.low_hearts.house.1": "질병을 예방하려면 생활 공간을 청결하게 유지하는 것이 중요해요.",
+  "dialogue.idle.harvey.low_hearts.house.2": "잘 정돈된 집은 마음도 정리해주는 법이죠.",
+  "dialogue.idle.harvey.low_hearts.house.3": "충분한 숙면을 취하고 계신가요? 건강을 위해 하루 8시간 수면을 권장드려요.",
+  "dialogue.idle.harvey.low_hearts.house.4": "이 온도는 쾌적하네요. 감기를 예방하기에 좋은 환경이에요.",
+  "dialogue.idle.harvey.low_hearts.house.5": "실내에서 조용히 쉬는 시간도 재충전에 도움이 돼요.",
+
+  "dialogue.attacking.harvey.low_hearts.1": "거리를 두는 게 좋겠어요! 안전이 최우선이에요!",
+  "dialogue.attacking.harvey.low_hearts.2": "가능하다면 직접적인 충돌은 피하세요!",
+  "dialogue.attacking.harvey.low_hearts.3": "이건 권장할 만한 행동이 아니에요. 후퇴할 수 있다면 그렇게 하세요!",
+  "dialogue.attacking.harvey.low_hearts.4": "조심하세요! 작은 상처로도 감염될 수 있어요!",
+  "dialogue.attacking.harvey.low_hearts.5": "의사로서 말씀드리자면 이건 삼가는 게 좋겠어요.",
+
+  "dialogue.lumbering.harvey.low_hearts.1": "꽤 힘든 작업이네요. 무리하지 마세요.",
+  "dialogue.lumbering.harvey.low_hearts.2": "가시에 찔리지 않도록 주의하세요. 꽤 성가실 수 있어요.",
+  "dialogue.lumbering.harvey.low_hearts.3": "갓 자른 나무의 향이 확연히 느껴지네요.",
+  "dialogue.lumbering.harvey.low_hearts.4": "이건 힘과 정밀함이 모두 필요한 작업이에요.",
+  "dialogue.lumbering.harvey.low_hearts.5": "근육 피로를 피하려면 틈틈이 휴식을 취해야 해요.",
+
+  "dialogue.mining.harvey.low_hearts.1": "진동이 꽤 심하네요. 이 지역이 안전한지 걱정되네요.",
+  "dialogue.mining.harvey.low_hearts.2": "이 광물들은 지질학적으로 흥미롭네요.",
+  "dialogue.mining.harvey.low_hearts.3": "이런 작업을 자주 하신다면 보호 장비는 꼭 착용하셔야 해요.",
+  "dialogue.mining.harvey.low_hearts.4": "상당히 힘든 작업인데, 괜찮으신가요?",
+  "dialogue.mining.harvey.low_hearts.5": "동굴 붕괴가 일어나지 않길 바랄 뿐이에요.",
+
+  "dialogue.watering.harvey.low_hearts.1": "적절한 수분 공급은 식물과 사람 모두에게 중요해요.",
+  "dialogue.watering.harvey.low_hearts.2": "단순하지만 꼭 필요한 작업이네요.",
+  "dialogue.watering.harvey.low_hearts.3": "꽤 규칙적이고 차분한 작업이네요. 약간 명상 같기도 해요.",
+  "dialogue.watering.harvey.low_hearts.4": "작물이 충분한 물을 받아야 건강하게 자랄 수 있어요.",
+  "dialogue.watering.harvey.low_hearts.5": "물뿌리개 소리가 꽤 부드럽고 편안하네요.",
+
+  "dialogue.harvesting.harvey.low_hearts.1": "좋은 수확이네요. 영양가 있는 식사가 되겠어요.",
+  "dialogue.harvesting.harvey.low_hearts.2": "말 그대로, @의 노력의 결실이네요.",
+  "dialogue.harvesting.harvey.low_hearts.3": "이렇게 건강한 작물을 보니 만족스럽네요.",
+  "dialogue.harvesting.harvey.low_hearts.4": "비타민과 미네랄이 풍부한 좋은 영양 공급원이네요.",
+  "dialogue.harvesting.harvey.low_hearts.5": "섭취 전에는 반드시 깨끗이 세척하세요.",
+
+  "dialogue.foraging.harvey.low_hearts.1": "이건 먹을 수 있는 것 같긴 한데, 뭐든 식용 여부를 확실히 확인하는 게 좋아요.",
+  "dialogue.foraging.harvey.low_hearts.2": "자연은 많은 것을 주지만 올바른 지식이 필요해요.",
+  "dialogue.foraging.harvey.low_hearts.3": "이 중 일부는 약효가 있는 식물일 수도 있어요.",
+  "dialogue.foraging.harvey.low_hearts.4": "산책도 하고 신선한 식재료도 얻고... 건강에 아주 좋네요.",
+  "dialogue.foraging.harvey.low_hearts.5": "독성이 있는 식물도 있으니 채집 시엔 항상 주의하세요.",
+
+  // ==========================================
+  // --- HIGH FRIENDSHIP (>= 6 HEARTS) ---
+  // ==========================================
+
+  "dialogue.recruit.harvey.high_hearts.1": "당연하지, @! 기꺼이 같이 갈게. 진료소에서 벗어나서 좋은 휴식을 취할 수 있겠네.",
+  "dialogue.recruit.harvey.high_hearts.2": "너랑 모험이라니? 재밌겠다! 가보자.",
+  "dialogue.recruit.harvey.high_hearts.3": "좋아, 너랑 같이 있을 수 있잖아. 초대해 줘서 고마워!",
+  "dialogue.recruit.harvey.high_hearts.4": "네가 가는 곳이면 어디든 따라갈게. 계획이 뭐야?",
+  "dialogue.recruit.harvey.high_hearts.5": "물론이지! 너랑 시간 보내는 건 항상 즐거워.",
+
+  "dialogue.dismiss.harvey.high_hearts.1": "그래, 또 보자 @. 잘 가!",
+  "dialogue.dismiss.harvey.high_hearts.2": "재밌었어! 조만간 또 불러줘.",
+  "dialogue.dismiss.harvey.high_hearts.3": "이제 돌아갈게. 나 없이 너무 무리하지 마!",
+  "dialogue.dismiss.harvey.high_hearts.4": "알았어, 마을에서 보자. 조심해!",
+  "dialogue.dismiss.harvey.high_hearts.5": "초대해 줘서 고마워. 정말 즐거웠어.",
+
+  "dialogue.idle.harvey.high_hearts.generic.1": "이렇게 맑은 날엔 하늘에 나가서 내 모형 비행기를 날리고 싶어.",
+  "dialogue.idle.harvey.high_hearts.generic.2": "재즈 들어본 적 있어? 좋은 음반 컬렉션 있어, 같이 들어보자.",
+  "dialogue.idle.harvey.high_hearts.generic.3": "의료 차트에서 벗어나 너랑 같이 있으니 참 좋다.",
+  "dialogue.idle.harvey.high_hearts.generic.4": "새로운 라디오 주파수를 맞춰보려고 생각 중이야. 재밌는 퍼즐 같아.",
+  "dialogue.idle.harvey.high_hearts.generic.5": "이 시간이 정말 좋다. 우리가 친구라서 다행이야.",
+
+  "dialogue.idle.harvey.high_hearts.farm.1": "네 농장 분위기는 참 평화로워. 정말 좋은 곳이야.",
+  "dialogue.idle.harvey.high_hearts.farm.2": "여기 정말 잘 꾸며놨네.",
+  "dialogue.idle.harvey.high_hearts.farm.3": "너랑 같이 있는 게 오늘 하루를 보내는 가장 좋은 방법이야.",
+  "dialogue.idle.harvey.high_hearts.farm.4": "가끔은 은퇴해서 작은 모형 비행기 작업장을 차리고 싶다는 생각을 하기도 해. 뭐, 꿈은 꿀 수 있으니까.",
+  "dialogue.idle.harvey.high_hearts.farm.5": "농장 소리가 내 의료 기계의 삐- 소리보다 훨씬 편안해.",
+
+  "dialogue.idle.harvey.high_hearts.mines.1": "여기 오는 건 긴장되면서도 신나는 일이야! 잘 따라와, 알았지?",
+  "dialogue.idle.harvey.high_hearts.mines.2": "진짜 탐험을 하는 기분이야. 마치 책 속의 모험가들 같아!",
+  "dialogue.idle.harvey.high_hearts.mines.3": "여기에 희귀한 수정도 있을까? 지질학이 참 흥미롭더라고.",
+  "dialogue.idle.harvey.high_hearts.mines.4": "네가 있으면 박쥐도 무섭지 않아. 음, 조금 무섭긴 하지만.",
+  "dialogue.idle.harvey.high_hearts.mines.5": "평소 일상보다 훨씬 재밌어. 같이 와줘서 고마워.",
+
+  "dialogue.idle.harvey.high_hearts.volcano.1": "화산이라니 대단한데! 그리고 엄청 위험해! 조심해야 해.",
+  "dialogue.idle.harvey.high_hearts.volcano.2": "열기가 엄청나. 물을 많이 마셔야 해.",
+  "dialogue.idle.harvey.high_hearts.volcano.3": "책에서만 보던 곳을 직접 보니 신기하다.",
+  "dialogue.idle.harvey.high_hearts.volcano.4": "난 지질학자가 아닌 의사지만, 이건 정말 일생에 한 번 있을 경험이야.",
+  "dialogue.idle.harvey.high_hearts.volcano.5": "내가 옆에 있을게. 여기서 너에게 무슨 일 생기면 스스로를 용서할 수 없을 거야.",
+
+  "dialogue.idle.harvey.high_hearts.town.1": "너랑 같이 마을을 걷기에 정말 좋은 날이네.",
+  "dialogue.idle.harvey.high_hearts.town.2": "네가 있으면 항상 기분이 좋아져. 너도 알지?",
+  "dialogue.idle.harvey.high_hearts.town.3": "나중에 살롱에 들러서 조용히 한잔할까?",
+  "dialogue.idle.harvey.high_hearts.town.4": "@, 네가 펠리컨 마을로 이사 와서 참 다행이야.",
+  "dialogue.idle.harvey.high_hearts.town.5": "네가 있으면 모든 게 조금 더 좋아지는 것 같아.",
+
+  "dialogue.idle.harvey.high_hearts.house.1": "네 집 정말 아늑하다.",
+  "dialogue.idle.harvey.high_hearts.house.2": "너랑 그냥 편하게 쉬는 게 좋아. 몬스터도 없고, 집안일도 없고, 그냥 우리 둘이서만.",
+  "dialogue.idle.harvey.high_hearts.house.3": "커피 한 잔 만들어 줄까? 나 꽤 잘 만들어.",
+  "dialogue.idle.harvey.high_hearts.house.4": "너랑 같이 있으면 편안해.",
+  "dialogue.idle.harvey.high_hearts.house.5": "너랑 함께 하는 게 내가 원하는 모든 모험이야.",
+
+  "dialogue.attacking.harvey.high_hearts.1": "내 뒤에 숨어! 내가 지켜줄게!",
+  "dialogue.attacking.harvey.high_hearts.2": "우린 해낼 수 있어! 그래도 꼭 조심해!",
+  "dialogue.attacking.harvey.high_hearts.3": "조심해! 괜찮아?",
+  "dialogue.attacking.harvey.high_hearts.4": "걱정 마, 내가 바로 옆에 있어!",
+  "dialogue.attacking.harvey.high_hearts.5": "심장이 뛰게 하는 작은 즐거움이지, 그렇지?",
+
+  "dialogue.lumbering.harvey.high_hearts.1": "도움이 필요해?",
+  "dialogue.lumbering.harvey.high_hearts.2": "가끔은 몸 쓰는 게 좋아, 머리가 맑아지기도 하고.",
+  "dialogue.lumbering.harvey.high_hearts.3": "너 진짜 힘 세구나, 너도 알지?",
+  "dialogue.lumbering.harvey.high_hearts.4": "서류 작업보다 훨씬 재밌네.",
+  "dialogue.lumbering.harvey.high_hearts.5": "이거 끝내고 같이 쉬자.",
+
+  "dialogue.mining.harvey.high_hearts.1": "봐, 광석을 찾았어! 우리는 훌륭한 팀이야.",
+  "dialogue.mining.harvey.high_hearts.2": "이거 재밌네, 보물찾기 같아.",
+  "dialogue.mining.harvey.high_hearts.3": "네가 일하는 동안 몬스터에 주의하고 있을게.",
+  "dialogue.mining.harvey.high_hearts.4": "보물을 찾는 일이 정확한 진단을 내리는 것만큼 짜릿해!",
+  "dialogue.mining.harvey.high_hearts.5": "우리가 같이 어떤 보물을 발굴할 수 있을지 보자.",
+
+  "dialogue.watering.harvey.high_hearts.1": "너랑 같이 이런 단순한 일을 하는 게 좋아.",
+  "dialogue.watering.harvey.high_hearts.2": "조금의 사랑과 정성으로 모든 게 더 잘 자라고는 하지.",
+  "dialogue.watering.harvey.high_hearts.3": "내가 도와줄게. 같이 하면 일이 더 쉬워지잖아.",
+  "dialogue.watering.harvey.high_hearts.4": "정말 평화롭다. 네가 농사를 좋아하는 이유를 알겠어.",
+  "dialogue.watering.harvey.high_hearts.5": "약간의 물로 곧 멋진 수확을 거둘 수 있을 거야.",
+
+  "dialogue.harvesting.harvey.high_hearts.1": "와, 이거 봐! 네 노력의 결실이 정말 대단해, @.",
+  "dialogue.harvesting.harvey.high_hearts.2": "이거 다 맛있어 보이네! 뭘 요리할 거야?",
+  "dialogue.harvesting.harvey.high_hearts.3": "네가 직접 키운 걸 수확하니 기분 좋지 않아?",
+  "dialogue.harvesting.harvey.high_hearts.4": "이 모든 것을 축하하며 성대한 저녁 식사를 하자.",
+  "dialogue.harvesting.harvey.high_hearts.5": "정말 멋지네! 이 일에 재능이 있구나.",
+
+  "dialogue.foraging.harvey.high_hearts.1": "와, 좋은 걸 찾았다! 이런 걸 보는 눈이 뛰어나구나.",
+  "dialogue.foraging.harvey.high_hearts.2": "너와 같이 걷는 하루는 나에게 있어 완벽한 하루야.",
+  "dialogue.foraging.harvey.high_hearts.3": "이게 네가 제일 좋아하는 거지?",
+  "dialogue.foraging.harvey.high_hearts.4": "마치 작은 보물찾기 같아. 또 뭘 찾을 수 있을까?",
+  "dialogue.foraging.harvey.high_hearts.5": "너와 함께 자연 속에 있으니 정말 상쾌해."
+}

@@ -1,0 +1,36 @@
+{
+  "config.recruitKey.name": "Tecla Reclutar/Despedir",
+  "config.recruitKey.description": "Tecla principal para reclutar o despedir PNJs.",
+  "config.manualTaskKey.name": "Tecla de Orden Manual",
+  "config.manualTaskKey.description": "Pulsa esta tecla mientras apuntas a un objeto para ordenar a un miembro del grupo que interactúe con él.",
+
+  "config.friendshipRequirement.name": "Requisito de Amistad",
+  "config.friendshipRequirement.description": "Número de corazones necesarios para reclutar a un PNJ. Los cónyuges siempre pueden ser reclutados.",
+
+  "config.disableInteraction.name": "Desactivar Interacción con el Grupo",
+  "config.disableInteraction.description": "Define cuándo se debe impedir hablar o dar regalos a los miembros del grupo.",
+  "config.disableInteraction.option.Never": "Nunca",
+  "config.disableInteraction.option.CombatOnly": "Solo en zonas de combate",
+  "config.disableInteraction.option.Always": "Siempre",
+
+  "config.enabledTasks.name": "Tareas Activadas",
+  "config.enableAttacking.name": "Ataque Automático",
+  "config.enableAttacking.description": "Si está activado, los miembros del grupo atacarán a los monstruos hostiles.",
+  "config.enableLumbering.name": "Tala Automática",
+  "config.enableLumbering.description": "Si está activado, los miembros del grupo ayudarán a talar árboles dañados.",
+  "config.enableMining.name": "Minería Automática",
+  "config.enableMining.description": "Si está activado, los miembros del grupo ayudarán a romper rocas.",
+  "config.enableWatering.name": "Riego Automático",
+  "config.enableWatering.description": "Si está activado, los miembros del grupo regarán la tierra labrada seca en la granja.",
+
+  "commands.noFollower": "No tienes a nadie en tu grupo para dar órdenes.",
+
+  "generic.cancel": "Cancelar",
+  "generic.no": "No",
+  "generic.yes": "Sí",
+  "recruitment.dismiss": "Despedir",
+  "recruitment.onlyOneFollower": "Solo puedes tener un seguidor a la vez.",
+  "recruitment.recruitAsk": "¿Pedir a {{name}} que te acompañe?",
+  "recruitment.recruitedAsk": "¿Qué hacer con {{name}}?",
+  "recruitment.festival_block": "No puedes reclutar PNJs durante un festival."
+}

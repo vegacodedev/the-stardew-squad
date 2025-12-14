@@ -1,0 +1,181 @@
+{
+  // ==========================================
+  // --- FRIENDSHIP TOO LOW ---
+  // ==========================================
+
+  "dialogue.friendship_too_low.haley.1": "너랑... 하루 종일 같이 있어야 한다고? 음, 나 바쁠 걸? 응, 진짜 바빠.",
+  "dialogue.friendship_too_low.haley.2": "미안하지만, 난 진짜 친구랑만 '모험' 같은 걸 해.",
+  "dialogue.friendship_too_low.haley.3": "생각은 나쁘지 않네. 하지만... 지금은 아니야.",
+  "dialogue.friendship_too_low.haley.4": "우린 아직 잘 모르는 사이잖아? 같이 다니면 서로 좀 어색할걸?",
+  "dialogue.friendship_too_low.haley.5": "먼저 옷부터 좀 갈아입는 게 어때? 지금 입은 건... 진짜 별로거든.",
+
+  // ==========================================
+  // --- LOW FRIENDSHIP (< 6 HEARTS) ---
+  // ==========================================
+
+  "dialogue.recruit.haley.low_hearts.1": "내가 너를 따라다니라고? 하... 알겠어. 근데, 옷을 더럽히고 싶지는 않아.",
+  "dialogue.recruit.haley.low_hearts.2": "진심이야? 나랑 같이 다니고 싶다고? 뭐... 좋아. 근데 벌레라도 보면 바로 집에 갈 거야.",
+  "dialogue.recruit.haley.low_hearts.3": "딱히 할 일도 없으니... 기대는 하지 마.",
+  "dialogue.recruit.haley.low_hearts.4": "왜 나야? ...됐어, 그냥 빨리 끝내자.",
+  "dialogue.recruit.haley.low_hearts.5": "좋아, 근데 음악은 내가 고를 거야. 응? 설마 너, 핸드폰 안 가져왔어? 진짜로?",
+
+  "dialogue.dismiss.haley.low_hearts.1": "드디어 끝났네. 나 머리 손질하러 가야 돼. 잘 있어.",
+  "dialogue.dismiss.haley.low_hearts.2": "이게 다야? 잘 됐네. 문명으로 돌아간다~",
+  "dialogue.dismiss.haley.low_hearts.3": "오늘 야외 활동은 여기까지. 충분히 했어. 안녕.",
+  "dialogue.dismiss.haley.low_hearts.4": "돌아가서 연락할게. 아니, 그냥 기대하지 마.",
+  "dialogue.dismiss.haley.low_hearts.5": "나 갈래. 이 옷은... 이런 데 어울리는 게 아니야.",
+
+  "dialogue.idle.haley.low_hearts.generic.1": "계속 이렇게 서 있기야? 너무 지루하잖아.",
+  "dialogue.idle.haley.low_hearts.generic.2": "이곳은 핸드폰 신호도 안 잡혀. 다른 사람들은 도대체 어떻게 사는 거지?",
+  "dialogue.idle.haley.low_hearts.generic.3": "방금 거미를 본 거 같아. 그냥 그렇다고.",
+  "dialogue.idle.haley.low_hearts.generic.4": "좀 빨리 걷든가, 아니면 천천히 하든가... 뭐라도 좀 해줄래?",
+  "dialogue.idle.haley.low_hearts.generic.5": "언제쯤 바닥이라도 좀 깔린 데로 갈 수 있어?",
+
+  "dialogue.idle.haley.low_hearts.farm.1": "진짜로 이런 데서 하루 종일 지내는 거야? 흙투성이잖아.",
+  "dialogue.idle.haley.low_hearts.farm.2": "풀 냄새에... 진흙 냄새까지. 으, 징그러워.",
+  "dialogue.idle.haley.low_hearts.farm.3": "네 집... 되게 시골스럽다. 응, 그게 딱 맞는 말이네.",
+  "dialogue.idle.haley.low_hearts.farm.4": "동물 키워? 물진 않지... 그렇지?",
+  "dialogue.idle.haley.low_hearts.farm.5": "농장에 어울리는 귀여운 옷을 상상해 보는 중인데... 아무것도 안 떠오르네.",
+
+  "dialogue.idle.haley.low_hearts.mines.1": "으, 여기 냄새 너무 심해! 어둡고! 신발이 전부 망가질 것 같아.",
+  "dialogue.idle.haley.low_hearts.mines.2": "여기 박쥐도 있겠지? 박쥐 진짜 싫어.",
+  "dialogue.idle.haley.low_hearts.mines.3": "여긴 진짜... 내가 가본 데 중에 제일 안 예쁜 곳이야.",
+  "dialogue.idle.haley.low_hearts.mines.4": "이 습한 공기 때문에 머리가 부스스해진다면 그건 너 때문이야.",
+  "dialogue.idle.haley.low_hearts.mines.5": "돌들이 왜 이렇게 뾰족뾰족해? 이곳의 미적 감각은 정말 꽝이네.",
+
+  "dialogue.idle.haley.low_hearts.town.1": "펠리컨 마을에서 제일 좋은 건... 나가는 길. 농담이야, 아마도.",
+  "dialogue.idle.haley.low_hearts.town.2": "으, 다들 나만 쳐다보는 것 같아. 여긴 그냥 수다쟁이들 천국이야.",
+  "dialogue.idle.haley.low_hearts.town.3": "이곳의 '패션' 좀 봐. 마치 역사 박물관 같지... 작업복이 더 많아.",
+  "dialogue.idle.haley.low_hearts.town.4": "저 분수 또 보면 진짜 소리 지를지도 몰라.",
+  "dialogue.idle.haley.low_hearts.town.5": "여기서 할 수 있는 게... 걷기밖에 없다고? 진짜야? 대박이네.",
+
+  "dialogue.idle.haley.low_hearts.house.1": "여기가 나의 소박한 공간이야. 진짜로 소박하지.",
+  "dialogue.idle.haley.low_hearts.house.2": "에밀리의 이상한 물건들은 신경 쓰지 마. 난 향 냄새 무시하는 중이야.",
+  "dialogue.idle.haley.low_hearts.house.3": "이 집에서 스타일이라고 할 만한 게 있는 공간은 내 방뿐이야.",
+  "dialogue.idle.haley.low_hearts.house.4": "또 에밀리가 재봉틀을 소파에 놔뒀으면 그땐 진짜...",
+  "dialogue.idle.haley.low_hearts.house.5": "여기 왜 이렇게 조용할까? 너무 조용해, 도시 소음이 그리워.",
+
+  "dialogue.attacking.haley.low_hearts.1": "저리 가, 이 못생긴 괴물아!",
+  "dialogue.attacking.haley.low_hearts.2": "으악, 으악, 으악! 저리 가!",
+  "dialogue.attacking.haley.low_hearts.3": "그거 나한테 닿게 하지 마!",
+  "dialogue.attacking.haley.low_hearts.4": "이건 진짜 역겨워! 뭐라도 좀 해봐!",
+  "dialogue.attacking.haley.low_hearts.5": "으으... 가까이서 보니까 더 끈적거려!",
+
+  "dialogue.lumbering.haley.low_hearts.1": "나보고 도끼를 휘두르라고? 진심이야? 내 손톱을 봐!",
+  "dialogue.lumbering.haley.low_hearts.2": "이건 육체노동이야, 난 그런 거 안 해.",
+  "dialogue.lumbering.haley.low_hearts.3": "그냥 가게에서 나무를 사면 안 되는 거야? 왜 굳이 직접 베야 해?",
+  "dialogue.lumbering.haley.low_hearts.4": "사방에 잔가지가 있어! 완전 악몽이야.",
+  "dialogue.lumbering.haley.low_hearts.5": "알겠어, 한 번만 휘두를게. 딱 한 번이야.",
+
+  "dialogue.mining.haley.low_hearts.1": "이 일로 굳은살이 생기면 책임져, 정말로.",
+  "dialogue.mining.haley.low_hearts.2": "이걸 그냥... 곡괭이로 치라고? 너무 원시적인데?",
+  "dialogue.mining.haley.low_hearts.3": "이걸 하면 내 네일이 다 망가질 것 같은데.",
+  "dialogue.mining.haley.low_hearts.4": "왜 갈라진 돌을 팔지 않는 거지?",
+  "dialogue.mining.haley.low_hearts.5": "이 돌 밑에 벌레라도 있다면... 아, 정말 싫어.",
+
+  "dialogue.watering.haley.low_hearts.1": "식물에 물 주기라니. 대단하네, 진짜.",
+  "dialogue.watering.haley.low_hearts.2": "완벽해. 신발에 흙이 묻었네.",
+  "dialogue.watering.haley.low_hearts.3": "그냥... 흙에 물 붓는 거잖아. 이게 재밌다고?",
+  "dialogue.watering.haley.low_hearts.4": "디자이너 부츠라도 신어야 할 거 같은데.",
+  "dialogue.watering.haley.low_hearts.5": "그냥 보기에 지루해 보이는데, 실제로도 지루하네.",
+
+  "dialogue.harvesting.haley.low_hearts.1": "이걸 맨손으로 만지라고? 진심이야?",
+  "dialogue.harvesting.haley.low_hearts.2": "음, 이건 그나마 덜... 끈적거려 보이네. 집을게.",
+  "dialogue.harvesting.haley.low_hearts.3": "이런 건 네가 직접 하면 안 돼? 너는 농부잖아.",
+  "dialogue.harvesting.haley.low_hearts.4": "분명 벌레 같은 거 붙어 있을 걸. 벌레 있으면 절대 안 만질 거야.",
+  "dialogue.harvesting.haley.low_hearts.5": "아, 알겠어. 하지만 끝나고 한 시간은 더 손 씻을 거야.",
+
+  "dialogue.foraging.haley.low_hearts.1": "그거 독성 덤불 같은 거 아니야? 진짜로 괜찮은 거 맞아?",
+  "dialogue.foraging.haley.low_hearts.2": "그걸... 직접 주우라고? 말도 안 돼.",
+  "dialogue.foraging.haley.low_hearts.3": "이거 진짜 먹을 수 있는 거야? 그냥 잡초처럼 생겼는데.",
+  "dialogue.foraging.haley.low_hearts.4": "우리 언니는 이런 '자연'이라고 하며 좋아하겠지, 나는 별로지만.",
+  "dialogue.foraging.haley.low_hearts.5": "나 안 할래. 저거 분명 독 있을걸.",
+
+  // ==========================================
+  // --- HIGH FRIENDSHIP (>= 6 HEARTS) ---
+  // ==========================================
+
+  "dialogue.recruit.haley.high_hearts.1": "너랑 모험이라고? 당연히 가야지! 완전 재밌겠다, 예쁜 사진도 많이 찍자!",
+  "dialogue.recruit.haley.high_hearts.2": "혹시나 했는데 정말 물어봐 줬네! 오늘 시간 비워놨어. 자, 안내해줘!",
+  "dialogue.recruit.haley.high_hearts.3": "좋아! 나도 같이 가고 싶었어. 오늘은 뭘 할 거야?",
+  "dialogue.recruit.haley.high_hearts.4": "완전 좋아! 우리는 같이 있을 때가 제일 즐겁잖아.",
+  "dialogue.recruit.haley.high_hearts.5": "너라면 어디든 따라갈게. 멋진 추억을 만들러 가자!",
+
+  "dialogue.dismiss.haley.high_hearts.1": "오늘 정말 재밌었어! 또 같이 놀자, 알겠지?",
+  "dialogue.dismiss.haley.high_hearts.2": "그럼 난 이만 돌아갈게. 데려가 줘서 고마워!",
+  "dialogue.dismiss.haley.high_hearts.3": "같이 있어서 정말 좋았어. 또 보자~",
+  "dialogue.dismiss.haley.high_hearts.4": "이제 슬슬 가야겠네. 오늘 정말 즐거웠어!",
+  "dialogue.dismiss.haley.high_hearts.5": "조심히 가! 도착하면 꼭 연락해줘.",
+
+  "dialogue.idle.haley.high_hearts.generic.1": "그냥, 너랑 같이 있다는 게 참 좋아. 알고 있지?",
+  "dialogue.idle.haley.high_hearts.generic.2": "집에만 있는 것보다 백 배는 더 재밌어.",
+  "dialogue.idle.haley.high_hearts.generic.3": "지금 빛 너무 예쁘다! 자, 웃어봐~",
+  "dialogue.idle.haley.high_hearts.generic.4": "예전엔 이 마을이 지루하다고 생각했는데, 너랑 있으니까 매일이 모험 같아.",
+  "dialogue.idle.haley.high_hearts.generic.5": "다음에 뭘 하든, 분명 멋진 일일 거야. 느낌이 딱 그래.",
+
+  "dialogue.idle.haley.high_hearts.farm.1": "여기, 생각보다 훨씬 예쁘다. 사진 찍기에 딱이야.",
+  "dialogue.idle.haley.high_hearts.farm.2": "네 동물들 너무 귀엽다! 사진 좀 찍어도 돼?",
+  "dialogue.idle.haley.high_hearts.farm.3": "정말 멋지게 가꿨네... 네가 얼마나 열심히 했는지 보여.",
+  "dialogue.idle.haley.high_hearts.farm.4": "공기가 정말 상쾌해. 이곳에서 숨 쉬는 게 좋아.",
+  "dialogue.idle.haley.high_hearts.farm.5": "네가 심은 꽃들 정말 예쁘다. 색감이 너무 좋아!",
+
+  "dialogue.idle.haley.high_hearts.mines.1": "조금 무섭긴 한데... 너랑 같이 있으면 괜찮아. 반짝이는 보석들을 찾자!",
+  "dialogue.idle.haley.high_hearts.mines.2": "횃불 빛이 벽에 비치는 거... 은근히 예쁘지 않아?",
+  "dialogue.idle.haley.high_hearts.mines.3": "나랑 가까이 있어! 내가 몬스터 나타나는지 잘 살필게.",
+  "dialogue.idle.haley.high_hearts.mines.4": "자수정을 찾을 수 있을까? 에밀리가 진짜 좋아할 텐데.",
+  "dialogue.idle.haley.high_hearts.mines.5": "생각보다 훨씬 신나는데? 완전 모험 같아!",
+
+  "dialogue.idle.haley.high_hearts.volcano.1": "우와, 엄청 덥다! 근데 색감이 너무 멋져. 사진작가의 꿈 같은 곳이야!",
+  "dialogue.idle.haley.high_hearts.volcano.2": "용암 근처를 조심해! 네가 다치는 건 보고 싶지 않아.",
+  "dialogue.idle.haley.high_hearts.volcano.3": "이런 이국적인 곳은 처음 와봐. 진짜 멋지다!",
+  "dialogue.idle.haley.high_hearts.volcano.4": "혼자였으면 절대 못 왔을 거야. 데려와줘서 고마워.",
+  "dialogue.idle.haley.high_hearts.volcano.5": "이번 여행 사진들은 전설이 될 거야. 자신 있어!",
+
+  "dialogue.idle.haley.high_hearts.town.1": "이제 마을을 돌아다니며 다른 사람들에게 인사하는 것도 좋아졌어. 나도 이곳의 사람 같아!",
+  "dialogue.idle.haley.high_hearts.town.2": "요즘 공동 정원 너무 귀엽지 않아? 팸이 열심히 가꾸는 게 느껴져.",
+  "dialogue.idle.haley.high_hearts.town.3": "가끔 그냥 강가에 앉아 있는 것도 좋아. 조용하고 사진도 잘 나와.",
+  "dialogue.idle.haley.high_hearts.town.4": "이 작은 마을도 나름 매력이 있더라고. 왜 사람들이 좋아하는지 알겠어.",
+  "dialogue.idle.haley.high_hearts.town.5": "알렉스를 볼 수도 있겠다. 여기서 맨날 그리드볼 연습하더라고.",
+
+  "dialogue.idle.haley.high_hearts.house.1": "잠깐 집에 있는 것도 괜찮네. 아늑하고 좋아.",
+  "dialogue.idle.haley.high_hearts.house.2": "아까 암실에 있었는데, 며칠 전에 찍은 나비 사진이 정말 잘 찍혔더라고!",
+  "dialogue.idle.haley.high_hearts.house.3": "에밀리의 수정 모음... 빛을 받을 때면 예쁘게 반짝여.",
+  "dialogue.idle.haley.high_hearts.house.4": "이 집엔 추억이 많아, 대부분 좋은 기억들이지.",
+  "dialogue.idle.haley.high_hearts.house.5": "나중에 에밀리랑 집 좀 정리해야겠다. 어쨌든 우리의 집이니까.",
+
+  "dialogue.attacking.haley.high_hearts.1": "걱정 마, 내가 도와줄게! 뒤에 있어!",
+  "dialogue.attacking.haley.high_hearts.2": "내가 지켜줄게! 하얏!",
+  "dialogue.attacking.haley.high_hearts.3": "내 친구한테 손대지 마!",
+  "dialogue.attacking.haley.high_hearts.4": "우리라면 해낼 수 있어! 같이 싸우자!",
+  "dialogue.attacking.haley.high_hearts.5": "실수네... 농부와 사진가에게 덤비다니!",
+
+  "dialogue.lumbering.haley.high_hearts.1": "팀워크를 발휘할 시간이네! 같이 이걸 치우자. 생각보다 운동 되는데?",
+  "dialogue.lumbering.haley.high_hearts.2": "이건 내가 해볼게. 한 번 쳐볼까?",
+  "dialogue.lumbering.haley.high_hearts.3": "조심해! 나 간다~",
+  "dialogue.lumbering.haley.high_hearts.4": "둘이서 하니까 훨씬 빨라지네!",
+  "dialogue.lumbering.haley.high_hearts.5": "농장에 필요한 나무잖아, 이 정도는 내가 도울게.",
+
+  "dialogue.mining.haley.high_hearts.1": "예쁜 수정 같은 게 나오면 좋겠다!",
+  "dialogue.mining.haley.high_hearts.2": "이거 깨보자. 안에 정동석이 있을지도 몰라!",
+  "dialogue.mining.haley.high_hearts.3": "보기보다 나, 꽤 힘 세지?",
+  "dialogue.mining.haley.high_hearts.4": "이건 내가 맡을게. 넌 힘을 좀 아껴!",
+  "dialogue.mining.haley.high_hearts.5": "이거 의외로... 재밌다!",
+
+  "dialogue.watering.haley.high_hearts.1": "이건 내가 도와줄게. 네 농장, 정말 예뻐.",
+  "dialogue.watering.haley.high_hearts.2": "식물들이 엄청 좋아하겠는걸? 무럭무럭 자랄 거야.",
+  "dialogue.watering.haley.high_hearts.3": "이렇게 너를 도와주는 것도 기분 좋다. 네 농장은 점점 예뻐져.",
+  "dialogue.watering.haley.high_hearts.4": "사람이 많으면 일도 금방이잖아, 그렇지?",
+  "dialogue.watering.haley.high_hearts.5": "됐다! 물도 다 줬고, 완벽해.",
+
+  "dialogue.harvesting.haley.high_hearts.1": "이거 봐! 정말 완벽해. 색깔도 너무 예쁘지 않아?",
+  "dialogue.harvesting.haley.high_hearts.2": "생각보다 훨씬 보람 있는 일이네.",
+  "dialogue.harvesting.haley.high_hearts.3": "오늘 저녁으로 딱이겠다. 저녁에는 신선한 과일이랑 채소가 최고지.",
+  "dialogue.harvesting.haley.high_hearts.4": "이렇게 네 노력이 결실을 맺는 걸 보니 나도 기분이 좋아져.",
+  "dialogue.harvesting.haley.high_hearts.5": "이건 내가 집을게. 우린 정말 잘 어울리는 팀이야!",
+
+  "dialogue.foraging.haley.high_hearts.1": "우와, 색감 좀 봐. 이거 진짜 예쁘다!",
+  "dialogue.foraging.haley.high_hearts.2": "작은 보물찾기 같아. 완전 재미있다!",
+  "dialogue.foraging.haley.high_hearts.3": "이거 정말 예쁘다. 따기 전에 사진이라도 찍어야겠어.",
+  "dialogue.foraging.haley.high_hearts.4": "자연 속에서 뭔가를 찾는 게 생각보다 힐링 되네.",
+  "dialogue.foraging.haley.high_hearts.5": "눈썰미가 좋네! 난 그거 놓칠 뻔했어."
+}

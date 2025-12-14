@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableHarmony>true</EnableHarmony>
+    <EnableModDeploy>false</EnableModDeploy>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.4.0" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="docs\**" />
+    <Compile Remove="docs\**" />
+    <EmbeddedResource Remove="docs\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="manifest.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="i18n\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="DeployMods" AfterTargets="AfterBuild" Condition="'$(GameModsPath)' != ''">
+    <!-- Deploy main mod -->
+    <ItemGroup>
+      <MainModFiles Include="$(TargetDir)**\*.*" Exclude="$(TargetDir)**\*.zip;$(TargetDir)**\*.deps.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MainModFiles)" DestinationFolder="$(GameModsPath)\The Stardew Squad\TheStardewSquad\%(RecursiveDir)" SkipUnchangedFiles="true" />
+
+    <!-- Deploy Content Patcher addon -->
+    <ItemGroup>
+      <ContentAddonFiles Include="..\[CP] TheStardewSquad.ContentAddons\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ContentAddonFiles)" DestinationFolder="$(GameModsPath)\The Stardew Squad\[CP] TheStardewSquad.ContentAddons\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

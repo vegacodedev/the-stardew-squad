@@ -1,0 +1,108 @@
+{
+  "config.recruitKey.name": "Recruit/Dismiss Key",
+  "config.recruitKey.description": "The main action key to use when recruiting or dismissing NPCs",
+  "config.manualTaskKey.name": "Manual Command Key",
+  "config.manualTaskKey.description": "Press this key while aiming at an object to command a squad member to interact with it.",
+  "config.useSquadInventory.name": "Use Squad Inventory",
+  "config.useSquadInventory.description": "When NPCs gather items, they will place it on a special Squad Inventory. If disabled, they will put it directly in the player's inventory if possible.",
+  "config.openSquadInventoryKey.name": "Open Squad Inventory Key",
+  "config.openSquadInventoryKey.description": "The key used to open the shared squad inventory.",
+  "config.tasksToggleKey.name": "Toggle Tasks Key",
+  "config.tasksToggleKey.description": "Press this key to toggle whether squad members perform tasks or only follow you.",
+
+  "config.friendshipRequirement.name": "Friendship Requirement",
+  "config.friendshipRequirement.description": "The number of hearts required to recruit an NPC. Spouses can always be recruited.",
+
+  "config.friendshipPointsPerHour.name": "Friendship Gain Per Hour",
+  "config.friendshipPointsPerHour.description": "The amount of friendship gained for each in-game hour spent with a recruited squad member.",
+
+  "config.maxSquadSize.name": "Max Squad Size",
+  "config.maxSquadSize.description": "The maximum number of followers you can have in your squad at one time. Be warned that increasing this number will make the mod overpowered (and may come to a performance cost at some point)!",
+
+  "config.recruitAllNpcs.name": "Recruit Any NPC",
+  "config.recruitAllNpcs.description": "If enabled, allows recruiting any NPC, not just friendable ones. WARNING: This may cause unexpected behavior with certain NPCs.",
+
+  "config.disableInteraction.name": "Disable Squad Member Interaction",
+  "config.disableInteraction.description": "Sets when talking to or gifting squad members should be prevented.",
+  "config.disableInteraction.option.Never": "Never",
+  "config.disableInteraction.option.CombatOnly": "In Combat Zones",
+  "config.disableInteraction.option.Always": "Everywhere",
+
+  "config.disableTrashRummagingReaction.name": "Disable Trash Reaction",
+  "config.disableTrashRummagingReaction.description": "Sets which squad members should not react negatively when you dig through trash cans.",
+  "config.disableTrashRummagingReaction.option.Never": "Never",
+  "config.disableTrashRummagingReaction.option.PetsOnly": "For Pets Only",
+  "config.disableTrashRummagingReaction.option.Everyone": "For Everyone",
+
+  "config.enableCommunication.name": "Enable Ambient Dialogue",
+  "config.enableCommunication.description": "If enabled, squad members will show dialogue bubbles or make sounds.",
+
+  "config.dialogueCooldownSeconds.name": "Dialogue Cooldown (seconds)",
+  "config.dialogueCooldownSeconds.description": "The minimum time in seconds between dialogue bubbles for each squad member. Set to 0 to disable cooldown.",
+
+  "config.enableIdleAnimations.name": "Enable Idle Animations",
+  "config.enableIdleAnimations.description": "If enabled, squad members will perform idle animations when standing still while following you.",
+
+  "config.enableGathering.name": "Auto-Gather Debris",
+  "config.enableGathering.description": "If enabled, squad members will automatically pick up loose items and debris from the ground.",
+
+  "config.enabledTasks.name": "Task Modes",
+
+  "config.taskMode.option.Disabled": "Disabled",
+  "config.taskMode.option.Mimicking": "Mimicking",
+  "config.taskMode.option.Autonomous": "Autonomous",
+
+  "config.attackingMode.name": "Attacking",
+  "config.attackingMode.description": "How squad members attack: Disabled (never), Mimicking (only when you fight), or Autonomous (automatically attack nearby monsters).",
+  "config.harvestingMode.name": "Harvesting",
+  "config.harvestingMode.description": "How squad members harvest: Disabled (never), Mimicking (only when you harvest), or Autonomous (automatically harvest nearby mature crops).",
+  "config.protectBeehouseFlowers.name": "Protect Beehouse Flowers",
+  "config.protectBeehouseFlowers.description": "Number of tiles around beehouses where flowers are protected from harvesting. Set to 0 to disable protection. Default is 5.",
+  "config.foragingMode.name": "Foraging",
+  "config.foragingMode.description": "How squad members forage: Disabled (never) or Autonomous (automatically pick up forage items).",
+  "config.lumberingMode.name": "Lumbering",
+  "config.lumberingMode.description": "How squad members chop: Disabled (never), Mimicking (only when you chop), or Autonomous (automatically clear twigs, chop trees when you do).",
+  "config.miningMode.name": "Mining",
+  "config.miningMode.description": "How squad members mine: Disabled (never), Mimicking (only when you mine), or Autonomous (automatically break nearby rocks).",
+  "config.wateringMode.name": "Watering",
+  "config.wateringMode.description": "How squad members water crops: Disabled (never), Mimicking (only when you water), or Autonomous (automatically water dry soil).",
+  "config.fishingMode.name": "Fishing",
+  "config.fishingMode.description": "How squad members fish: Disabled (never) or Mimicking (only when you fish).",
+  "config.pettingMode.name": "Petting",
+  "config.pettingMode.description": "How squad members pet animals: Disabled (never), Mimicking (only when you're petting animals), or Autonomous (automatically pet unpetted animals).",
+  "config.enableSitting.name": "Enable Sitting",
+  "config.enableSitting.description": "If enabled, squad members will sit on furniture when you do.",
+  "config.enableSittingLegRendering.name": "(EXPERIMENTAL) Enable Sitting Leg Rendering",
+  "config.enableSittingLegRendering.description": "If enabled, NPCs will use leg sprite manipulation when sitting (legs rotated for side views, sprite trimmed for proper positioning). Looks pretty hacky, but I'm putting it out here to try.",
+
+  "commands.noFollower": "You have no one in your squad to command.",
+
+  "config.tasksToggle.enabled": "Squad Tasks Enabled",
+  "config.tasksToggle.disabled": "Squad Tasks Disabled",
+
+  "generic.cancel": "Cancel",
+  "generic.no": "No",
+  "generic.yes": "Yes",
+  "recruitment.dismiss.allDone": "The team has been disbanded.",
+  "recruitment.onlyOneFollower": "You can only have one follower at a time.",
+  "recruitment.recruitAsk": "Ask {{name}} to follow you?",
+  "recruitment.recruitedAsk": "What to do with {{name}}?",
+  "recruitment.festival_block": "You cannot recruit NPCs during a festival.",
+  "recruitment.petRecruited": "{{name}} is now following you!",
+  "recruitment.petDismissed": "{{name}} is no longer following you.",
+  "recruitment.squadFull": "Your squad is already full.",
+
+  "squad.inventory.open": "Inventory",
+  "squad.inventory.title": "Squad Inventory",
+
+  "ui.status.recruited": "Currently in your squad",
+  "ui.status.notRecruited": "Not recruited",
+  "ui.button.recruit": "Recruit",
+  "ui.button.dismiss": "Dismiss",
+  "ui.button.dismissAll": "Dismiss all",
+  "ui.button.waitHere": "Wait Here",
+  "ui.button.roamHere": "Roam Here",
+
+  "management.waiting": "{{name}} is now waiting here.",
+  "management.resumedFromWaiting": "{{name}} has resumed following you."
+}

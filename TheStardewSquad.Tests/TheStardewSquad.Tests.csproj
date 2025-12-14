@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+
+    <!-- SMAPI test project configuration -->
+    <EnableGameDebugging>false</EnableGameDebugging>
+    <EnableModDeploy>false</EnableModDeploy>
+    <EnableModZip>false</EnableModZip>
+    <BundleExtraAssemblies>All</BundleExtraAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Testing frameworks -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.6.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+
+    <!-- Mocking framework -->
+    <PackageReference Include="Moq" Version="4.20.70" />
+
+    <!-- FluentAssertions for more readable assertions -->
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+
+    <!-- SMAPI for test support -->
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reference to the main project -->
+    <ProjectReference Include="..\TheStardewSquad\TheStardewSquad.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Exclude archived test files from compilation -->
+    <Compile Remove="Framework\_Archive_PreNpcConfigRefactor\**" />
+  </ItemGroup>
+
+</Project>

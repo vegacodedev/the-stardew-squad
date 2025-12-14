@@ -1,0 +1,72 @@
+﻿{
+  "config.recruitKey.name": "雇用・解散キー",
+  "config.recruitKey.description": "NPCたちを雇用するか解散するといに使う主なアクションキー。",
+  "config.manualTaskKey.name": "マニュアルコマンドキー",
+  "config.manualTaskKey.description": "あるオブジェクトに指定したキーを押している間、指示を受けた隊員のメンバーがそこへ向かう。",
+  "config.openSquadInventoryKey.name": "隊員の荷物を開くキー",
+  "config.openSquadInventoryKey.description": "共有された隊員の荷物を開くときに使うキー。",
+
+  "config.friendshipRequirement.name": "友好度の要求",
+  "config.friendshipRequirement.description": "NPCを雇用するときに友好度の数値を要求される。配偶者はいつでも雇用できる。",
+
+  "config.friendshipPointsPerHour.name": "1時間ごとの友好度上昇値",
+  "config.friendshipPointsPerHour.description": "ゲーム内時間で1時間過ごす毎に、雇用された隊員のメンバーと得られる友好度の量。",
+
+  "config.maxSquadSize.name": "最大雇用可能人数",
+  "config.maxSquadSize.description": "一度に雇用できる隊員の最大値。この数を増加させることは、ＭＯＤでパワーバランスが崩れることに要注意すること (それと多分同時に使用デバイスのコストパフォーマンスがヤバイ)！",
+
+  "config.recruitAllNpcs.name": "あらゆるNPCを雇用",
+  "config.recruitAllNpcs.description": "有効にした場合、あらゆるNPCを雇用できる。非友好度持ち (農家に非社交的)であってもだ。※警告: これは特定のNPCたちに予期せぬ行動を引き起こすかも。",
+
+  "config.disableInteraction.name": "隊員メンバーとの交流を無効",
+  "config.disableInteraction.description": "隊員メンバーに会話とプレゼントを絶対阻止したいときに設定。",
+  "config.disableInteraction.option.Never": "無効にしない",
+  "config.disableInteraction.option.CombatOnly": "戦闘区域のみ",
+  "config.disableInteraction.option.Always": "全エリア無効",
+
+  "config.disableTrashRummagingReaction.name": "ゴミ漁り反応無効",
+  "config.disableTrashRummagingReaction.description": "ゴミ箱を漁ってるときに隊員のメンバーがネガティブな反応を絶対にしない設定を施す。",
+  "config.disableTrashRummagingReaction.option.Never": "無効にしない",
+  "config.disableTrashRummagingReaction.option.PetsOnly": "ペットのみ無効",
+  "config.disableTrashRummagingReaction.option.Everyone": "全員無効",
+
+  "config.enableCommunication.name": "台詞の効果音有効",
+  "config.enableCommunication.description": "有効な場合、隊員のメンバーは台詞吹き出しを見せるか音を出すだろう。",
+
+  "config.enabledTasks.name": "タスク友好",
+  "config.enableAttacking.name": "自動攻撃",
+  "config.enableAttacking.description": "有効な場合、隊員のメンバーは敵対するモンスターに攻撃する。",
+  "config.enableLumbering.name": "自動伐採",
+  "config.enableLumbering.description": "有効な場合、隊員のメンバーは斧が入った木を切り倒す手伝いをする。",
+  "config.enableMining.name": "自動採鉱",
+  "config.enableMining.description": "有効な場合、隊員のメンバーは岩を壊す手伝いをする。",
+  "config.enableWatering.name": "自動水やり",
+  "config.enableWatering.description": "有効な場合、隊員のメンバーは農場の乾いた土壌に水をやる。",
+  "config.enableHarvesting.name": "自動収穫",
+  "config.enableHarvesting.description": "有効な場合、隊員のメンバーは実った作物を収穫する手伝いをする。",
+  "config.enableForaging.name": "自動採取",
+  "config.enableForaging.description": "有効な場合、隊員のメンバーは採取できるアイテムを拾い上げ、ベリーの生る茂みを揺らす。",
+  "config.enableGathering.name": "自動収集",
+  "config.enableGathering.description": "有効な場合、隊員のメンバーは地面から浮いているアイテムたちを自動的に拾い上げる。",
+
+  "commands.noFollower": "指示を出せる隊員が誰もいない。",
+
+  "generic.cancel": "キャンセル",
+  "generic.no": "いいえ",
+  "generic.yes": "はい",
+  "recruitment.dismiss": "解散",
+  "recruitment.dismiss.all": "全員解散",
+  "recruitment.dismiss.allDone": "チーム解散完了。",
+  "recruitment.dismiss.roamHere": "この範囲で自由行動をさせる",
+  "recruitment.dismiss.sendHome": "家へ帰す",
+  "recruitment.onlyOneFollower": "隊員は一度に一人しか持てない。",
+  "recruitment.recruitAsk": "{{name}}に付いてくるように尋ねる？",
+  "recruitment.recruitedAsk": "{{name}}と何がしたい？",
+  "recruitment.festival_block": "祭日中はNPCを雇用できない。",
+  "recruitment.petRecruited": "{{name}}は君に付いてきている！",
+  "recruitment.petDismissed": "{{name}}はもう君に付いてこない。",
+  "recruitment.squadFull": "君の雇用枠は既に満員だ。",
+
+  "squad.inventory.open": "隊員の荷物を開ける",
+  "squad.inventory.title": "隊員の荷物"
+}

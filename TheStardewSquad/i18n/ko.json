@@ -1,0 +1,75 @@
+﻿{
+  "config.recruitKey.name": "모집/해산 키",
+  "config.recruitKey.description": "NPC를 모집하거나 해산할 때 사용하는 주요 액션 키입니다.",
+  "config.manualTaskKey.name": "수동 명령 키",
+  "config.manualTaskKey.description": "물체를 조준하는 동안 이 키를 누르면 분대원에게 해당 물체와 상호 작용하도록 명령할 수 있습니다.",
+  "config.openSquadInventoryKey.name": "분대 인벤토리 오픈 키",
+  "config.openSquadInventoryKey.description": "공유 분대 인벤토리를 오픈하는 데 사용되는 키입니다.",
+
+  "config.friendshipRequirement.name": "요구되는 우정",
+  "config.friendshipRequirement.description": "NPC를 모집하기 위해 필요한 하트 수입니다. 배우자는 항상 모집할 수 있습니다.",
+
+  "config.friendshipPointsPerHour.name": "시간당 우정 획득량",
+  "config.friendshipPointsPerHour.description": "모집된 분대원과 함께한 게임 내 시간 1시간마다 획득하는 우정의 양입니다.",
+
+  "config.maxSquadSize.name": "최대 분대 인원",
+  "config.maxSquadSize.description": "한 번에 가질 수 있는 최대 분대원 수입니다. 이 값을 늘리면 모드가 지나치게 강력해질 수 있으며, 성능 저하가 발생할 수도 있습니다!",
+
+  "config.recruitAllNpcs.name": "어느 NPC라도 모집 가능",
+  "config.recruitAllNpcs.description": "활성화 시 호감도를 쌓을 수 있는 NPC뿐만 아닌 모든 NPC를 모집할 수 있습니다. 경고: 일부 NPC에서는 예기치 않은 동작이 발생할 수 있습니다.",
+
+  "config.disableInteraction.name": "분대원 상호작용 비활성화",
+  "config.disableInteraction.description": "분대원과 대화하거나 선물을 주는 행위를 언제 방지할지 설정합니다.",
+  "config.disableInteraction.option.Never": "하지 않음",
+  "config.disableInteraction.option.CombatOnly": "전투 구역에서만",
+  "config.disableInteraction.option.Always": "항상",
+
+  "config.disableTrashRummagingReaction.name": "쓰레기 반응 비활성화",
+  "config.disableTrashRummagingReaction.description": "쓰레기통을 뒤질 때 특정 분대원이 부정적으로 반응하지 않도록 설정합니다.",
+  "config.disableTrashRummagingReaction.option.Never": "절대 없음",
+  "config.disableTrashRummagingReaction.option.PetsOnly": "반려동물만 해당",
+  "config.disableTrashRummagingReaction.option.Everyone": "모두 해당",
+
+  "config.enableCommunication.name": "환경 대사 활성화",
+  "config.enableCommunication.description": "활성화 시 분대원이 말풍선을 표시하거나 소리를 냅니다.",
+
+  "config.enableIdleAnimations.name": "대기 애니메이션 활성화",
+  "config.enableIdleAnimations.description": "활성화 시 분대원들이 당신을 따라 멈춰 서 있을 때 대기 애니메이션을 수행합니다.",
+
+  "config.enabledTasks.name": "활성화된 작업",
+  "config.enableAttacking.name": "자동 공격",
+  "config.enableAttacking.description": "활성화 시 분대원이 적대적인 몬스터를 공격합니다.",
+  "config.enableLumbering.name": "자동 벌목",
+  "config.enableLumbering.description": "활성화 시 분대원이 손상된 나무를 베는 것을 돕습니다.",
+  "config.enableMining.name": "자동 채광",
+  "config.enableMining.description": "활성화 시 분대원이 바위를 깨는 것을 도와줍니다.",
+  "config.enableWatering.name": "자동 물주기",
+  "config.enableWatering.description": "활성화 시 분대원이 마른 농지에 물을 줍니다.",
+  "config.enableHarvesting.name": "자동 수확",
+  "config.enableHarvesting.description": "활성화 시 분대원이 자란 작물을 수확하는 데 도움을 줍니다.",
+  "config.enableForaging.name": "자동 채집",
+  "config.enableForaging.description": "활성화 시 분대원이 채집 아이템을 줍거나 열매 덤불을 흔듭니다.",
+  "config.enableGathering.name": "자동 줍기",
+  "config.enableGathering.description": "활성화 시 분대원이 땅에 떨어진 아이템을 자동으로 줍습니다.",
+
+  "commands.noFollower": "명령할 분대원이 없습니다.",
+
+  "generic.cancel": "취소",
+  "generic.no": "아니요",
+  "generic.yes": "예",
+  "recruitment.dismiss": "해산",
+  "recruitment.dismiss.all": "모두 해산",
+  "recruitment.dismiss.allDone": "팀이 해산되었습니다.",
+  "recruitment.dismiss.roamHere": "이곳을 배회하게 하기",
+  "recruitment.dismiss.sendHome": "집으로 돌려보내기",
+  "recruitment.onlyOneFollower": "한 번에 한 명의 분대원만 데리고 다닐 수 있습니다.",
+  "recruitment.recruitAsk": "{{name}}에게 함께 하자고 요청하시겠습니까?",
+  "recruitment.recruitedAsk": "{{name}}에게 무엇을 하도록 하시겠습니까?",
+  "recruitment.festival_block": "축제 동안에는 NPC를 모집할 수 없습니다.",
+  "recruitment.petRecruited": "지금부터 {{name}}(이)가 당신을 따라다닙니다!",
+  "recruitment.petDismissed": "더 이상 {{name}}(이)가 당신을 따라다니지 않습니다.",
+  "recruitment.squadFull": "분대가 이미 가득 찼습니다.",
+
+  "squad.inventory.open": "분대 인벤토리 열기",
+  "squad.inventory.title": "분대 인벤토리"
+}

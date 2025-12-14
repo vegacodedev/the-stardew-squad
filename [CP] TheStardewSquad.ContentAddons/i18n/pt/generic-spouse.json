@@ -1,0 +1,47 @@
+{
+  "dialogue.recruit.spouse.generic.1": "Claro, {{endearment}}. Vou aonde você for.",
+  "dialogue.recruit.spouse.generic.2": "Para qualquer lugar com você, {{endearment}}. Vamos nessa.",
+  "dialogue.recruit.spouse.generic.3": "Adoraria! O que vamos fazer hoje?",
+  "dialogue.recruit.spouse.generic.4": "É só dizer e eu estou lá, {{endearment}}.",
+  "dialogue.recruit.spouse.generic.5": "Sempre. Estarei bem atrás de você.",
+  "dialogue.recruit.spouse.generic.night.1": "Ficando até tarde, {{endearment}}? Estou com você.",
+
+  "dialogue.dismiss.spouse.generic.1": "Ok, {{endearment}}. Te vejo em casa.",
+  "dialogue.dismiss.spouse.generic.2": "Tudo bem, cuide-se por aí, {{endearment}}.",
+  "dialogue.dismiss.spouse.generic.3": "Vou começar a voltar para casa. Não demore muito!",
+  "dialogue.dismiss.spouse.generic.4": "Me avise quando terminar. Até logo, {{endearment}}.",
+  "dialogue.dismiss.spouse.generic.5": "Era só isso? Então te encontro na fazenda.",
+  "dialogue.dismiss.spouse.generic.night.1": "Estou pronto para dormir. Te vejo em casa, {{endearment}}.",
+
+  "dialogue.idle.spouse.generic.generic.1": "Adoro passar o dia com você, {{endearment}}.",
+  "dialogue.idle.spouse.generic.generic.2": "Parece que podemos conquistar o mundo juntos.",
+  "dialogue.idle.spouse.generic.generic.3": "Só estar com você é tudo que eu preciso, {{endearment}}.",
+  "dialogue.idle.spouse.generic.generic.4": "Todo dia é uma aventura com você.",
+  "dialogue.idle.spouse.generic.generic.5": "Que dia perfeito para passarmos juntos, não é?",
+  "dialogue.idle.spouse.generic.generic.night.1": "Adoro passar minhas noites com você assim.",
+  "dialogue.idle.spouse.generic.generic.night.2": "Só você, eu e o luar, {{endearment}}.",
+
+  "dialogue.attacking.spouse.generic.generic.1": "Ninguém machuca meu/minha {{endearment}}!",
+  "dialogue.attacking.spouse.generic.generic.2": "Não ouse chegar perto deles/delas!",
+  "dialogue.attacking.spouse.generic.generic.3": "Afaste-se de {{name}}!",
+  "dialogue.attacking.spouse.generic.generic.4": "Não vou deixar você machucá-los!",
+  "dialogue.attacking.spouse.generic.generic.5": "Eu te protejo, {{endearment}}!",
+
+  "dialogue.watering.spouse.generic.generic.1": "Ajudando na fazenda do meu/minha fazendeiro(a) favorito(a)!",
+  "dialogue.watering.spouse.generic.generic.2": "Nossa fazenda vai ficar tão linda, {{endearment}}.",
+  "dialogue.watering.spouse.generic.generic.3": "Time unido é time forte, não é, {{endearment}}?",
+  "dialogue.watering.spouse.generic.generic.4": "Não é nenhum problema. Qualquer coisa por você.",
+  "dialogue.watering.spouse.generic.generic.5": "É muito mais divertido quando fazemos juntos.",
+
+  "dialogue.lumbering.spouse.generic.generic.1": "Deixa que eu cuido disso, {{endearment}}.",
+  "dialogue.lumbering.spouse.generic.generic.2": "Vamos limpar isso rapidinho!",
+  "dialogue.lumbering.spouse.generic.generic.3": "Cuidado, {{endearment}}!",
+  "dialogue.lumbering.spouse.generic.generic.4": "Somos tão eficientes quando trabalhamos juntos.",
+  "dialogue.lumbering.spouse.generic.generic.5": "Dois machados são melhores que um!",
+
+  "dialogue.mining.spouse.generic.generic.1": "Eu cuido desta pedra para você.",
+  "dialogue.mining.spouse.generic.generic.2": "Qualquer coisa para melhorar nossa fazenda!",
+  "dialogue.mining.spouse.generic.generic.3": "Você encontrou um bom lugar para minerar, {{endearment}}.",
+  "dialogue.mining.spouse.generic.generic.4": "Precisamos de toda a pedra que conseguirmos!",
+  "dialogue.mining.spouse.generic.generic.5": "Isso me lembra nossas velhas aventuras nas minas."
+}

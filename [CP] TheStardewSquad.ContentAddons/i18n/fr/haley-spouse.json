@@ -1,0 +1,91 @@
+{
+  "dialogue.recruit.haley.spouse.1": "Une aventure ? Parfait ! Je cherchais justement de nouvelles inspirations photo aujourd'hui.",
+  "dialogue.recruit.haley.spouse.2": "Bien sûr, mon cœur. Ça fait toujours du bien de sortir et de voir le monde.",
+  "dialogue.recruit.haley.spouse.3": "Oui ! Allons-y. Je viens de recevoir un nouvel objectif que je voulais essayer sur le terrain.",
+  "dialogue.recruit.haley.spouse.4": "N'importe où, tant que c'est avec toi.",
+  "dialogue.recruit.haley.spouse.5": "Oui ! J'espérais qu'on pourrait sortir aujourd'hui.",
+
+  "dialogue.dismiss.haley.spouse.1": "D'accord, mon cœur. Je rentre. J'ai une idée pour une nouvelle recette de gâteau que je veux essayer !",
+  "dialogue.dismiss.haley.spouse.2": "Ok, {{endearment}}. Je vais développer les photos d'aujourd'hui. J'ai hâte de voir le résultat !",
+  "dialogue.dismiss.haley.spouse.3": "Je vais commencer à préparer le dîner alors. Fais attention à toi !",
+  "dialogue.dismiss.haley.spouse.4": "Dis-moi quand tu es en route. Je t'aime !",
+  "dialogue.dismiss.haley.spouse.5": "C'était tout ? Je te retrouve à la ferme, alors.",
+
+  "dialogue.idle.haley.spouse.generic.1": "Je pensais, on devrait installer un petit studio extérieur pour des portraits. La lumière naturelle ici est incroyable.",
+  "dialogue.idle.haley.spouse.generic.2": "Être ici avec toi m'éclaircit les idées. Ça m'aide à voir le monde sous un autre angle, si on peut dire.",
+  "dialogue.idle.haley.spouse.generic.3": "J'admire juste la vue... et tu en es la meilleure partie.",
+  "dialogue.idle.haley.spouse.generic.4": "Je suis si heureuse de t'avoir épousé(e), {{endearment}}. La vie n'est jamais ennuyeuse.",
+  "dialogue.idle.haley.spouse.generic.5": "On devrait prendre une photo pour se souvenir de ce moment ?",
+
+  "dialogue.idle.haley.spouse.farm.1": "La façon dont le soleil de l'après-midi frappe ces feuilles... Une occasion photo parfaite.",
+  "dialogue.idle.haley.spouse.farm.2": "Notre ferme est le plus bel endroit de toute la vallée.",
+  "dialogue.idle.haley.spouse.farm.3": "Tes animaux ont tellement de personnalité. Je pourrais faire toute une série de photos juste sur elles.",
+  "dialogue.idle.haley.spouse.farm.4": "Regarder tout ça me rappelle à quel point ma vie a changé pour le mieux.",
+  "dialogue.idle.haley.spouse.farm.5": "Tout est florissant ici. Tout comme nous.",
+
+  "dialogue.idle.haley.spouse.mines.1": "C'est comme l'un de nos premiers rendez-vous, hein ? Mais maintenant, je sais me débrouiller.",
+  "dialogue.idle.haley.spouse.mines.2": "Je me sens en sécurité ici avec toi. On peut tout affronter.",
+  "dialogue.idle.haley.spouse.mines.3": "La façon dont la lumière scintille sur ces cristaux me donne des idées pour mes photos.",
+  "dialogue.idle.haley.spouse.mines.4": "Tu te souviens quand j'avais peur de cet endroit ? Ça semble si idiot maintenant.",
+  "dialogue.idle.haley.spouse.mines.5": "Notre propre petite chasse au trésor. J'adore.",
+
+  "dialogue.idle.haley.spouse.house.1": "C'est drôle d'être de retour ici. Cet endroit me paraissait petit et limité avant.",
+  "dialogue.idle.haley.spouse.house.2": "Je devrais aller voir Emily pendant qu'on est là. J'espère qu'elle n'oublie pas d'arroser ses plantes.",
+  "dialogue.idle.haley.spouse.house.3": "Notre maison est tellement plus agréable, mais cet endroit sera toujours un peu spécial.",
+  "dialogue.idle.haley.spouse.house.4": "En regardant mon ancienne chambre... J'ai beaucoup grandi, n'est-ce pas ? J'en suis contente.",
+  "dialogue.idle.haley.spouse.house.5": "Allons dire bonjour à mes parents. Oh, attends... ils sont toujours en voyage. J'oublie parfois.",
+
+  "dialogue.attacking.haley.spouse.1": "Hé ! Ne t'approche pas de mon/ma conjoint(e) !",
+  "dialogue.attacking.haley.spouse.2": "Je suis plus forte que j'en ai l'air, espèce de monstre !",
+  "dialogue.attacking.haley.spouse.3": "N'essaie même pas !",
+  "dialogue.attacking.haley.spouse.4": "Je te protégerai ! Toujours !",
+  "dialogue.attacking.haley.spouse.5": "Il faudra me passer sur le corps d'abord !",
+
+  "dialogue.lumbering.haley.spouse.1": "On forme une si bonne équipe. On aura fini ça en un rien de temps.",
+  "dialogue.lumbering.haley.spouse.2": "Laisse-moi faire, mon cœur. Il faut que je garde les bras musclés pour porter mon lourd appareil photo !",
+  "dialogue.lumbering.haley.spouse.3": "Regarde-nous, travaillant ensemble pour notre terre. C'est parfait.",
+  "dialogue.lumbering.haley.spouse.4": "Plus de bois pour garder notre maison au chaud. Bien pensé.",
+  "dialogue.lumbering.haley.spouse.5": "Fais attention ! N'en fais pas trop.",
+
+  "dialogue.mining.haley.spouse.1": "Je m'occupe de celui-là ! J'ai beaucoup appris en te regardant.",
+  "dialogue.mining.haley.spouse.2": "Nous sommes un couple de choc, n'est-ce pas ?",
+  "dialogue.mining.haley.spouse.3": "Oh, j'espère qu'il y a un diamant là-dedans ! Ce serait un super sujet pour une nature morte.",
+  "dialogue.mining.haley.spouse.4": "N'importe quoi pour t'aider, mon amour.",
+  "dialogue.mining.haley.spouse.5": "Juste un peu plus et on pourra construire ce nouveau chemin que tu voulais.",
+
+  "dialogue.watering.haley.spouse.1": "Je deviens plutôt douée pour ça ! Peut-être que j'ai la main verte, après tout.",
+  "dialogue.watering.haley.spouse.2": "J'adore t'aider à rendre notre maison magnifique.",
+  "dialogue.watering.haley.spouse.3": "Des plantes saines pour une ferme heureuse, et une ferme heureuse est le meilleur des décors pour les photos !",
+  "dialogue.watering.haley.spouse.4": "Les ingrédients les plus frais pour mon prochain gâteau sont juste ici !",
+  "dialogue.watering.haley.spouse.5": "Je suis si heureuse d'avoir cette vie avec toi.",
+
+  "dialogue.harvesting.haley.spouse.1": "La récolte de notre ferme ! Je suis si fière de ce que nous avons construit, {{endearment}}.",
+  "dialogue.harvesting.haley.spouse.2": "Je vais prendre ça pour mon gâteau. Que les ingrédients les plus frais pour nous !",
+  "dialogue.harvesting.haley.spouse.3": "Regarde cette récolte parfaite.",
+  "dialogue.harvesting.haley.spouse.4": "Récolter avec toi est l'une de mes activités préférées.",
+  "dialogue.harvesting.haley.spouse.5": "Rassemblons tout ça. Je réfléchis déjà à ce que je vais cuisiner ce soir.",
+
+  "dialogue.foraging.haley.spouse.1": "Un petit cadeau de la nature, rien que pour nous. C'est adorable.",
+  "dialogue.foraging.haley.spouse.2": "J'adore ces moments de calme, à juste se promener et trouver des trésors avec toi.",
+  "dialogue.foraging.haley.spouse.3": "Oh, celui-ci est parfait ! Il sera si joli dans un vase à la maison.",
+  "dialogue.foraging.haley.spouse.4": "Regarde, {{endearment}} ! Un petit cadeau de la vallée. Un en-cas pour notre promenade ?",
+  "dialogue.foraging.haley.spouse.5": "Tout semble plus beau quand je le vois avec toi.",
+
+  "dialogue.fishing_waiting.haley.spouse.1": "Juste toi, moi et l'eau. C'est parfait, {{endearment}}.",
+  "dialogue.fishing_waiting.haley.spouse.2": "Tu te souviens quand je disais que la pêche était ennuyeuse ? J'avais tellement tort.",
+  "dialogue.fishing_waiting.haley.spouse.3": "Le reflet sur l'eau est magnifique. Presque aussi magnifique que toi !",
+  "dialogue.fishing_waiting.haley.spouse.4": "J'adore ces moments tranquilles ensemble. Pas de précipitation, juste nous.",
+  "dialogue.fishing_waiting.haley.spouse.5": "Même si on n'attrape rien, c'est du temps bien passé.",
+
+  "dialogue.fishing_caught.haley.spouse.1": "Je l'ai eu ! Tu as vu ça, {{endearment}} ?",
+  "dialogue.fishing_caught.haley.spouse.2": "Parfait ! Je vais le cuisiner pour le dîner ce soir. Ça te dit ?",
+  "dialogue.fishing_caught.haley.spouse.3": "Regarde cette prise ! Je deviens plutôt douée, non ?",
+  "dialogue.fishing_caught.haley.spouse.4": "Encore un ! On fait une super équipe ici.",
+  "dialogue.fishing_caught.haley.spouse.5": "C'est une belle prise ! Tu peux me prendre en photo avec ?",
+
+  "dialogue.petting.haley.spouse.1": "Nos animaux ont tellement de chance de nous avoir. Regarde comme ils sont heureux !",
+  "dialogue.petting.haley.spouse.2": "Tu te souviens quand j'avais peur des animaux de ferme ? Maintenant je les adore autant que toi.",
+  "dialogue.petting.haley.spouse.3": "Prendre soin d'eux ensemble... on dirait qu'on est une vraie équipe.",
+  "dialogue.petting.haley.spouse.4": "J'ai pris de super photos d'eux aujourd'hui. Tu veux voir ?",
+  "dialogue.petting.haley.spouse.5": "C'est comme notre petite famille, n'est-ce pas, {{endearment}} ?"
+}

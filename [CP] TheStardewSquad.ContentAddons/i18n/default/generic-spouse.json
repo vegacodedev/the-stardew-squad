@@ -1,0 +1,77 @@
+{
+  "dialogue.recruit.spouse.generic.1": "Of course, {{endearment}}. I'll go wherever you go.",
+  "dialogue.recruit.spouse.generic.2": "Anywhere with you, {{endearment}}. Let's get moving.",
+  "dialogue.recruit.spouse.generic.3": "I'd love to! What are we doing today?",
+  "dialogue.recruit.spouse.generic.4": "Just say the word and I'm there, {{endearment}}.",
+  "dialogue.recruit.spouse.generic.5": "Always. I'll be right behind you.",
+  "dialogue.recruit.spouse.generic.night.1": "Staying out late, {{endearment}}? I'm with you.",
+
+  "dialogue.dismiss.spouse.generic.1": "Okay, {{endearment}}. I'll see you back at home.",
+  "dialogue.dismiss.spouse.generic.2": "Alright, be safe out there, {{endearment}}.",
+  "dialogue.dismiss.spouse.generic.3": "I'll start heading home. Don't be too late!",
+  "dialogue.dismiss.spouse.generic.4": "Let me know when you're done. See you soon, {{endearment}}.",
+  "dialogue.dismiss.spouse.generic.5": "Was that all? I'll meet you at the farmhouse, then.",
+  "dialogue.dismiss.spouse.generic.night.1": "I'm ready for bed. See you at home, {{endearment}}.",
+
+  "dialogue.idle.spouse.generic.generic.1": "I love spending the day with you, {{endearment}}.",
+  "dialogue.idle.spouse.generic.generic.2": "It feels like we can take on the world together.",
+  "dialogue.idle.spouse.generic.generic.3": "Just being with you is all I need, {{endearment}}.",
+  "dialogue.idle.spouse.generic.generic.4": "Every day is an adventure with you.",
+  "dialogue.idle.spouse.generic.generic.5": "What a perfect day to spend together, isn't it?",
+  "dialogue.idle.spouse.generic.generic.night.1": "I love spending my evenings with you like this.",
+  "dialogue.idle.spouse.generic.generic.night.2": "Just you, me, and the moonlight, {{endearment}}.",
+
+  "dialogue.attacking.spouse.generic.generic.1": "Nobody hurts my {{endearment}}!",
+  "dialogue.attacking.spouse.generic.generic.2": "Don't you dare come near them!",
+  "dialogue.attacking.spouse.generic.generic.3": "Get away from {{name}}!",
+  "dialogue.attacking.spouse.generic.generic.4": "I won't let you hurt them!",
+  "dialogue.attacking.spouse.generic.generic.5": "I'll protect you, {{endearment}}!",
+
+  "dialogue.watering.spouse.generic.generic.1": "Helping out on the farm for my favorite farmer!",
+  "dialogue.watering.spouse.generic.generic.2": "Our farm is going to be so beautiful, {{endearment}}.",
+  "dialogue.watering.spouse.generic.generic.3": "Teamwork makes the dream work, right {{endearment}}?",
+  "dialogue.watering.spouse.generic.generic.4": "It's no trouble at all. Anything for you.",
+  "dialogue.watering.spouse.generic.generic.5": "This is much more fun when we do it together.",
+
+  "dialogue.lumbering.spouse.generic.generic.1": "Let me get that for you, {{endearment}}.",
+  "dialogue.lumbering.spouse.generic.generic.2": "We'll have this cleared in no time!",
+  "dialogue.lumbering.spouse.generic.generic.3": "Careful, {{endearment}}!",
+  "dialogue.lumbering.spouse.generic.generic.4": "We're so efficient when we work together.",
+  "dialogue.lumbering.spouse.generic.generic.5": "Two axes are better than one!",
+
+  "dialogue.mining.spouse.generic.generic.1": "I can handle this rock for you.",
+  "dialogue.mining.spouse.generic.generic.2": "Anything to make our farm better!",
+  "dialogue.mining.spouse.generic.generic.3": "You found a good spot to mine, {{endearment}}.",
+  "dialogue.mining.spouse.generic.generic.4": "We need all the stone we can get!",
+  "dialogue.mining.spouse.generic.generic.5": "This reminds me of our old adventures in the mines.",
+
+  "dialogue.harvesting.spouse.generic.generic.1": "Our hard work is paying off, {{endearment}}.",
+  "dialogue.harvesting.spouse.generic.generic.2": "This is going to taste delicious tonight.",
+  "dialogue.harvesting.spouse.generic.generic.3": "I'm so proud of our farm.",
+  "dialogue.harvesting.spouse.generic.generic.4": "This one looks perfect! I'll grab it.",
+  "dialogue.harvesting.spouse.generic.generic.5": "It's so much more fun doing this together.",
+
+  "dialogue.foraging.spouse.generic.generic.1": "What a lovely day for a walk... and a snack!",
+  "dialogue.foraging.spouse.generic.generic.2": "I'll get that for you, {{endearment}}.",
+  "dialogue.foraging.spouse.generic.generic.3": "It feels like we're on a little treasure hunt together.",
+  "dialogue.foraging.spouse.generic.generic.4": "Look what I found! Should we keep it?",
+  "dialogue.foraging.spouse.generic.generic.5": "The best things in life are free... and shared with you.",
+
+  "dialogue.fishing_waiting.spouse.generic.generic.1": "It's so peaceful being out here with you, {{endearment}}.",
+  "dialogue.fishing_waiting.spouse.generic.generic.2": "I could fish with you all day.",
+  "dialogue.fishing_waiting.spouse.generic.generic.3": "It's moments like these that I cherish the most.",
+  "dialogue.fishing_waiting.spouse.generic.generic.4": "Just you, me, and the water. Perfect.",
+  "dialogue.fishing_waiting.spouse.generic.generic.5": "I don't mind the wait when I'm with you.",
+
+  "dialogue.fishing_caught.spouse.generic.generic.1": "I got one, {{endearment}}!",
+  "dialogue.fishing_caught.spouse.generic.generic.2": "Look! We should cook this for dinner.",
+  "dialogue.fishing_caught.spouse.generic.generic.3": "Wow! What a big fish!",
+  "dialogue.fishing_caught.spouse.generic.generic.4": "Ha! All that patience paid off!",
+  "dialogue.fishing_caught.spouse.generic.generic.5": "I love fishing with you.",
+
+  "dialogue.petting.spouse.generic.generic.1": "Our sweet little friends!",
+  "dialogue.petting.spouse.generic.generic.2": "They seem so happy when we take care of them.",
+  "dialogue.petting.spouse.generic.generic.3": "Taking care of them together makes it even better.",
+  "dialogue.petting.spouse.generic.generic.4": "Look how much they love us, {{endearment}}.",
+  "dialogue.petting.spouse.generic.generic.5": "These animals are part of our family now."
+}

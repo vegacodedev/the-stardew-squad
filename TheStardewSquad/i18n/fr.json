@@ -1,0 +1,108 @@
+{
+  "config.recruitKey.name": "Touche pour Recruter/Congédier",
+  "config.recruitKey.description": "La touche d'action principale du mod pour recruter et congédier un NPC.",
+  "config.manualTaskKey.name": "Touche pour assigner une tâche",
+  "config.manualTaskKey.description": "Appuyez sur cette touche en visant un objet ou un monstre pour envoyer un NPC effectuer une tâche dessus.",
+  "config.useSquadInventory.name": "Utiliser l'inventaire d'équipe",
+  "config.useSquadInventory.description": "Lorsque les PNJ ramassent des objets, ils les placent dans un inventaire d'équipe spécial. Si désactivé, ils les mettront directement dans l'inventaire du joueur si possible.",
+  "config.openSquadInventoryKey.name": "Touche pour l'inventaire d'équipe",
+  "config.openSquadInventoryKey.description": "La touche utilisée pour ouvrir l'inventaire partagé de l'équipe.",
+  "config.tasksToggleKey.name": "Touche pour activer/désactiver les tâches",
+  "config.tasksToggleKey.description": "Appuyez sur cette touche pour activer ou désactiver l'exécution des tâches par les membres de l'équipe.",
+
+  "config.friendshipRequirement.name": "Amitié requise",
+  "config.friendshipRequirement.description": "Le niveau d'amitié requis pour recruter un NPC. Les NPCs mariés avec le joueur sont toujours recrutables.",
+
+  "config.friendshipPointsPerHour.name": "Gain d'amitié par heure",
+  "config.friendshipPointsPerHour.description": "La quantité de points d'amitié gagnés par heure passée en compagnie d'un NPC.",
+
+  "config.maxSquadSize.name": "Taille maximale de l'équipe",
+  "config.maxSquadSize.description": "Le nombre maximum de membres que vous pouvez avoir dans votre équipe en même temps. Attention : Augmenter ce nombre rendra le mod peut-être trop puissant (et peut causer des problèmes de performance)!",
+
+  "config.recruitAllNpcs.name": "Recruter n'importe quel PNJ",
+  "config.recruitAllNpcs.description": "Si activé, permet de recruter n'importe quel PNJ, pas seulement ceux ayant des points d'amitié. ATTENTION : Peut causer des comportements inattendus avec certains PNJs.",
+
+  "config.disableInteraction.name": "Désactiver l'interaction avec un NPC dans l'équipe",
+  "config.disableInteraction.description": "Choisir où désactiver les interactions (parler et donner un cadeau) avec les NPCs de l'équipe.'",
+  "config.disableInteraction.option.Never": "Jamais",
+  "config.disableInteraction.option.CombatOnly": "Dans les lieux dangereux",
+  "config.disableInteraction.option.Always": "Partout",
+
+  "config.disableTrashRummagingReaction.name": "Désactiver la réaction aux poubelles",
+  "config.disableTrashRummagingReaction.description": "Choisissez quels membres de l'équipe ne réagiront pas négativement lorsque vous fouillez dans les poubelles.",
+  "config.disableTrashRummagingReaction.option.Never": "Jamais",
+  "config.disableTrashRummagingReaction.option.PetsOnly": "Pour les animaux seulement",
+  "config.disableTrashRummagingReaction.option.Everyone": "Pour tout le monde",
+
+  "config.enableCommunication.name": "Activer les dialogues d'ambiance",
+  "config.enableCommunication.description": "Si activé, les membres de l'équipe afficheront des bulles de dialogue ou feront des sons.",
+
+  "config.dialogueCooldownSeconds.name": "Temps de recharge des dialogues (secondes)",
+  "config.dialogueCooldownSeconds.description": "Le temps minimum en secondes entre les bulles de dialogue pour chaque membre de l'équipe. Mettre à 0 pour désactiver le temps de recharge.",
+
+  "config.enableIdleAnimations.name": "Activer les animations",
+  "config.enableIdleAnimations.description": "Si activé, les membres de l'équipe effectueront des animations quand ils sont immobiles en vous suivant.",
+
+  "config.enableGathering.name": "Ramassage automatique des débris",
+  "config.enableGathering.description": "Si activé, les membres de l'équipe ramasseront automatiquement les objets et débris au sol.",
+
+  "config.enabledTasks.name": "Modes de tâches",
+
+  "config.taskMode.option.Disabled": "Désactivé",
+  "config.taskMode.option.Mimicking": "Imitation",
+  "config.taskMode.option.Autonomous": "Autonome",
+
+  "config.attackingMode.name": "Attaque",
+  "config.attackingMode.description": "Comment les membres de l'équipe attaquent : Désactivé (jamais), Imitation (seulement quand vous combattez), ou Autonome (attaquent automatiquement les monstres proches).",
+  "config.harvestingMode.name": "Récolte",
+  "config.harvestingMode.description": "Comment les membres de l'équipe récoltent : Désactivé (jamais), Imitation (seulement quand vous récoltez), ou Autonome (récoltent automatiquement les cultures mûres).",
+  "config.protectBeehouseFlowers.name": "Protéger les fleurs près des ruches",
+  "config.protectBeehouseFlowers.description": "Nombre de cases autour des ruches où les fleurs sont protégées de la récolte. Mettre à 0 pour désactiver. Par défaut : 5.",
+  "config.foragingMode.name": "Cueillette",
+  "config.foragingMode.description": "Comment les membres de l'équipe cueillent : Désactivé (jamais) ou Autonome (ramassent automatiquement).",
+  "config.lumberingMode.name": "Abattage",
+  "config.lumberingMode.description": "Comment les membres de l'équipe abattent : Désactivé (jamais), Imitation (seulement quand vous abattez), ou Autonome (enlèvent automatiquement les brindilles, abattent les arbres quand vous le faites).",
+  "config.miningMode.name": "Minage",
+  "config.miningMode.description": "Comment les membres de l'équipe minent : Désactivé (jamais), Imitation (seulement quand vous minez), ou Autonome (cassent automatiquement les rochers proches).",
+  "config.wateringMode.name": "Arrosage",
+  "config.wateringMode.description": "Comment les membres de l'équipe arrosent : Désactivé (jamais), Imitation (seulement quand vous arrosez), ou Autonome (arrosent automatiquement le sol sec).",
+  "config.fishingMode.name": "Pêche",
+  "config.fishingMode.description": "Comment les membres de l'équipe pêchent : Désactivé (jamais) ou Imitation (seulement quand vous pêchez).",
+  "config.pettingMode.name": "Caresse",
+  "config.pettingMode.description": "Comment les membres de l'équipe caressent : Désactivé (jamais), Imitation (seulement quand vous caressez des animaux), ou Autonome (caressent automatiquement).",
+  "config.enableSitting.name": "Activer l'assise",
+  "config.enableSitting.description": "Si activé, les membres de l'équipe s'assiéront sur les meubles quand vous le faites.",
+  "config.enableSittingLegRendering.name": "(EXPERIMENTAL) Activer le rendu des jambes assises",
+  "config.enableSittingLegRendering.description": "Si activé, les PNJ utiliseront une manipulation des sprites de jambes lorsqu'ils sont assis (jambes pivotées pour les vues latérales, sprite rogné pour un positionnement correct). C'est très expérimental, mais vous pouvez l'essayer.",
+
+  "commands.noFollower": "Vous n'avez personne dans l'équipe à qui assigner une tâche.",
+
+  "config.tasksToggle.enabled": "Tâches d'équipe activées",
+  "config.tasksToggle.disabled": "Tâches d'équipe désactivées",
+
+  "generic.cancel": "Annuler",
+  "generic.no": "Non",
+  "generic.yes": "Oui",
+  "recruitment.dismiss.allDone": "L'équipe a été dissoute.",
+  "recruitment.onlyOneFollower": "Quelqu'un vous suit déjà.'",
+  "recruitment.recruitAsk": "Demander à {{name}} de vous suivre ?",
+  "recruitment.recruitedAsk": "Que faire avec {{name}}?",
+  "recruitment.festival_block": "Vous ne pouvez pas recruter de NPCs pendant un festival.",
+  "recruitment.petRecruited": "{{name}} vous suit !",
+  "recruitment.petDismissed": "{{name}} ne vous suit plus.",
+  "recruitment.squadFull": "Votre équipe est déjà pleine.",
+
+  "squad.inventory.open": "Inventaire",
+  "squad.inventory.title": "Inventaire de l'équipe",
+
+  "ui.status.recruited": "Actuellement dans votre équipe",
+  "ui.status.notRecruited": "Non recruté",
+  "ui.button.recruit": "Recruter",
+  "ui.button.dismiss": "Congédier",
+  "ui.button.dismissAll": "Tout congédier",
+  "ui.button.waitHere": "Rester ici",
+  "ui.button.roamHere": "Rester ici",
+
+  "management.waiting": "{{name}} attend maintenant ici.",
+  "management.resumedFromWaiting": "{{name}} vous suit à nouveau."
+}

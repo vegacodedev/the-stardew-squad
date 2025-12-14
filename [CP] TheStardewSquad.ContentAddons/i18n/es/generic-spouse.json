@@ -1,0 +1,47 @@
+{
+"dialogue.recruit.spouse.generic.1": "Por supuesto, {{endearment}}. Iré donde tú vayas.",
+"dialogue.recruit.spouse.generic.2": "A cualquier parte contigo, {{endearment}}. Pongámonos en marcha.",
+"dialogue.recruit.spouse.generic.3": "Me encantaría! Qué haremos hoy?",
+"dialogue.recruit.spouse.generic.4": "Solo dime y allí estaré, {{endearment}}.",
+"dialogue.recruit.spouse.generic.5": "Siempre. Te seguiré a donde sea.",
+"dialogue.recruit.spouse.generic.night.1": "Vas a estar fuera hasta tarde, {{endearment}}? Estoy contigo.",
+
+"dialogue.dismiss.spouse.generic.1": "Está bien, {{endearment}}. Nos vemos en casa.",
+"dialogue.dismiss.spouse.generic.2": "Cuídate ahí fuera, {{endearment}}.",
+"dialogue.dismiss.spouse.generic.3": "Voy volviendo a casa. No tardes mucho!",
+"dialogue.dismiss.spouse.generic.4": "Avísame cuando termines. Te veré pronto, {{endearment}}.",
+"dialogue.dismiss.spouse.generic.5": "Eso era todo? Entonces te espero en la casita.",
+"dialogue.dismiss.spouse.generic.night.1": "Ya tengo sueño. Nos vemos en casa, {{endearment}}.",
+
+"dialogue.idle.spouse.generic.generic.1": "Me encanta pasar el día contigo, {{endearment}}.",
+"dialogue.idle.spouse.generic.generic.2": "Siento que juntos podemos con todo.",
+"dialogue.idle.spouse.generic.generic.3": "Estar contigo es todo lo que necesito, {{endearment}}.",
+"dialogue.idle.spouse.generic.generic.4": "Cada día contigo es una aventura.",
+"dialogue.idle.spouse.generic.generic.5": "No es un día perfecto para estar juntos?",
+"dialogue.idle.spouse.generic.generic.night.1": "Me encanta terminar el día así contigo.",
+"dialogue.idle.spouse.generic.generic.night.2": "Solo tú, yo y la luz de la luna, {{endearment}}.",
+
+"dialogue.attacking.spouse.generic.generic.1": "Nadie hace daño a mi {{endearment}}!",
+"dialogue.attacking.spouse.generic.generic.2": "Ni se te ocurra acercarte!",
+"dialogue.attacking.spouse.generic.generic.3": "Aléjate de {{name}}!",
+"dialogue.attacking.spouse.generic.generic.4": "No dejaré que le hagas daño!",
+"dialogue.attacking.spouse.generic.generic.5": "Te protegeré, {{endearment}}!",
+
+"dialogue.watering.spouse.generic.generic.1": "Ayudando en la granja con mi granjero(a) favorito(a)!",
+"dialogue.watering.spouse.generic.generic.2": "Nuestra granja va a quedar preciosa, {{endearment}}.",
+"dialogue.watering.spouse.generic.generic.3": "El trabajo en equipo lo hace todo posible, verdad {{endearment}}?",
+"dialogue.watering.spouse.generic.generic.4": "No es ningún problema. Haría lo que fuera por ti.",
+"dialogue.watering.spouse.generic.generic.5": "Es mucho más divertido si lo hacemos juntos.",
+
+"dialogue.lumbering.spouse.generic.generic.1": "Déjame encargarme de esto, {{endearment}}.",
+"dialogue.lumbering.spouse.generic.generic.2": "Esto lo limpiamos en un suspiro!",
+"dialogue.lumbering.spouse.generic.generic.3": "Cuidado, {{endearment}}!",
+"dialogue.lumbering.spouse.generic.generic.4": "Somos muy eficientes cuando trabajamos juntos!",
+"dialogue.lumbering.spouse.generic.generic.5": "Dos hachas son mejor que una!",
+
+"dialogue.mining.spouse.generic.generic.1": "Yo puedo encargarme de esta roca.",
+"dialogue.mining.spouse.generic.generic.2": "Todo sea por mejorar nuestra granja!",
+"dialogue.mining.spouse.generic.generic.3": "Elegiste un buen lugar para picar, {{endearment}}.",
+"dialogue.mining.spouse.generic.generic.4": "Necesitamos toda la piedra que podamos conseguir!",
+"dialogue.mining.spouse.generic.generic.5": "Esto me recuerda a nuestras aventuras en las minas."
+}

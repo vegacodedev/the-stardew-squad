@@ -1,0 +1,59 @@
+{
+  "dialogue.recruit.spouse.generic.1": "그럼, {{endearment}}. 너랑 어디든 갈게.",
+  "dialogue.recruit.spouse.generic.2": "너랑 함께라면 어디든 좋아, {{endearment}}. 가자!",
+  "dialogue.recruit.spouse.generic.3": "좋아! 오늘은 뭐 할까?",
+  "dialogue.recruit.spouse.generic.4": "말만 해, {{endearment}}. 바로 따라갈게.",
+  "dialogue.recruit.spouse.generic.5": "당연하지. 바로 뒤에서 따라갈게.",
+  "dialogue.recruit.spouse.generic.night.1": "오늘 늦게까지 일하네, {{endearment}}? 나도 같이 있을게.",
+
+  "dialogue.dismiss.spouse.generic.1": "알겠어, {{endearment}}. 집에서 봐.",
+  "dialogue.dismiss.spouse.generic.2": "그래, 조심히 와, {{endearment}}.",
+  "dialogue.dismiss.spouse.generic.3": "난 먼저 집에 갈게. 너무 늦지 않게 와!",
+  "dialogue.dismiss.spouse.generic.4": "끝나면 알려줘. 곧 보자, {{endearment}}.",
+  "dialogue.dismiss.spouse.generic.5": "끝이야? 그럼 농장에서 보자!",
+  "dialogue.dismiss.spouse.generic.night.1": "난 이제 자러 갈게. 집에서 봐, {{endearment}}.",
+
+  "dialogue.idle.spouse.generic.generic.1": "{{endearment}}, 너와 보내는 매일이 너무 좋아.",
+  "dialogue.idle.spouse.generic.generic.2": "우리라면 뭐든 해낼 수 있을 거야.",
+  "dialogue.idle.spouse.generic.generic.3": "너와 함께 있는 것만으로도 충분해, {{endearment}}.",
+  "dialogue.idle.spouse.generic.generic.4": "너와 함께하는 매일이 모험 같아.",
+  "dialogue.idle.spouse.generic.generic.5": "오늘 같은 날, 우리가 같이 있는 이 순간은 정말 완벽해. 그렇지?",
+  "dialogue.idle.spouse.generic.generic.night.1": "이렇게 저녁을 너와 함께 보내는 게 참 좋아.",
+  "dialogue.idle.spouse.generic.generic.night.2": "너랑 나, 그리고 달빛뿐이네, {{endearment}}.",
+
+  "dialogue.attacking.spouse.generic.generic.1": "{{endearment}}(을)를 건드리지 마!",
+  "dialogue.attacking.spouse.generic.generic.2": "그 사람한테 가까이 가지 마!",
+  "dialogue.attacking.spouse.generic.generic.3": "{{name}}한테서 떨어져!",
+  "dialogue.attacking.spouse.generic.generic.4": "{{name}}(이)가 절대 안 다치게 할 거야!",
+  "dialogue.attacking.spouse.generic.generic.5": "내가 지켜줄게, {{endearment}}!",
+
+  "dialogue.watering.spouse.generic.generic.1": "내가 제일 좋아하는 농부를 돕는 중~",
+  "dialogue.watering.spouse.generic.generic.2": "난 우리의 농장을 정말 예쁘게 가꿀 거야, {{endearment}}.",
+  "dialogue.watering.spouse.generic.generic.3": "우리의 팀워크는 최고야. 그렇지, {{endearment}}?",
+  "dialogue.watering.spouse.generic.generic.4": "이 정도는 아무것도 아니야. 너를 위해서라면 뭐든 할 수 있어.",
+  "dialogue.watering.spouse.generic.generic.5": "같이 하니까 훨씬 재밌네!",
+
+  "dialogue.lumbering.spouse.generic.generic.1": "이건 내가 할게, {{endearment}}.",
+  "dialogue.lumbering.spouse.generic.generic.2": "금방 다 정리할 수 있을 거야!",
+  "dialogue.lumbering.spouse.generic.generic.3": "조심해, {{endearment}}!",
+  "dialogue.lumbering.spouse.generic.generic.4": "같이 하니 정말 빠르다~",
+  "dialogue.lumbering.spouse.generic.generic.5": "도끼 두 개가 하나보다 낫지!",
+
+  "dialogue.mining.spouse.generic.generic.1": "이 바위는 내가 처리할게.",
+  "dialogue.mining.spouse.generic.generic.2": "우리 농장을 더 좋게 만들기 위해 뭐든 할 수 있어!",
+  "dialogue.mining.spouse.generic.generic.3": "좋은 채굴 장소를 찾았어, {{endearment}}.",
+  "dialogue.mining.spouse.generic.generic.4": "돌은 많을수록 좋지!",
+  "dialogue.mining.spouse.generic.generic.5": "옛날에 광산에서 함께 했던 모험이 떠오르네.",
+
+  "dialogue.harvesting.spouse.generic.generic.1": "우리 노력의 결실이 드디어 나타나고 있네, {{endearment}}.",
+  "dialogue.harvesting.spouse.generic.generic.2": "오늘 저녁으로 먹을 수 있겠다. 정말 맛있을 거야.",
+  "dialogue.harvesting.spouse.generic.generic.3": "우리 농장이 정말 자랑스러워.",
+  "dialogue.harvesting.spouse.generic.generic.4": "이건 완벽해 보이네! 내가 딸게.",
+  "dialogue.harvesting.spouse.generic.generic.5": "이렇게 함께하니까 훨씬 더 즐거워.",
+
+  "dialogue.foraging.spouse.generic.generic.1": "산책하기 딱 좋은 날이네... 간식도 있고!",
+  "dialogue.foraging.spouse.generic.generic.2": "그건 내가 가져다줄게, {{endearment}}.",
+  "dialogue.foraging.spouse.generic.generic.3": "마치 작은 보물찾기를 함께하는 기분이야.",
+  "dialogue.foraging.spouse.generic.generic.4": "이거 봐! 우리가 가져가자!",
+  "dialogue.foraging.spouse.generic.generic.5": "인생에서 가장 좋은 건 공짜와... 너와 함께 나누는 거야."
+}

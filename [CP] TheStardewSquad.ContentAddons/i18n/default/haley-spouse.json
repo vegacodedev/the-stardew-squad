@@ -1,0 +1,91 @@
+{
+  "dialogue.recruit.haley.spouse.1": "An adventure? Perfect! I was looking for some new photo inspiration today.",
+  "dialogue.recruit.haley.spouse.2": "Of course, honey. It's always good to get out of the house and see the world.",
+  "dialogue.recruit.haley.spouse.3": "Yes! Let's go. I just got a new lens I wanted to try out in the field.",
+  "dialogue.recruit.haley.spouse.4": "Anywhere, as long as it's with you.",
+  "dialogue.recruit.haley.spouse.5": "Yes! I was hoping we could go out today.",
+
+  "dialogue.dismiss.haley.spouse.1": "Alright, honey. I'll head back. I have an idea for a new cake recipe I want to try out!",
+  "dialogue.dismiss.haley.spouse.2": "Okay, {{endearment}}. I'm going to go develop the photos from today. Can't wait to see how they turned out!",
+  "dialogue.dismiss.haley.spouse.3": "I'll go get started on dinner then. Be safe!",
+  "dialogue.dismiss.haley.spouse.4": "Let me know when you're on your way back. I love you!",
+  "dialogue.dismiss.haley.spouse.5": "Was that everything? I'll meet you back at the farmhouse, then.",
+
+  "dialogue.idle.haley.spouse.generic.1": "I was just thinking, we should set up a little outdoor studio for portraits. The natural light here is amazing.",
+  "dialogue.idle.haley.spouse.generic.2": "Being out here with you clears my head. It helps me see the world through a different lens, you could say.",
+  "dialogue.idle.haley.spouse.generic.3": "Just enjoying the view... and you're the best part of it.",
+  "dialogue.idle.haley.spouse.generic.4": "I'm so glad I married you, {{endearment}}. Life is never boring.",
+  "dialogue.idle.haley.spouse.generic.5": "Should we take a picture to remember this moment?",
+
+  "dialogue.idle.haley.spouse.farm.1": "The way the afternoon sun hits those leaves... A perfect photo opportunity.",
+  "dialogue.idle.haley.spouse.farm.2": "Our farm is the most beautiful place in the whole valley.",
+  "dialogue.idle.haley.spouse.farm.3": "Your animals have so much personality. I could do a whole photo series just on them.",
+  "dialogue.idle.haley.spouse.farm.4": "Looking at all this reminds me how much my life has changed for the better.",
+  "dialogue.idle.haley.spouse.farm.5": "Everything is thriving here. Just like us.",
+
+  "dialogue.idle.haley.spouse.mines.1": "Just like one of our first dates, huh? But now I know how to handle myself.",
+  "dialogue.idle.haley.spouse.mines.2": "I feel safe in here with you. We can handle anything.",
+  "dialogue.idle.haley.spouse.mines.3": "The way the light glints off these crystals gives me ideas for my photography.",
+  "dialogue.idle.haley.spouse.mines.4": "Remember when I was scared of this place? Seems so silly now.",
+  "dialogue.idle.haley.spouse.mines.5": "Our own little treasure hunt. I love it.",
+
+  "dialogue.idle.haley.spouse.house.1": "It's funny being back here. This place used to feel small and limiting.",
+  "dialogue.idle.haley.spouse.house.2": "I should check on Emily while we're here. I hope she's remembering to water her plants.",
+  "dialogue.idle.haley.spouse.house.3": "Our farmhouse is so much nicer, but this place will always be a little special.",
+  "dialogue.idle.haley.spouse.house.4": "Looking at my old room... I've grown up a lot, haven't I? I'm glad I did.",
+  "dialogue.idle.haley.spouse.house.5": "Let's say hi to my parents. Oh, wait... they're still traveling. I forget sometimes.",
+
+  "dialogue.attacking.haley.spouse.1": "Hey! Get away from my spouse!",
+  "dialogue.attacking.haley.spouse.2": "I'm stronger than I look, you monster!",
+  "dialogue.attacking.haley.spouse.3": "Don't you DARE!",
+  "dialogue.attacking.haley.spouse.4": "I'll protect you! Always!",
+  "dialogue.attacking.haley.spouse.5": "You'll have to go through me first!",
+
+  "dialogue.lumbering.haley.spouse.1": "We're such a good team. We'll have this done in no time.",
+  "dialogue.lumbering.haley.spouse.2": "Let me get that, honey. Gotta keep my arms strong for holding my heavy camera!",
+  "dialogue.lumbering.haley.spouse.3": "Look at us, working together for our land. It's perfect.",
+  "dialogue.lumbering.haley.spouse.4": "More wood to keep our farmhouse warm. Good thinking.",
+  "dialogue.lumbering.haley.spouse.5": "Careful now! Don't overdo it.",
+
+  "dialogue.mining.haley.spouse.1": "I'll handle this one! I've learned a lot from watching you.",
+  "dialogue.mining.haley.spouse.2": "We're a power couple, aren't we?",
+  "dialogue.mining.haley.spouse.3": "Ooh, I hope there's a diamond in this one! It would make a great subject for a still-life photo.",
+  "dialogue.mining.haley.spouse.4": "Anything to help you, my love.",
+  "dialogue.mining.haley.spouse.5": "Just a little more and we can build that new path you wanted.",
+
+  "dialogue.watering.haley.spouse.1": "I'm getting pretty good at this! Maybe I have a green thumb after all.",
+  "dialogue.watering.haley.spouse.2": "I love helping you make our home beautiful.",
+  "dialogue.watering.haley.spouse.3": "Healthy plants make for a happy farm, and a happy farm is the best backdrop for photos!",
+  "dialogue.watering.haley.spouse.4": "The freshest ingredients for my next cake are right here!",
+  "dialogue.watering.haley.spouse.5": "I'm so happy I have this life with you.",
+
+  "dialogue.harvesting.haley.spouse.1": "The bounty from our farm! I'm so proud of what we've built, {{endearment}}.",
+  "dialogue.harvesting.haley.spouse.2": "I'll grab these for my cake. Only the freshest ingredients for us!",
+  "dialogue.harvesting.haley.spouse.3": "Look at this perfect harvest.",
+  "dialogue.harvesting.haley.spouse.4": "Harvesting with you is one of my favorite things to do.",
+  "dialogue.harvesting.haley.spouse.5": "Let's gather these up. I'm already thinking about what to cook tonight.",
+
+  "dialogue.foraging.haley.spouse.1": "A little gift from nature, just for us.",
+  "dialogue.foraging.haley.spouse.2": "I love these quiet moments, just walking and finding treasures with you.",
+  "dialogue.foraging.haley.spouse.3": "Oh, this one's perfect! It'll look so nice in a vase at home.",
+  "dialogue.foraging.haley.spouse.4": "Look, {{endearment}}! A little gift from the valley. A snack for our walk?",
+  "dialogue.foraging.haley.spouse.5": "Everything seems more beautiful when I'm seeing it with you.",
+
+  "dialogue.fishing_waiting.haley.spouse.1": "Just you, me, and the water. This is perfect, {{endearment}}.",
+  "dialogue.fishing_waiting.haley.spouse.2": "Remember when I said fishing was boring? I was so wrong.",
+  "dialogue.fishing_waiting.haley.spouse.3": "The reflection on the water is stunning. Almost as stunning as you!",
+  "dialogue.fishing_waiting.haley.spouse.4": "I love these quiet moments together. No rush, just us.",
+  "dialogue.fishing_waiting.haley.spouse.5": "Even if we don't catch anything, this is time well spent.",
+
+  "dialogue.fishing_caught.haley.spouse.1": "I got it! Did you see that, {{endearment}}?",
+  "dialogue.fishing_caught.haley.spouse.2": "Perfect! I'll cook this one for dinner tonight. How's that sound?",
+  "dialogue.fishing_caught.haley.spouse.3": "Look at this catch! I'm getting pretty good at this, aren't I?",
+  "dialogue.fishing_caught.haley.spouse.4": "Another one! We make such a great team out here.",
+  "dialogue.fishing_caught.haley.spouse.5": "That's a beautiful catch! Can you get a photo of me with it?",
+
+  "dialogue.petting.haley.spouse.1": "Our animals are so lucky to have us. Look how happy they are!",
+  "dialogue.petting.haley.spouse.2": "Remember when I was scared of farm animals? Now I love them as much as you do.",
+  "dialogue.petting.haley.spouse.3": "Taking care of them together... it feels like we're a real team.",
+  "dialogue.petting.haley.spouse.4": "I got some great shots of them today. Want to see later?",
+  "dialogue.petting.haley.spouse.5": "They're like our little family, aren't they, {{endearment}}?"
+}

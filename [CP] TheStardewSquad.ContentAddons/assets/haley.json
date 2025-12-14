@@ -1,0 +1,584 @@
+{
+  "Changes": [
+    {
+      "Action": "EditData",
+      "Target": "ThaliaFawnheart.TheStardewSquad/NpcConfig",
+      "Entries": {
+        // ===================================
+        // Haley Configuration
+        // ===================================
+        "Haley": {
+          "Behavior": {
+            "IdleAnimations": ["haley_photo"]
+          },
+          "Sprites": {
+            "Sitting": {
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Haley",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Dialogue": {
+            // Friendship Too Low dialogue
+            "FriendshipTooLow": [
+              "{{i18n:dialogue.friendship_too_low.haley.1}}",
+              "{{i18n:dialogue.friendship_too_low.haley.2}}",
+              "{{i18n:dialogue.friendship_too_low.haley.3}}",
+              "{{i18n:dialogue.friendship_too_low.haley.4}}",
+              "{{i18n:dialogue.friendship_too_low.haley.5}}"
+            ],
+
+            // Recruit dialogue (conditional by hearts/spouse status)
+            "Recruit": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.recruit.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.recruit.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.recruit.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.recruit.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.recruit.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.recruit.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.recruit.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.recruit.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.recruit.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.recruit.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.recruit.haley.spouse.1}}",
+                  "{{i18n:dialogue.recruit.haley.spouse.2}}",
+                  "{{i18n:dialogue.recruit.haley.spouse.3}}",
+                  "{{i18n:dialogue.recruit.haley.spouse.4}}",
+                  "{{i18n:dialogue.recruit.haley.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Dismiss dialogue (conditional by hearts/spouse status)
+            "Dismiss": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.dismiss.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.dismiss.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.dismiss.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.dismiss.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.dismiss.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.dismiss.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.dismiss.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.dismiss.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.dismiss.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.dismiss.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.dismiss.haley.spouse.1}}",
+                  "{{i18n:dialogue.dismiss.haley.spouse.2}}",
+                  "{{i18n:dialogue.dismiss.haley.spouse.3}}",
+                  "{{i18n:dialogue.dismiss.haley.spouse.4}}",
+                  "{{i18n:dialogue.dismiss.haley.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Idle dialogue (conditional by hearts, spouse status, and location)
+            "Idle": [
+              // Low hearts - town
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5, LOCATION_NAME Target Town",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.low_hearts.town.1}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.town.2}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.town.3}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.town.4}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.town.5}}"
+                ]
+              },
+              // Low hearts - house
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5, LOCATION_NAME Target HaleyHouse",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.low_hearts.house.1}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.house.2}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.house.3}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.house.4}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.house.5}}"
+                ]
+              },
+              // Low hearts - farm
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5, LOCATION_NAME Target Farm",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.low_hearts.farm.1}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.farm.2}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.farm.3}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.farm.4}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.farm.5}}"
+                ]
+              },
+              // Low hearts - mines
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5, LOCATION_NAME Target MineShaft",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.low_hearts.mines.1}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.mines.2}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.mines.3}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.mines.4}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.mines.5}}"
+                ]
+              },
+              // Low hearts - generic
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.low_hearts.generic.1}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.generic.2}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.generic.3}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.generic.4}}",
+                  "{{i18n:dialogue.idle.haley.low_hearts.generic.5}}"
+                ]
+              },
+              // High hearts - town
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6, LOCATION_NAME Target Town",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.high_hearts.town.1}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.town.2}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.town.3}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.town.4}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.town.5}}"
+                ]
+              },
+              // High hearts - house
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6, LOCATION_NAME Target HaleyHouse",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.high_hearts.house.1}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.house.2}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.house.3}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.house.4}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.house.5}}"
+                ]
+              },
+              // High hearts - farm
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6, LOCATION_NAME Target Farm",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.high_hearts.farm.1}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.farm.2}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.farm.3}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.farm.4}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.farm.5}}"
+                ]
+              },
+              // High hearts - mines
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6, LOCATION_NAME Target MineShaft",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.high_hearts.mines.1}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.mines.2}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.mines.3}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.mines.4}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.mines.5}}"
+                ]
+              },
+              // High hearts - volcano
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6, LOCATION_NAME Target VolcanoDungeon",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.high_hearts.volcano.1}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.volcano.2}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.volcano.3}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.volcano.4}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.volcano.5}}"
+                ]
+              },
+              // High hearts - generic
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.high_hearts.generic.1}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.generic.2}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.generic.3}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.generic.4}}",
+                  "{{i18n:dialogue.idle.haley.high_hearts.generic.5}}"
+                ]
+              },
+              // Spouse - house
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married, LOCATION_NAME Target HaleyHouse",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.spouse.house.1}}",
+                  "{{i18n:dialogue.idle.haley.spouse.house.2}}",
+                  "{{i18n:dialogue.idle.haley.spouse.house.3}}",
+                  "{{i18n:dialogue.idle.haley.spouse.house.4}}",
+                  "{{i18n:dialogue.idle.haley.spouse.house.5}}"
+                ]
+              },
+              // Spouse - farm
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married, LOCATION_NAME Target Farm",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.spouse.farm.1}}",
+                  "{{i18n:dialogue.idle.haley.spouse.farm.2}}",
+                  "{{i18n:dialogue.idle.haley.spouse.farm.3}}",
+                  "{{i18n:dialogue.idle.haley.spouse.farm.4}}",
+                  "{{i18n:dialogue.idle.haley.spouse.farm.5}}"
+                ]
+              },
+              // Spouse - mines
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married, LOCATION_NAME Target MineShaft",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.spouse.mines.1}}",
+                  "{{i18n:dialogue.idle.haley.spouse.mines.2}}",
+                  "{{i18n:dialogue.idle.haley.spouse.mines.3}}",
+                  "{{i18n:dialogue.idle.haley.spouse.mines.4}}",
+                  "{{i18n:dialogue.idle.haley.spouse.mines.5}}"
+                ]
+              },
+              // Spouse - generic
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.idle.haley.spouse.generic.1}}",
+                  "{{i18n:dialogue.idle.haley.spouse.generic.2}}",
+                  "{{i18n:dialogue.idle.haley.spouse.generic.3}}",
+                  "{{i18n:dialogue.idle.haley.spouse.generic.4}}",
+                  "{{i18n:dialogue.idle.haley.spouse.generic.5}}"
+                ]
+              }
+            ],
+
+            // Attacking dialogue
+            "Attacking": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.attacking.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.attacking.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.attacking.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.attacking.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.attacking.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.attacking.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.attacking.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.attacking.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.attacking.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.attacking.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.attacking.haley.spouse.1}}",
+                  "{{i18n:dialogue.attacking.haley.spouse.2}}",
+                  "{{i18n:dialogue.attacking.haley.spouse.3}}",
+                  "{{i18n:dialogue.attacking.haley.spouse.4}}",
+                  "{{i18n:dialogue.attacking.haley.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Lumbering dialogue
+            "Lumbering": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.lumbering.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.lumbering.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.lumbering.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.lumbering.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.lumbering.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.lumbering.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.lumbering.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.lumbering.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.lumbering.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.lumbering.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.lumbering.haley.spouse.1}}",
+                  "{{i18n:dialogue.lumbering.haley.spouse.2}}",
+                  "{{i18n:dialogue.lumbering.haley.spouse.3}}",
+                  "{{i18n:dialogue.lumbering.haley.spouse.4}}",
+                  "{{i18n:dialogue.lumbering.haley.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Mining dialogue
+            "Mining": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.mining.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.mining.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.mining.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.mining.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.mining.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.mining.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.mining.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.mining.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.mining.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.mining.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.mining.haley.spouse.1}}",
+                  "{{i18n:dialogue.mining.haley.spouse.2}}",
+                  "{{i18n:dialogue.mining.haley.spouse.3}}",
+                  "{{i18n:dialogue.mining.haley.spouse.4}}",
+                  "{{i18n:dialogue.mining.haley.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Watering dialogue
+            "Watering": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.watering.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.watering.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.watering.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.watering.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.watering.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.watering.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.watering.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.watering.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.watering.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.watering.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.watering.haley.spouse.1}}",
+                  "{{i18n:dialogue.watering.haley.spouse.2}}",
+                  "{{i18n:dialogue.watering.haley.spouse.3}}",
+                  "{{i18n:dialogue.watering.haley.spouse.4}}",
+                  "{{i18n:dialogue.watering.haley.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Harvesting dialogue
+            "Harvesting": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.harvesting.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.harvesting.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.harvesting.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.harvesting.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.harvesting.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.harvesting.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.harvesting.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.harvesting.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.harvesting.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.harvesting.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.harvesting.haley.spouse.1}}",
+                  "{{i18n:dialogue.harvesting.haley.spouse.2}}",
+                  "{{i18n:dialogue.harvesting.haley.spouse.3}}",
+                  "{{i18n:dialogue.harvesting.haley.spouse.4}}",
+                  "{{i18n:dialogue.harvesting.haley.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Foraging dialogue
+            "Foraging": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.foraging.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.foraging.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.foraging.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.foraging.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.foraging.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.foraging.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.foraging.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.foraging.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.foraging.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.foraging.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.foraging.haley.spouse.1}}",
+                  "{{i18n:dialogue.foraging.haley.spouse.2}}",
+                  "{{i18n:dialogue.foraging.haley.spouse.3}}",
+                  "{{i18n:dialogue.foraging.haley.spouse.4}}",
+                  "{{i18n:dialogue.foraging.haley.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Fishing_Waiting dialogue
+            "Fishing_Waiting": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_waiting.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_waiting.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_waiting.haley.spouse.1}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.spouse.2}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.spouse.3}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.spouse.4}}",
+                  "{{i18n:dialogue.fishing_waiting.haley.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Fishing_Caught dialogue
+            "Fishing_Caught": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_caught.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.fishing_caught.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.fishing_caught.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.fishing_caught.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.fishing_caught.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_caught.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.fishing_caught.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.fishing_caught.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.fishing_caught.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.fishing_caught.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_caught.haley.spouse.1}}",
+                  "{{i18n:dialogue.fishing_caught.haley.spouse.2}}",
+                  "{{i18n:dialogue.fishing_caught.haley.spouse.3}}",
+                  "{{i18n:dialogue.fishing_caught.haley.spouse.4}}",
+                  "{{i18n:dialogue.fishing_caught.haley.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Petting dialogue
+            "Petting": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.petting.haley.low_hearts.1}}",
+                  "{{i18n:dialogue.petting.haley.low_hearts.2}}",
+                  "{{i18n:dialogue.petting.haley.low_hearts.3}}",
+                  "{{i18n:dialogue.petting.haley.low_hearts.4}}",
+                  "{{i18n:dialogue.petting.haley.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Haley Married, PLAYER_HEARTS Current Haley 6",
+                "Lines": [
+                  "{{i18n:dialogue.petting.haley.high_hearts.1}}",
+                  "{{i18n:dialogue.petting.haley.high_hearts.2}}",
+                  "{{i18n:dialogue.petting.haley.high_hearts.3}}",
+                  "{{i18n:dialogue.petting.haley.high_hearts.4}}",
+                  "{{i18n:dialogue.petting.haley.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Haley Married",
+                "Lines": [
+                  "{{i18n:dialogue.petting.haley.spouse.1}}",
+                  "{{i18n:dialogue.petting.haley.spouse.2}}",
+                  "{{i18n:dialogue.petting.haley.spouse.3}}",
+                  "{{i18n:dialogue.petting.haley.spouse.4}}",
+                  "{{i18n:dialogue.petting.haley.spouse.5}}"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

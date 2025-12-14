@@ -1,0 +1,87 @@
+{
+"dialogue.recruit.generic.1": "Encantado. Guíame, {{name}}!",
+"dialogue.recruit.generic.2": "Claro, un cambio de aires me vendrá bien. Vamos!",
+"dialogue.recruit.generic.3": "Una aventura? Cuenta conmigo!",
+"dialogue.recruit.generic.4": "Puedes contar con mi ayuda, {{name}}.",
+"dialogue.recruit.generic.5": "De acuerdo, te sigo. Cuál es el plan?",
+
+"dialogue.recruit.generic.night.1": "No es un poco tarde para una aventura, {{name}}? Bueno... vale!",
+"dialogue.recruit.generic.night.2": "A estas horas? Bueno... está bien, vamos.",
+
+"dialogue.dismiss.generic.1": "Vale, nos vemos en el pueblo!",
+"dialogue.dismiss.generic.2": "Ha sido divertido! Avísame si me necesitas de nuevo.",
+"dialogue.dismiss.generic.3": "Entendido. Me marcho ahora.",
+"dialogue.dismiss.generic.4": "Hora de irme. Hasta la próxima!",
+"dialogue.dismiss.generic.5": "Cuídate por ahí.",
+"dialogue.dismiss.generic.night.1": "Debería irme a casa ya. Buenas noches!",
+"dialogue.dismiss.generic.night.2": "Voy a acostarme. Nos vemos mañana.",
+
+"dialogue.friendship_too_low.generic.1": "Oh... no estoy seguro de conocerte lo suficiente para eso, {{name}}.",
+"dialogue.friendship_too_low.generic.2": "Prefiero pasar el rato con gente más cercana. Lo siento.",
+"dialogue.friendship_too_low.generic.3": "Mejor nos conocemos un poco más antes, sí?",
+"dialogue.friendship_too_low.generic.4": "Agradezco la oferta, pero aún no me siento cómodo con eso.",
+
+"dialogue.idle.generic.generic.1": "Cuál es el siguiente paso?",
+"dialogue.idle.generic.generic.2": "Disfrutando un momento de calma.",
+"dialogue.idle.generic.generic.3": "Listo cuando tú lo estés.",
+"dialogue.idle.generic.generic.4": "Me pregunto qué nos espera el resto del día.",
+"dialogue.idle.generic.generic.5": "Tómate tu tiempo. No tengo prisa.",
+"dialogue.idle.generic.generic.night.1": "Las estrellas están preciosas esta noche.",
+"dialogue.idle.generic.generic.night.2": "Empiezo a tener algo de sueño.",
+"dialogue.idle.generic.generic.night.3": "Qué tranquilidad hay por la noche.",
+
+"dialogue.idle.generic.Farm.1": "Tu granja se ve genial, {{name}}.",
+"dialogue.idle.generic.Farm.2": "Qué bien sienta el aire fresco por aquí.",
+"dialogue.idle.generic.Farm.3": "Todo este espacio abierto da mucha paz.",
+"dialogue.idle.generic.Farm.4": "Tus cultivos van muy bien.",
+"dialogue.idle.generic.Farm.5": "Me gusta cómo has organizado todo.",
+"dialogue.idle.generic.Farm.night.1": "Qué tranquila está la granja por la noche. Me gusta.",
+
+"dialogue.idle.generic.MineShaft.1": "Está muy oscuro... mejor no nos separemos.",
+"dialogue.idle.generic.MineShaft.2": "Oíste eso? Mantente alerta.",
+"dialogue.idle.generic.MineShaft.3": "Cuidado al andar, es peligroso.",
+"dialogue.idle.generic.MineShaft.4": "Ojalá encontremos minerales valiosos.",
+"dialogue.idle.generic.MineShaft.5": "Este sitio me da escalofríos.",
+
+"dialogue.idle.generic.VolcanoDungeon.1": "Vaya, se nota el calor aquí!",
+"dialogue.idle.generic.VolcanoDungeon.2": "No te acerques demasiado a la lava.",
+"dialogue.idle.generic.VolcanoDungeon.3": "Este sitio impone. Qué clase de monstruos vivirán aquí?",
+"dialogue.idle.generic.VolcanoDungeon.4": "Solo estar aquí ya me hace sudar.",
+"dialogue.idle.generic.VolcanoDungeon.5": "Seguro que aquí hay cosas raras.",
+
+"dialogue.attacking.generic.generic.1": "Atrás!",
+"dialogue.attacking.generic.generic.2": "Déjanos en paz!",
+"dialogue.attacking.generic.generic.3": "Hyaah!",
+"dialogue.attacking.generic.generic.4": "Estoy contigo!",
+"dialogue.attacking.generic.generic.5": "Te metiste con los equivocados!",
+
+"dialogue.attacking.generic.MineShaft.1": "Vuelve a la oscuridad!",
+"dialogue.attacking.generic.MineShaft.2": "No pasarás!",
+"dialogue.attacking.generic.MineShaft.3": "Esta cueva es nuestra ahora!",
+"dialogue.attacking.generic.MineShaft.4": "Ay! Un monstruo!",
+"dialogue.attacking.generic.MineShaft.5": "Quédate en las sombras, donde perteneces!",
+
+"dialogue.watering.generic.generic.1": "Déjame encargarme de este.",
+"dialogue.watering.generic.generic.2": "Las plantas necesitan agua para crecer fuertes!",
+"dialogue.watering.generic.generic.3": "Un poco de agua bastará.",
+"dialogue.watering.generic.generic.4": "Aquí tenéis, pequeñitas.",
+"dialogue.watering.generic.generic.5": "Cada gota cuenta!",
+
+"dialogue.watering.generic.Farm.1": "Solo echando una mano en la granja.",
+"dialogue.watering.generic.Farm.2": "Esto estará listo para la cosecha en nada.",
+"dialogue.watering.generic.Farm.3": "Formamos un buen equipo, eh?",
+"dialogue.watering.generic.Farm.4": "Hay que mantener la granja en forma.",
+"dialogue.watering.generic.Farm.5": "Encantado de ayudar, {{name}}.",
+
+"dialogue.lumbering.generic.generic.1": "Agh!",
+"dialogue.lumbering.generic.generic.2": "Este es duro!",
+"dialogue.lumbering.generic.generic.3": "Tengo que esforzarme más!",
+"dialogue.lumbering.generic.generic.4": "Necesitas ayuda con eso?",
+"dialogue.lumbering.generic.generic.5": "Más leña para el fuego!",
+
+"dialogue.mining.generic.generic.1": "Vamos a romper este.",
+"dialogue.mining.generic.generic.2": "Quizá haya algo bueno dentro!",
+"dialogue.mining.generic.generic.3": "Como un minero de verdad!",
+"dialogue.mining.generic.generic.4": "Haciendo espacio por aquí.",
+"dialogue.mining.generic.generic.5": "Hyah!"
+}

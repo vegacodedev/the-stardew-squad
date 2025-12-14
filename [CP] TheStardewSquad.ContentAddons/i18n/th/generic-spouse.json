@@ -1,0 +1,41 @@
+{
+  "dialogue.recruit.spouse.generic.1": "ได้สิ {{endearment}} เธอไปไหนฉันก็ไปด้วยได้ทั้งนั้นแหละ",
+  "dialogue.recruit.spouse.generic.2": "มีเธอก็ต้องมีฉัน {{endearment}} ไปกันเถอะ",
+  "dialogue.recruit.spouse.generic.3": "ได้เลย! วันนี้จะไปทำอะไรกันล่ะ",
+  "dialogue.recruit.spouse.generic.4": "แค่เอ่ยปาก ฉันจะไปหา {{endearment}}.",
+  "dialogue.recruit.spouse.generic.5": "ฉันจะอยู่ข้าง ๆ เธอเสมอ",
+  "dialogue.recruit.spouse.generic.night.1": "ดึกแล้วนะ {{endearment}}? ฉันจะไปด้วย",
+
+  "dialogue.dismiss.spouse.generic.1": "โอเค {{endearment}}. เจอกันที่บ้านนะ",
+  "dialogue.dismiss.spouse.generic.2": "อื้ม ดูแลตัวเองด้วย {{endearment}}.",
+  "dialogue.dismiss.spouse.generic.3": "ฉันกลับบ้านก่อนนะ อย่ากลับดึกนักล่ะ!",
+  "dialogue.dismiss.spouse.generic.4": "เสร็จแล้วบอกนะ เจอกัน {{endearment}}.",
+  "dialogue.dismiss.spouse.generic.5": "เท่านี้เหรอ งั้นเจอกันที่บ้านนะ",
+  "dialogue.dismiss.spouse.generic.night.1": "เริ่มง่วงแล้วล่ะ เจอกันที่บ้านนะ {{endearment}}.",
+
+  "dialogue.idle.spouse.generic.generic.1": "ชอบจังที่ได้ใช้เวลากับเธอ {{endearment}}.",
+  "dialogue.idle.spouse.generic.generic.2": "รู้สึกเหมือนว่าโลกนี้มีแค่เราเลย",
+  "dialogue.idle.spouse.generic.generic.3": "แค่ได้อยู่ด้วยกัน ฉันก็ไม่ต้องการอะไรแล้ว {{endearment}}.",
+  "dialogue.idle.spouse.generic.generic.4": "ชีวิตไม่เคยน่าเบื่อเลยซักวัน เมื่ออยู่กับเธอ",
+  "dialogue.idle.spouse.generic.generic.5": "เป็นโอกาสดีที่จะได้ใช้เวลาด้วยกันนะ ว่าไหม",
+  "dialogue.idle.spouse.generic.generic.night.1": "ชอบที่เราได้อยู่ด้วยกันแบบนี้ยามคํ่านะ",
+  "dialogue.idle.spouse.generic.generic.night.2": "มีแค่เธอ ฉัน ท่ามกลางแสงจันทร์ {{endearment}}.",
+
+  "dialogue.attacking.spouse.generic.generic.1": "อย่ามาแตะต้อง {{endearment}}!",
+  "dialogue.attacking.spouse.generic.generic.2": "ใครใช้ให้มาใกล้แฟนฉัน!",
+  "dialogue.attacking.spouse.generic.generic.3": "ไปให้พ้นจาก {{name}} เดี๋ยวนี้!",
+  "dialogue.attacking.spouse.generic.generic.4": "ข้ามศพฉันไปก่อนเถอะ!",
+  "dialogue.attacking.spouse.generic.generic.5": "ฉันจะปกป้องเธอเอง {{endearment}}!",
+
+  "dialogue.watering.spouse.generic.generic.1": "กำลังช่วยงานชาวไร่คนโปรดอยู่น่ะ",
+  "dialogue.watering.spouse.generic.generic.2": "ฟาร์มของเราจะต้องสวยมากแน่ ๆ {{endearment}}.",
+  "dialogue.watering.spouse.generic.generic.3": "ถ้าเราช่วยกันลงแรง ผลลัพธ์ต้องออกมาดีแน่! เนอะ {{endearment}}?",
+  "dialogue.watering.spouse.generic.generic.4": "ไม่ลำบากเลยซักนิด เพื่อเธอ ฉันทำได้อยู่แล้ว",
+  "dialogue.watering.spouse.generic.generic.5": "พอช่วยกันทำแล้วสนุกขึ้นเยอะเลย.",
+
+  "dialogue.lumbering.spouse.generic.generic.1": "เดี๋ยวฉันจัดการเอง {{endearment}}.",
+  "dialogue.lumbering.spouse.generic.generic.2": "แป๊บเดียวก็เรียบร้อยแล้ว!",
+  "dialogue.lumbering.spouse.generic.generic.3": "ระวังนะ {{endearment}}!",
+  "dialogue.lumbering.spouse.generic.generic.4": "แทคทีมกันแล้วงานไปไวมากเลย",
+  "dialogue.lumbering.spouse.generic.generic.5": "สองแรงย่อมดีอยู่แล้ว!"
+}

@@ -1,0 +1,584 @@
+{
+  "Changes": [
+    {
+      "Action": "EditData",
+      "Target": "ThaliaFawnheart.TheStardewSquad/NpcConfig",
+      "Entries": {
+        // ===================================
+        // Harvey Configuration
+        // ===================================
+        "Harvey": {
+          "Behavior": {
+            "IdleAnimations": ["harvey_read"]
+          },
+          "Sprites": {
+            "Sitting": {
+              "ExtensionSheet": "TheStardewSquad.ContentAddons/Sitting/Harvey",
+              "FramesByDirection": {
+                "Down": [0],
+                "Right": [1],
+                "Up": [2],
+                "Left": [3]
+              },
+              "FrameDuration": 800,
+              "Loop": true
+            }
+          },
+          "Dialogue": {
+            // Friendship Too Low dialogue
+            "FriendshipTooLow": [
+              "{{i18n:dialogue.friendship_too_low.harvey.1}}",
+              "{{i18n:dialogue.friendship_too_low.harvey.2}}",
+              "{{i18n:dialogue.friendship_too_low.harvey.3}}",
+              "{{i18n:dialogue.friendship_too_low.harvey.4}}",
+              "{{i18n:dialogue.friendship_too_low.harvey.5}}"
+            ],
+
+            // Recruit dialogue (conditional by hearts/spouse status)
+            "Recruit": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.recruit.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.recruit.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.recruit.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.recruit.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.recruit.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.recruit.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.recruit.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.recruit.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.recruit.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.recruit.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.recruit.harvey.spouse.1}}",
+                  "{{i18n:dialogue.recruit.harvey.spouse.2}}",
+                  "{{i18n:dialogue.recruit.harvey.spouse.3}}",
+                  "{{i18n:dialogue.recruit.harvey.spouse.4}}",
+                  "{{i18n:dialogue.recruit.harvey.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Dismiss dialogue (conditional by hearts/spouse status)
+            "Dismiss": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.dismiss.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.dismiss.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.dismiss.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.dismiss.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.dismiss.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.dismiss.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.dismiss.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.dismiss.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.dismiss.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.dismiss.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.dismiss.harvey.spouse.1}}",
+                  "{{i18n:dialogue.dismiss.harvey.spouse.2}}",
+                  "{{i18n:dialogue.dismiss.harvey.spouse.3}}",
+                  "{{i18n:dialogue.dismiss.harvey.spouse.4}}",
+                  "{{i18n:dialogue.dismiss.harvey.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Idle dialogue (conditional by hearts, spouse status, and location)
+            "Idle": [
+              // Low hearts - town
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5, LOCATION_NAME Target Town",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.low_hearts.town.1}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.town.2}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.town.3}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.town.4}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.town.5}}"
+                ]
+              },
+              // Low hearts - house (FarmHouse for Harvey)
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5, LOCATION_NAME Target FarmHouse",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.low_hearts.house.1}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.house.2}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.house.3}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.house.4}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.house.5}}"
+                ]
+              },
+              // Low hearts - farm
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5, LOCATION_NAME Target Farm",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.low_hearts.farm.1}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.farm.2}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.farm.3}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.farm.4}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.farm.5}}"
+                ]
+              },
+              // Low hearts - mines
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5, LOCATION_NAME Target MineShaft",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.low_hearts.mines.1}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.mines.2}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.mines.3}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.mines.4}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.mines.5}}"
+                ]
+              },
+              // Low hearts - generic
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.low_hearts.generic.1}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.generic.2}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.generic.3}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.generic.4}}",
+                  "{{i18n:dialogue.idle.harvey.low_hearts.generic.5}}"
+                ]
+              },
+              // High hearts - town
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6, LOCATION_NAME Target Town",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.high_hearts.town.1}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.town.2}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.town.3}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.town.4}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.town.5}}"
+                ]
+              },
+              // High hearts - house
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6, LOCATION_NAME Target FarmHouse",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.high_hearts.house.1}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.house.2}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.house.3}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.house.4}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.house.5}}"
+                ]
+              },
+              // High hearts - farm
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6, LOCATION_NAME Target Farm",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.high_hearts.farm.1}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.farm.2}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.farm.3}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.farm.4}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.farm.5}}"
+                ]
+              },
+              // High hearts - mines
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6, LOCATION_NAME Target MineShaft",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.high_hearts.mines.1}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.mines.2}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.mines.3}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.mines.4}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.mines.5}}"
+                ]
+              },
+              // High hearts - volcano
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6, LOCATION_NAME Target VolcanoDungeon",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.high_hearts.volcano.1}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.volcano.2}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.volcano.3}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.volcano.4}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.volcano.5}}"
+                ]
+              },
+              // High hearts - generic
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.high_hearts.generic.1}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.generic.2}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.generic.3}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.generic.4}}",
+                  "{{i18n:dialogue.idle.harvey.high_hearts.generic.5}}"
+                ]
+              },
+              // Spouse - house
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married, LOCATION_NAME Target FarmHouse",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.spouse.house.1}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.house.2}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.house.3}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.house.4}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.house.5}}"
+                ]
+              },
+              // Spouse - farm
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married, LOCATION_NAME Target Farm",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.spouse.farm.1}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.farm.2}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.farm.3}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.farm.4}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.farm.5}}"
+                ]
+              },
+              // Spouse - mines
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married, LOCATION_NAME Target MineShaft",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.spouse.mines.1}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.mines.2}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.mines.3}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.mines.4}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.mines.5}}"
+                ]
+              },
+              // Spouse - generic
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.idle.harvey.spouse.generic.1}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.generic.2}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.generic.3}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.generic.4}}",
+                  "{{i18n:dialogue.idle.harvey.spouse.generic.5}}"
+                ]
+              }
+            ],
+
+            // Attacking dialogue
+            "Attacking": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.attacking.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.attacking.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.attacking.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.attacking.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.attacking.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.attacking.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.attacking.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.attacking.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.attacking.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.attacking.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.attacking.harvey.spouse.1}}",
+                  "{{i18n:dialogue.attacking.harvey.spouse.2}}",
+                  "{{i18n:dialogue.attacking.harvey.spouse.3}}",
+                  "{{i18n:dialogue.attacking.harvey.spouse.4}}",
+                  "{{i18n:dialogue.attacking.harvey.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Lumbering dialogue
+            "Lumbering": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.lumbering.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.lumbering.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.lumbering.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.lumbering.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.lumbering.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.lumbering.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.lumbering.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.lumbering.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.lumbering.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.lumbering.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.lumbering.harvey.spouse.1}}",
+                  "{{i18n:dialogue.lumbering.harvey.spouse.2}}",
+                  "{{i18n:dialogue.lumbering.harvey.spouse.3}}",
+                  "{{i18n:dialogue.lumbering.harvey.spouse.4}}",
+                  "{{i18n:dialogue.lumbering.harvey.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Mining dialogue
+            "Mining": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.mining.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.mining.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.mining.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.mining.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.mining.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.mining.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.mining.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.mining.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.mining.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.mining.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.mining.harvey.spouse.1}}",
+                  "{{i18n:dialogue.mining.harvey.spouse.2}}",
+                  "{{i18n:dialogue.mining.harvey.spouse.3}}",
+                  "{{i18n:dialogue.mining.harvey.spouse.4}}",
+                  "{{i18n:dialogue.mining.harvey.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Watering dialogue
+            "Watering": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.watering.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.watering.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.watering.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.watering.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.watering.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.watering.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.watering.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.watering.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.watering.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.watering.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.watering.harvey.spouse.1}}",
+                  "{{i18n:dialogue.watering.harvey.spouse.2}}",
+                  "{{i18n:dialogue.watering.harvey.spouse.3}}",
+                  "{{i18n:dialogue.watering.harvey.spouse.4}}",
+                  "{{i18n:dialogue.watering.harvey.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Harvesting dialogue
+            "Harvesting": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.harvesting.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.harvesting.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.harvesting.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.harvesting.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.harvesting.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.harvesting.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.harvesting.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.harvesting.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.harvesting.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.harvesting.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.harvesting.harvey.spouse.1}}",
+                  "{{i18n:dialogue.harvesting.harvey.spouse.2}}",
+                  "{{i18n:dialogue.harvesting.harvey.spouse.3}}",
+                  "{{i18n:dialogue.harvesting.harvey.spouse.4}}",
+                  "{{i18n:dialogue.harvesting.harvey.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Foraging dialogue
+            "Foraging": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.foraging.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.foraging.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.foraging.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.foraging.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.foraging.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.foraging.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.foraging.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.foraging.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.foraging.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.foraging.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.foraging.harvey.spouse.1}}",
+                  "{{i18n:dialogue.foraging.harvey.spouse.2}}",
+                  "{{i18n:dialogue.foraging.harvey.spouse.3}}",
+                  "{{i18n:dialogue.foraging.harvey.spouse.4}}",
+                  "{{i18n:dialogue.foraging.harvey.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Fishing_Waiting dialogue
+            "Fishing_Waiting": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_waiting.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_waiting.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_waiting.harvey.spouse.1}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.spouse.2}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.spouse.3}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.spouse.4}}",
+                  "{{i18n:dialogue.fishing_waiting.harvey.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Fishing_Caught dialogue
+            "Fishing_Caught": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_caught.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_caught.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.fishing_caught.harvey.spouse.1}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.spouse.2}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.spouse.3}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.spouse.4}}",
+                  "{{i18n:dialogue.fishing_caught.harvey.spouse.5}}"
+                ]
+              }
+            ],
+
+            // Petting dialogue
+            "Petting": [
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 0 5",
+                "Lines": [
+                  "{{i18n:dialogue.petting.harvey.low_hearts.1}}",
+                  "{{i18n:dialogue.petting.harvey.low_hearts.2}}",
+                  "{{i18n:dialogue.petting.harvey.low_hearts.3}}",
+                  "{{i18n:dialogue.petting.harvey.low_hearts.4}}",
+                  "{{i18n:dialogue.petting.harvey.low_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "!PLAYER_NPC_RELATIONSHIP Current Harvey Married, PLAYER_HEARTS Current Harvey 6",
+                "Lines": [
+                  "{{i18n:dialogue.petting.harvey.high_hearts.1}}",
+                  "{{i18n:dialogue.petting.harvey.high_hearts.2}}",
+                  "{{i18n:dialogue.petting.harvey.high_hearts.3}}",
+                  "{{i18n:dialogue.petting.harvey.high_hearts.4}}",
+                  "{{i18n:dialogue.petting.harvey.high_hearts.5}}"
+                ]
+              },
+              {
+                "Condition": "PLAYER_NPC_RELATIONSHIP Current Harvey Married",
+                "Lines": [
+                  "{{i18n:dialogue.petting.harvey.spouse.1}}",
+                  "{{i18n:dialogue.petting.harvey.spouse.2}}",
+                  "{{i18n:dialogue.petting.harvey.spouse.3}}",
+                  "{{i18n:dialogue.petting.harvey.spouse.4}}",
+                  "{{i18n:dialogue.petting.harvey.spouse.5}}"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

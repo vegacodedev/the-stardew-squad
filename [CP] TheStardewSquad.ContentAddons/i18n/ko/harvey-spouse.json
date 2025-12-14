@@ -1,0 +1,73 @@
+{
+  "dialogue.recruit.harvey.spouse.1": "당연하지, 여보. 어디든 같이 갈게.",
+  "dialogue.recruit.harvey.spouse.2": "자기, 모험 갈 준비는 끝났어? 조심해야 해, 응?",
+  "dialogue.recruit.harvey.spouse.3": "여보 부탁이라면 뭐든지. 가방만 챙길게. 혹시 모르니까 응급처치 키트도 준비해야겠네.",
+  "dialogue.recruit.harvey.spouse.4": "같이 나가자고? 정말 좋다. 준비됐으면 말해.",
+  "dialogue.recruit.harvey.spouse.5": "혹시 불러줄까 봐 계속 기다렸어! 자기랑 하루를 보내는 게 나에게 있어 제일 좋은 약이야.",
+
+  "dialogue.dismiss.harvey.spouse.1": "알겠어, 여보. 집에서 봐. 너무 늦게 다니진 말고.",
+  "dialogue.dismiss.harvey.spouse.2": "이제 다 끝난 거야, 여보? 그럼 난 먼저 갈게. 사랑해.",
+  "dialogue.dismiss.harvey.spouse.3": "벌써 보고 싶다... 무사히 돌아와야 해, 알겠지?",
+  "dialogue.dismiss.harvey.spouse.4": "응, 자기. 집 좀 정리하면서 기다릴게. 금방 보자.",
+  "dialogue.dismiss.harvey.spouse.5": "오늘도 자기랑 같이 일해서 너무 좋았어. 집에서 기다릴게.",
+
+  "dialogue.idle.harvey.spouse.generic.1": "오늘같이 맑은 날에는 비행기 날리기 딱 좋은데. 내가 만들던 모형기 생각난다.",
+  "dialogue.idle.harvey.spouse.generic.2": "여보, 아침은 챙겨 먹었지? 아침이 하루 중 제일 중요한 식사야.",
+  "dialogue.idle.harvey.spouse.generic.3": "가만히 생각해 봤는데... 자기와 결혼해서 정말 다행이야. 매일이 새롭고 즐거워.",
+  "dialogue.idle.harvey.spouse.generic.4": "나중에 내 재즈 레코드 같이 들을래? 오늘 하루 마무리로 딱일 거야.",
+  "dialogue.idle.harvey.spouse.generic.5": "어젯밤엔 멀리 있는 라디오 주파수를 잡느라 밤 늦게까지 깨있었어.",
+
+  "dialogue.idle.harvey.spouse.farm.1": "우리 농장이 진짜 예쁘다. 진짜 작은 천국 같아.",
+  "dialogue.idle.harvey.spouse.farm.2": "자기, 너무 열심히 일하지 말고 중간중간 쉬어줘야 해.",
+  "dialogue.idle.harvey.spouse.farm.3": "이 넓은 농장을 보면 항상 공기역학 생각이 나. 병원처럼 갇힌 공간이랑은 너무 다르거든.",
+  "dialogue.idle.harvey.spouse.farm.4": "흙 냄새랑 햇살이 정말 좋아. 병원 냄새보다 훨씬 나아.",
+  "dialogue.idle.harvey.spouse.farm.5": "여기 있는 식물 하나하나가 자기의 정성과 사랑의 결과야.",
+
+  "dialogue.idle.harvey.spouse.mines.1": "여긴 위험하니까 조심해, 여보. 이런 곳에 있는 건 항상 걱정돼.",
+  "dialogue.idle.harvey.spouse.mines.2": "손 좀 잡아줄래? 분위기가 살짝 으스스하긴 한데 자기가 있으니 괜찮아.",
+  "dialogue.idle.harvey.spouse.mines.3": "무리하지 않겠다고 약속해 줘. 여보가 다치는 건 정말 마음 아파.",
+  "dialogue.idle.harvey.spouse.mines.4": "이렇게 어두운 곳에서도 자기는 내 빛이야. 오글거려도 사실이니까.",
+  "dialogue.idle.harvey.spouse.mines.5": "필요한 것만 찾고 빨리 햇빛 있는 곳으로 가자. 자기가 안전해야 마음이 놓여.",
+
+  "dialogue.idle.harvey.spouse.house.1": "역시 집이 최고야. 자기가 없으면 그냥 평범한 집일 뿐이지만.",
+  "dialogue.idle.harvey.spouse.house.2": "여보, 뭐 필요해? 커피 한 잔 줄까, 아니면 진찰이라도?",
+  "dialogue.idle.harvey.spouse.house.3": "이렇게 조용한 시간이 너무 좋아. 우리의 집에서 여보랑 쉬고 있는 이 시간 말이야.",
+  "dialogue.idle.harvey.spouse.house.4": "자기 좀 피곤해 보이네. 잠은 잘 자고 있어?",
+  "dialogue.idle.harvey.spouse.house.5": "이렇게 여보랑 집에서 편히 쉬는 게 긴 하루를 마무리하는 가장 완벽한 방법이지.",
+
+  "dialogue.attacking.harvey.spouse.1": "뒤로 물러서, 여보! 아무도 자길 다치게 할 수는 없어!",
+  "dialogue.attacking.harvey.spouse.2": "우린 팀이야! 같이 하자!",
+  "dialogue.attacking.harvey.spouse.3": "조심해! 괜찮아, 여보?",
+  "dialogue.attacking.harvey.spouse.4": "나 여기 있어! 걱정하지 마!",
+  "dialogue.attacking.harvey.spouse.5": "심장이 쿵쾅거려! 좋은 의미는 아니야! 빨리 끝내자!",
+
+  "dialogue.lumbering.harvey.spouse.1": "자기 진짜 힘 세다. 정말 멋져.",
+  "dialogue.lumbering.harvey.spouse.2": "나도 도와줄게. 둘이 하면 더 빨리 끝날 거야.",
+  "dialogue.lumbering.harvey.spouse.3": "이게 운동이 되긴 해도 허리는 조심해야 해, 알고 있지?",
+  "dialogue.lumbering.harvey.spouse.4": "여보랑 같이 일하는 거... 너무 좋아.",
+  "dialogue.lumbering.harvey.spouse.5": "자기는 정말 뭐든 할 수 있는 사람 같아. 늘 감탄스러워.",
+
+  "dialogue.mining.harvey.spouse.1": "정말 멋진 발견이네, 여보! 이런 일에 재능이 있구나.",
+  "dialogue.mining.harvey.spouse.2": "자기랑 있으니까 이런 일도 재밌어. 먼지도 괜찮아.",
+  "dialogue.mining.harvey.spouse.3": "내가 주변을 살필게. 자기는 보물 찾는 데에 집중해.",
+  "dialogue.mining.harvey.spouse.4": "보물찾기 같아! 찾은 보물로 뭘 할까?",
+  "dialogue.mining.harvey.spouse.5": "자기랑 같이 있으면 이런 어두운 동굴도 환하게 느껴져.",
+
+  "dialogue.watering.harvey.spouse.1": "이건 내가 할게. 자기 벌써 일 많이 했잖아.",
+  "dialogue.watering.harvey.spouse.2": "이 아이는 좀 목마른 것 같네.",
+  "dialogue.watering.harvey.spouse.3": "자기랑 있으면 뭐든 다 잘 자라는 것 같아. 마치 마법 같이.",
+  "dialogue.watering.harvey.spouse.4": "이렇게 단순한 일이 제일 소중하게 느껴져.",
+  "dialogue.watering.harvey.spouse.5": "이 식물들처럼, 자기를 향한 내 마음도 매일 커지고 있어.",
+
+  "dialogue.harvesting.harvey.spouse.1": "이 풍성한 수확 좀 봐!",
+  "dialogue.harvesting.harvey.spouse.2": "자기가 만들어낸 이 농장, 정말 대단해.",
+  "dialogue.harvesting.harvey.spouse.3": "이걸로 무슨 맛있는 음식을 해먹을까?",
+  "dialogue.harvesting.harvey.spouse.4": "정말 멋져! 사랑으로 키운 건강한 음식이네.",
+  "dialogue.harvesting.harvey.spouse.5": "긴 계절 끝에 자기랑 같이 수확하는 건 최고의 보상이야.",
+
+  "dialogue.foraging.harvey.spouse.1": "뭐 찾았어, 여보? 자기는 늘 좋은 걸 잘 알아보더라고.",
+  "dialogue.foraging.harvey.spouse.2": "내가 제일 좋아하는 사람이랑 함께 하는 산책... 더 바랄 게 없네.",
+  "dialogue.foraging.harvey.spouse.3": "우리 둘이랑 자연의 소리만 있으니 정말 좋다.",
+  "dialogue.foraging.harvey.spouse.4": "오늘 저녁으로 뭐 해먹을까? 뭔가 특별한 게 있을 것 같아.",
+  "dialogue.foraging.harvey.spouse.5": "이 허브들 중엔 약효가 있는 것도 있어. 근처에 뭐가 자라고 있는지 아는 건 꽤 중요한 일이지."
+}

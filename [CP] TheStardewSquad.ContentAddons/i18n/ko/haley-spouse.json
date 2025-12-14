@@ -1,0 +1,61 @@
+{
+  "dialogue.recruit.haley.spouse.1": "모험이라고? 완전 좋아! 오늘 딱 사진 영감이 필요했거든.",
+  "dialogue.recruit.haley.spouse.2": "그럼, 자기야. 가끔은 집 밖 공기도 쐬고 그래야지.",
+  "dialogue.recruit.haley.spouse.3": "좋아! 새로 산 렌즈 테스트할 겸 딱이네.",
+  "dialogue.recruit.haley.spouse.4": "어디든 좋아. 자기랑 함께라면.",
+  "dialogue.recruit.haley.spouse.5": "그래! 오늘 꼭 나가고 싶었는데 잘 됐다.",
+
+  "dialogue.dismiss.haley.spouse.1": "알겠어, 자기야. 난 집에 가서 새로운 케이크 레시피 좀 실험해 볼게!",
+  "dialogue.dismiss.haley.spouse.2": "응, {{endearment}}. 오늘 찍은 사진 현상하러 가야지. 어떻게 나왔을지 벌써 기대돼!",
+  "dialogue.dismiss.haley.spouse.3": "그럼 난 저녁 준비하고 있을게. 조심히 다녀와!",
+  "dialogue.dismiss.haley.spouse.4": "돌아올 때쯤 연락 줘. 사랑해!",
+  "dialogue.dismiss.haley.spouse.5": "다 끝났어? 그럼 농장 집에서 봐~",
+
+  "dialogue.idle.haley.spouse.generic.1": "우리 야외 스튜디오 하나 만들어보는 거 어때? 자연광이 완전 예술이야.",
+  "dialogue.idle.haley.spouse.generic.2": "이렇게 같이 밖에 있으니까 머리가 맑아져. 세상을 다르게 볼 수 있게 돼, 사진처럼 말이야.",
+  "dialogue.idle.haley.spouse.generic.3": "경치 감상 중이야... 그중 최고는 자기이지만~",
+  "dialogue.idle.haley.spouse.generic.4": "{{endearment}}, 자기랑 결혼하길 정말 잘한 것 같아. 지루할 틈이 없잖아.",
+  "dialogue.idle.haley.spouse.generic.5": "이 순간, 사진으로 남겨볼까?",
+
+  "dialogue.idle.haley.spouse.farm.1": "오후 햇살이 저 나뭇잎에 스며드는 거 봐... 완벽한 사진 각이야.",
+  "dialogue.idle.haley.spouse.farm.2": "우리 농장이 골짜기에서 제일 예쁜 것 같아.",
+  "dialogue.idle.haley.spouse.farm.3": "우리 동물들 너무 귀엽지 않아? 얘들만으로도 사진 시리즈 하나 나오겠어.",
+  "dialogue.idle.haley.spouse.farm.4": "이 모든 걸 보면, 내 인생이 얼마나 좋아졌는지 새삼 느껴져.",
+  "dialogue.idle.haley.spouse.farm.5": "모든 게 활기차고 생생해... 우리처럼 말이야.",
+
+  "dialogue.idle.haley.spouse.mines.1": "처음 데이트했을 때 생각나지 않아? 이젠 나도 꽤 잘 해낸다니까!",
+  "dialogue.idle.haley.spouse.mines.2": "자기랑 같이 있으니까 안심돼. 뭐든 해낼 수 있을 것 같아.",
+  "dialogue.idle.haley.spouse.mines.3": "이 수정들에 비치는 빛... 사진 아이디어가 막 떠올라.",
+  "dialogue.idle.haley.spouse.mines.4": "예전에 이곳 무서워했던 거 기억나? 지금 생각하면 좀 웃기지?",
+  "dialogue.idle.haley.spouse.mines.5": "우리만의 보물찾기네. 완전 신나!",
+
+  "dialogue.idle.haley.spouse.house.1": "다시 와보니까 좀 웃기네. 예전엔 이 집이 참 답답하게 느껴졌는데.",
+  "dialogue.idle.haley.spouse.house.2": "에밀리 좀 보고 와야겠다. 또 식물에 물 안 주는 거 아니겠지?",
+  "dialogue.idle.haley.spouse.house.3": "우리 농장의 집이 훨씬 멋지지만, 여긴 여전히 특별한 장소야.",
+  "dialogue.idle.haley.spouse.house.4": "내 예전 방을 보니까... 나 많이 변했지? 지금이 훨씬 좋아.",
+  "dialogue.idle.haley.spouse.house.5": "우리 부모님한테 인사나 할까? 아, 맞다... 아직 여행 중이지. 가끔 까먹고는 해.",
+
+  "dialogue.attacking.haley.spouse.1": "야! 내 자기한테서 떨어져!",
+  "dialogue.attacking.haley.spouse.2": "나 만만하게 보지 마, 괴물아!",
+  "dialogue.attacking.haley.spouse.3": "절대로 용서 못 해!",
+  "dialogue.attacking.haley.spouse.4": "자기는 내가 지킬 거야! 꼭!",
+  "dialogue.attacking.haley.spouse.5": "나부터 상대해야 할걸?",
+
+  "dialogue.lumbering.haley.spouse.1": "우린 진짜 환상의 팀이야! 금방 끝낼 수 있겠는걸?",
+  "dialogue.lumbering.haley.spouse.2": "이건 내가 할게, 자기야. 무거운 카메라 들려면 팔 힘도 길러야 하니까~",
+  "dialogue.lumbering.haley.spouse.3": "우리 땅을 위해 함께 일하다니... 완전 이상적이야.",
+  "dialogue.lumbering.haley.spouse.4": "농장 집 따뜻하게 하려면 나무가 많이 필요하지. 좋은 생각이야!",
+  "dialogue.lumbering.haley.spouse.5": "조심해! 너무 무리하진 말고.",
+
+  "dialogue.mining.haley.spouse.1": "이건 내가 해볼게! 자기 하는 거 보면서 많이 배웠거든.",
+  "dialogue.mining.haley.spouse.2": "우리 진짜 파워 커플 아니야?",
+  "dialogue.mining.haley.spouse.3": "우와, 이 돌 안에 다이아몬드가 있을까? 정물 사진 주제로 딱일 텐데!",
+  "dialogue.mining.haley.spouse.4": "여보를 도울 수 있다면 뭐든 할게, 사랑해.",
+  "dialogue.mining.haley.spouse.5": "조금만 더 하면 자기 말하던 새 길 만들 수 있겠다!",
+
+  "dialogue.watering.haley.spouse.1": "이제 좀 능숙해진 것 같지 않아? 나 은근 손이 야무진가 봐!",
+  "dialogue.watering.haley.spouse.2": "우리 집을 예쁘게 가꾸는 걸 도울 수 있어서 좋아.",
+  "dialogue.watering.haley.spouse.3": "건강한 식물은 행복한 농장을 만들고, 행복한 농장은 최고의 사진 배경이지!",
+  "dialogue.watering.haley.spouse.4": "다음 케이크에 들어갈 신선한 재료들이 바로 여기 있네!",
+  "dialogue.watering.haley.spouse.5": "자기랑 이런 삶을 살 수 있어서 정말 행복해."
+}

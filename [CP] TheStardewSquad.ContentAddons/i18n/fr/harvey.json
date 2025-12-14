@@ -1,0 +1,217 @@
+{
+  // ==========================================
+  // --- FRIENDSHIP TOO LOW ---
+  // ==========================================
+
+  "dialogue.friendship_too_low.harvey.1": "J'apprécie l'offre, mais je ne te connais pas assez bien pour laisser mon cabinet sans surveillance. Peut-être une autre fois.",
+  "dialogue.friendship_too_low.harvey.2": "C'est une gentille pensée, mais mes patients comptent sur moi. Je ne peux pas partir comme ça.",
+  "dialogue.friendship_too_low.harvey.3": "Je suis flatté, mais j'ai une responsabilité envers la santé de la ville. Je dois refuser.",
+  "dialogue.friendship_too_low.harvey.4": "Bien que j'apprécie ta compagnie, j'ai un devoir professionnel à remplir. Je suis désolé.",
+  "dialogue.friendship_too_low.harvey.5": "Mon emploi du temps est assez chargé avec les rendez-vous. Je ne peux pas me joindre à toi pour le moment.",
+
+  // ==========================================
+  // --- LOW FRIENDSHIP (< 6 HEARTS) ---
+  // ==========================================
+
+  "dialogue.recruit.harvey.low_hearts.1": "Tu as besoin d'aide ? Très bien. En tant que médecin, il est de mon devoir d'aider. Où allons-nous ?",
+  "dialogue.recruit.harvey.low_hearts.2": "Je suppose que je peux prendre un peu de temps. C'est important de prendre l'air. Montre-moi le chemin.",
+  "dialogue.recruit.harvey.low_hearts.3": "D'accord, je viens. Essaie juste d'éviter les risques inutiles, s'il te plaît.",
+  "dialogue.recruit.harvey.low_hearts.4": "Bien sûr. Laisse-moi juste prendre ma trousse médicale, au cas où. Je suis prêt quand tu l'es.",
+  "dialogue.recruit.harvey.low_hearts.5": "Une expédition ? Ça a l'air... intéressant. Je me joins à toi. Pour la supervision de la santé et de la sécurité, bien sûr.",
+
+  "dialogue.dismiss.harvey.low_hearts.1": "Compris. J'ai des revues médicales que je voulais rattraper de toute façon.",
+  "dialogue.dismiss.harvey.low_hearts.2": "Très bien. Je retourne à la clinique, alors. Reste prudent.",
+  "dialogue.dismiss.harvey.low_hearts.3": "C'était... une expérience. Fais-moi savoir si tu as besoin de soins médicaux plus tard.",
+  "dialogue.dismiss.harvey.low_hearts.4": "D'accord. Il est temps pour moi de retourner à ma routine. Au revoir pour l'instant.",
+  "dialogue.dismiss.harvey.low_hearts.5": "Tu n'as plus besoin de moi ? Compris. Essaie de manger un repas équilibré en rentrant chez toi.",
+
+  "dialogue.idle.harvey.low_hearts.generic.1": "N'oublie pas de rester hydraté. C'est essentiel pour une bonne santé.",
+  "dialogue.idle.harvey.low_hearts.generic.2": "Je devrais probablement réapprovisionner quelques bandages à la clinique.",
+  "dialogue.idle.harvey.low_hearts.generic.3": "Je devrais vérifier le genou de George plus tard. Il lui fait mal par ce temps.",
+  "dialogue.idle.harvey.low_hearts.generic.4": "J'espère que tout le monde en ville se souvient de prendre ses vitamines.",
+  "dialogue.idle.harvey.low_hearts.generic.5": "Une routine stable est la pierre angulaire d'un mode de vie sain.",
+
+  "dialogue.idle.harvey.low_hearts.farm.1": "Un travail physique comme celui-ci est bon pour la santé cardiovasculaire, avec modération.",
+  "dialogue.idle.harvey.low_hearts.farm.2": "Ces cultures ont l'air en très bonne santé. Une bonne source de nutriments essentiels.",
+  "dialogue.idle.harvey.low_hearts.farm.3": "Assure-toi d'utiliser des techniques de levage appropriées pour éviter les tensions dorsales.",
+  "dialogue.idle.harvey.low_hearts.farm.4": "L'air frais de la campagne est certainement vivifiant.",
+  "dialogue.idle.harvey.low_hearts.farm.5": "L'agriculture semble être une profession très exigeante, mais enrichissante.",
+
+  "dialogue.idle.harvey.low_hearts.mines.1": "L'air ici est assez poussiéreux. Il vaut mieux ne pas trop se surmener.",
+  "dialogue.idle.harvey.low_hearts.mines.2": "S'il te plaît, sois prudent. Ces mines peuvent être dangereuses.",
+  "dialogue.idle.harvey.low_hearts.mines.3": "J'ai lu des articles sur la 'toux du mineur'. Essayons d'éviter ça.",
+  "dialogue.idle.harvey.low_hearts.mines.4": "Fais attention où tu mets les pieds. Une chute ici pourrait être très grave.",
+  "dialogue.idle.harvey.low_hearts.mines.5": "Ce n'est pas un environnement stérile. Essaie de ne pas te toucher le visage.",
+
+  "dialogue.idle.harvey.low_hearts.town.1": "C'est bon de voir la ville animée. Une communauté saine est une communauté heureuse.",
+  "dialogue.idle.harvey.low_hearts.town.2": "La qualité de l'air ici est excellente. C'est bon pour les poumons.",
+  "dialogue.idle.harvey.low_hearts.town.3": "Je me demande si quelqu'un a besoin d'un examen aujourd'hui.",
+  "dialogue.idle.harvey.low_hearts.town.4": "Une marche rapide à travers la ville est un bon moyen de faire un peu d'exercice léger.",
+  "dialogue.idle.harvey.low_hearts.town.5": "Pélican Ville est un endroit paisible. C'est bon pour la santé mentale.",
+
+  "dialogue.idle.harvey.low_hearts.house.1": "Il est important de maintenir un espace de vie propre pour prévenir les maladies.",
+  "dialogue.idle.harvey.low_hearts.house.2": "Une maison bien organisée mène à un esprit bien organisé.",
+  "dialogue.idle.harvey.low_hearts.house.3": "Est-ce que tu dors assez ? Huit heures sont recommandées pour une santé optimale.",
+  "dialogue.idle.harvey.low_hearts.house.4": "C'est une température confortable. Idéale pour ne pas attraper froid.",
+  "dialogue.idle.harvey.low_hearts.house.5": "Un moment de calme à l'intérieur est un bon moyen de se ressourcer.",
+
+  "dialogue.attacking.harvey.low_hearts.1": "Essaie de garder tes distances ! La sécurité d'abord !",
+  "dialogue.attacking.harvey.low_hearts.2": "Évite la confrontation directe si possible !",
+  "dialogue.attacking.harvey.low_hearts.3": "Ce n'est pas conseillé ! Bats en retraite si tu le peux !",
+  "dialogue.attacking.harvey.low_hearts.4": "Fais attention ! Une seule blessure peut s'infecter !",
+  "dialogue.attacking.harvey.low_hearts.5": "En tant que médecin, je dois déconseiller cela !",
+
+  "dialogue.lumbering.harvey.low_hearts.1": "C'est tout un entraînement. Ne te surmène pas.",
+  "dialogue.lumbering.harvey.low_hearts.2": "Attention aux échardes. Elles peuvent être dangereuses.",
+  "dialogue.lumbering.harvey.low_hearts.3": "L'odeur du bois fraîchement coupé est assez distincte.",
+  "dialogue.lumbering.harvey.low_hearts.4": "Cela demande beaucoup de force et de précision.",
+  "dialogue.lumbering.harvey.low_hearts.5": "N'oublie pas de faire des pauses pour éviter la fatigue musculaire.",
+
+  "dialogue.mining.harvey.low_hearts.1": "Les réverbérations sont assez fortes. J'espère que cette zone est stable.",
+  "dialogue.mining.harvey.low_hearts.2": "Ces minéraux sont intéressants d'un point de vue géologique.",
+  "dialogue.mining.harvey.low_hearts.3": "Assure-toi de porter un équipement de protection si tu fais ça souvent.",
+  "dialogue.mining.harvey.low_hearts.4": "C'est un travail pénible. Tu te sens bien ?",
+  "dialogue.mining.harvey.low_hearts.5": "Espérons que nous ne provoquerons pas d'éboulement.",
+
+  "dialogue.watering.harvey.low_hearts.1": "Une bonne hydratation est essentielle, pour les plantes comme pour les gens.",
+  "dialogue.watering.harvey.low_hearts.2": "Une tâche simple, mais nécessaire.",
+  "dialogue.watering.harvey.low_hearts.3": "C'est assez méthodique. Presque méditatif.",
+  "dialogue.watering.harvey.low_hearts.4": "Il est important que les cultures reçoivent assez d'eau.",
+  "dialogue.watering.harvey.low_hearts.5": "Le son de l'arrosoir est plutôt plaisant.",
+
+  "dialogue.harvesting.harvey.low_hearts.1": "Une belle récolte. Cela fera des repas nutritifs.",
+  "dialogue.harvesting.harvey.low_hearts.2": "Les fruits de ton travail, littéralement.",
+  "dialogue.harvesting.harvey.low_hearts.3": "C'est satisfaisant de voir des produits aussi sains.",
+  "dialogue.harvesting.harvey.low_hearts.4": "C'est une bonne source de vitamines et de minéraux.",
+  "dialogue.harvesting.harvey.low_hearts.5": "Assure-toi de bien les laver avant de les consommer.",
+
+  "dialogue.foraging.harvey.low_hearts.1": "Je crois que celui-ci est comestible, mais il vaut toujours mieux en être certain.",
+  "dialogue.foraging.harvey.low_hearts.2": "La nature pourvoit, mais il faut être connaisseur.",
+  "dialogue.foraging.harvey.low_hearts.3": "Certaines de ces plantes ont des propriétés médicinales, tu sais.",
+  "dialogue.foraging.harvey.low_hearts.4": "Une bonne promenade et de la nourriture fraîche. Excellent pour le bien-être.",
+  "dialogue.foraging.harvey.low_hearts.5": "Faisons attention à ce que nous cueillons. Certaines plantes peuvent être toxiques.",
+
+  // ==========================================
+  // --- HIGH FRIENDSHIP (>= 6 HEARTS) ---
+  // ==========================================
+
+  "dialogue.recruit.harvey.high_hearts.1": "Bien sûr, {{name}} ! Je serais heureux de me joindre à toi. Ce sera une pause de la clinique.",
+  "dialogue.recruit.harvey.high_hearts.2": "Une aventure avec toi ? Ça a l'air amusant ! Allons-y.",
+  "dialogue.recruit.harvey.high_hearts.3": "La compagnie me ferait du bien. Merci de m'avoir invité !",
+  "dialogue.recruit.harvey.high_hearts.4": "Où que tu ailles, je suis heureux de te suivre. Quel est le plan ?",
+  "dialogue.recruit.harvey.high_hearts.5": "Absolument ! Passer du temps avec toi est toujours un plaisir.",
+
+  "dialogue.dismiss.harvey.high_hearts.1": "D'accord, à plus tard, {{name}}. Prends soin de toi !",
+  "dialogue.dismiss.harvey.high_hearts.2": "C'était amusant ! Faisons ça à nouveau bientôt.",
+  "dialogue.dismiss.harvey.high_hearts.3": "Je rentre maintenant. Ne travaille pas trop dur sans moi !",
+  "dialogue.dismiss.harvey.high_hearts.4": "D'accord, on se voit en ville. Sois prudent !",
+  "dialogue.dismiss.harvey.high_hearts.5": "Merci de m'avoir emmené. J'ai passé un excellent moment.",
+
+  "dialogue.idle.harvey.high_hearts.generic.1": "Par une journée claire comme celle-ci, j'adorerais être dans le ciel, à faire voler mon modèle réduit d'avion.",
+  "dialogue.idle.harvey.high_hearts.generic.2": "As-tu déjà écouté du jazz ? J'ai une super collection de disques que nous pourrions écouter un de ces jours.",
+  "dialogue.idle.harvey.high_hearts.generic.3": "C'est juste agréable d'être ici avec toi, loin de tous les dossiers médicaux.",
+  "dialogue.idle.harvey.high_hearts.generic.4": "Je pensais justement à une nouvelle fréquence radio que je veux essayer de capter. C'est un puzzle amusant.",
+  "dialogue.idle.harvey.high_hearts.generic.5": "C'est vraiment agréable. Je suis content que nous soyons amis.",
+
+  "dialogue.idle.harvey.high_hearts.farm.1": "Ta ferme a une atmosphère si paisible. C'est un endroit merveilleux.",
+  "dialogue.idle.harvey.high_hearts.farm.2": "Tu as fait un travail incroyable avec cet endroit.",
+  "dialogue.idle.harvey.high_hearts.farm.3": "Être ici avec toi... c'est ma façon préférée de passer la journée.",
+  "dialogue.idle.harvey.high_hearts.farm.4": "Parfois, je pense à prendre ma retraite et à ouvrir un petit atelier de modèles réduits d'avions. Un homme peut rêver, non ?",
+  "dialogue.idle.harvey.high_hearts.farm.5": "Les sons de la ferme sont tellement plus relaxants que les bips de mon équipement médical.",
+
+  "dialogue.idle.harvey.high_hearts.mines.1": "C'est excitant, d'une manière angoissante ! Reste près de moi, d'accord ?",
+  "dialogue.idle.harvey.high_hearts.mines.2": "J'ai l'impression que nous sommes dans une véritable expédition. Comme les aventuriers dans mes livres !",
+  "dialogue.idle.harvey.high_hearts.mines.3": "Tu penses qu'il y a des cristaux rares ici ? La géologie est fascinante.",
+  "dialogue.idle.harvey.high_hearts.mines.4": "Tant que je suis avec toi, je n'ai même pas peur des chauves-souris. Bon, peut-être un peu.",
+  "dialogue.idle.harvey.high_hearts.mines.5": "C'est beaucoup plus amusant que ma routine habituelle. Merci de m'avoir emmené.",
+
+  "dialogue.idle.harvey.high_hearts.volcano.1": "Un volcan ! C'est incroyable ! Et incroyablement dangereux ! S'il te plaît, sois prudent(e).",
+  "dialogue.idle.harvey.high_hearts.volcano.2": "La chaleur est intense. Assure-toi de boire beaucoup d'eau.",
+  "dialogue.idle.harvey.high_hearts.volcano.3": "Je n'ai lu sur des endroits comme celui-ci que dans les manuels. C'est incroyable de le voir en personne.",
+  "dialogue.idle.harvey.high_hearts.volcano.4": "Je suis médecin, pas géologue, mais c'est vraiment une expérience unique.",
+  "dialogue.idle.harvey.high_hearts.volcano.5": "Reste avec moi, d'accord ? Je ne me le pardonnerais jamais si quelque chose t'arrivait ici.",
+
+  "dialogue.idle.harvey.high_hearts.town.1": "C'est une belle journée pour une promenade en ville, surtout avec toi.",
+  "dialogue.idle.harvey.high_hearts.town.2": "Te voir illumine toujours ma journée, tu sais ça ?",
+  "dialogue.idle.harvey.high_hearts.town.3": "Peut-être qu'on pourrait passer au saloon plus tard pour un verre tranquille ?",
+  "dialogue.idle.harvey.high_hearts.town.4": "Je suis content que tu aies déménagé à Pélican Ville, {{name}}.",
+  "dialogue.idle.harvey.high_hearts.town.5": "Tout semble un peu mieux quand tu es là.",
+
+  "dialogue.idle.harvey.high_hearts.house.1": "Ton chez-toi est si confortable.",
+  "dialogue.idle.harvey.high_hearts.house.2": "C'est agréable de se détendre avec toi. Pas de monstres, pas de corvées, juste... nous.",
+  "dialogue.idle.harvey.high_hearts.house.3": "Puis-je te faire une tasse de café ? Je m'y connais un petit peu.",
+  "dialogue.idle.harvey.high_hearts.house.4": "Je me sens à l'aise ici avec toi.",
+  "dialogue.idle.harvey.high_hearts.house.5": "Être avec toi est toute l'aventure dont j'ai besoin.",
+
+  "dialogue.attacking.harvey.high_hearts.1": "Reste derrière moi ! Je te protégerai !",
+  "dialogue.attacking.harvey.high_hearts.2": "On peut le faire ! Fais juste attention !",
+  "dialogue.attacking.harvey.high_hearts.3": "Attention ! Ça va ?",
+  "dialogue.attacking.harvey.high_hearts.4": "Ne t'inquiète pas, je suis là avec toi !",
+  "dialogue.attacking.harvey.high_hearts.5": "Un peu d'excitation pour faire battre le cœur, hein ?",
+
+  "dialogue.lumbering.harvey.high_hearts.1": "Besoin d'un coup de main ?",
+  "dialogue.lumbering.harvey.high_hearts.2": "Ça fait du bien de faire quelque chose de physique pour changer. Ça vide l'esprit.",
+  "dialogue.lumbering.harvey.high_hearts.3": "Tu es vraiment fort, tu sais ça ?",
+  "dialogue.lumbering.harvey.high_hearts.4": "C'est beaucoup plus amusant que de remplir des papiers.",
+  "dialogue.lumbering.harvey.high_hearts.5": "Finissons ça et ensuite on pourra se détendre.",
+
+  "dialogue.mining.harvey.high_hearts.1": "Regarde ça ! On a trouvé du minerai ! On forme une super équipe.",
+  "dialogue.mining.harvey.high_hearts.2": "C'est plutôt amusant, en fait. Comme une chasse au trésor.",
+  "dialogue.mining.harvey.high_hearts.3": "Je surveillerai les monstres pendant que tu travailles.",
+  "dialogue.mining.harvey.high_hearts.4": "Trouver ces gemmes est presque aussi gratifiant qu'un diagnostic correct !",
+  "dialogue.mining.harvey.high_hearts.5": "Voyons quels trésors nous pouvons déterrer ensemble.",
+
+  "dialogue.watering.harvey.high_hearts.1": "C'est agréable de faire ces simples corvées avec toi.",
+  "dialogue.watering.harvey.high_hearts.2": "Tout pousse mieux avec un peu d'amour et de soin.",
+  "dialogue.watering.harvey.high_hearts.3": "Laisse-moi t'aider avec ça. Plusieurs mains rendent le travail plus léger.",
+  "dialogue.watering.harvey.high_hearts.4": "C'est si paisible. Je comprends pourquoi tu aimes l'agriculture.",
+  "dialogue.watering.harvey.high_hearts.5": "Juste un peu d'eau, et bientôt tu auras une belle récolte.",
+
+  "dialogue.harvesting.harvey.high_hearts.1": "Wow, regarde tout ça ! Ton travail acharné a vraiment payé, {{name}}.",
+  "dialogue.harvesting.harvey.high_hearts.2": "Tout ça a l'air délicieux ! Qu'est-ce que tu vas cuisiner avec ?",
+  "dialogue.harvesting.harvey.high_hearts.3": "Ça fait du bien de récolter quelque chose que l'on a cultivé soi-même, n'est-ce pas ?",
+  "dialogue.harvesting.harvey.high_hearts.4": "Tu devrais organiser un grand dîner avec tout ça pour fêter.",
+  "dialogue.harvesting.harvey.high_hearts.5": "C'est fantastique ! Tu es une vraie main verte.",
+
+  "dialogue.foraging.harvey.high_hearts.1": "Oh, quelle trouvaille ! Tu as un excellent œil pour ces choses.",
+  "dialogue.foraging.harvey.high_hearts.2": "Se promener avec toi est mon idée d'une journée parfaite.",
+  "dialogue.foraging.harvey.high_hearts.3": "Je pense que celui-ci est ton préféré, n'est-ce pas ?",
+  "dialogue.foraging.harvey.high_hearts.4": "C'est comme une petite chasse au trésor. Que pouvons-nous trouver d'autre ?",
+  "dialogue.foraging.harvey.high_hearts.5": "Être dans la nature avec toi est si rafraîchissant.",
+
+  "dialogue.fishing_waiting.harvey.low.1": "La pêche nécessite patience et calme. Les deux sont bons pour réduire le stress.",
+  "dialogue.fishing_waiting.harvey.low.2": "Les poissons de cette région sont probablement en bonne santé. Eau douce, bon écosystème.",
+  "dialogue.fishing_waiting.harvey.low.3": "Fais attention à l'hameçon. Les blessures par perforation peuvent être graves.",
+  "dialogue.fishing_waiting.harvey.low.4": "Rester assis pendant des périodes prolongées n'est pas idéal. N'oublie pas de t'étirer de temps en temps.",
+  "dialogue.fishing_waiting.harvey.low.5": "J'espère que tu portes de la crème solaire. Une exposition prolongée au soleil peut être nocive.",
+
+  "dialogue.fishing_waiting.harvey.high.1": "C'est agréable. Je ne vais pas pêcher assez souvent.",
+  "dialogue.fishing_waiting.harvey.high.2": "Il y a quelque chose de thérapeutique dans la pêche. Le rythme, l'attente...",
+  "dialogue.fishing_waiting.harvey.high.3": "Je suis content(e) que tu m'aies invité. C'est bien de passer du temps ensemble comme ça.",
+  "dialogue.fishing_waiting.harvey.high.4": "L'air frais ici est merveilleux pour les poumons.",
+  "dialogue.fishing_waiting.harvey.high.5": "Je pourrais m'habituer à ça. Peut-être qu'on pourrait en faire une habitude ?",
+
+  "dialogue.fishing_caught.harvey.low.1": "Ah, j'en ai attrapé un. C'est un spécimen en bonne santé.",
+  "dialogue.fishing_caught.harvey.low.2": "J'ai maintenu une bonne forme pendant le remontage.",
+  "dialogue.fishing_caught.harvey.low.3": "Une excellente source d'acides gras oméga-3.",
+  "dialogue.fishing_caught.harvey.low.4": "Je dois faire attention en retirant l'hameçon.",
+  "dialogue.fishing_caught.harvey.low.5": "Une prise réussie ! Je vais m'assurer de le nettoyer correctement.",
+
+  "dialogue.fishing_caught.harvey.high.1": "J'en ai attrapé un ! C'est toute une technique !",
+  "dialogue.fishing_caught.harvey.high.2": "Eh bien, regardez-moi ça ! Ma technique s'améliore vraiment !",
+  "dialogue.fishing_caught.harvey.high.3": "C'est une beauté ! Du poisson frais pour le dîner, ça semble merveilleux.",
+  "dialogue.fishing_caught.harvey.high.4": "Waouh ! Je suis très satisfait de cette prise.",
+  "dialogue.fishing_caught.harvey.high.5": "Merveilleux ! Cette sortie a été si productive.",
+
+  "dialogue.petting.harvey.low.1": "Les animaux peuvent transporter des agents pathogènes. Assure-toi de te laver les mains après.",
+  "dialogue.petting.harvey.low.2": "Tes animaux semblent être en bonne santé. Bien joué.",
+  "dialogue.petting.harvey.low.3": "Interagir avec les animaux réduit la tension artérielle, c'est prouvé.",
+  "dialogue.petting.harvey.low.4": "Celui-ci a l'air assez docile.",
+  "dialogue.petting.harvey.low.5": "Assure-toi qu'ils ont eu leurs examens vétérinaires.",
+
+  "dialogue.petting.harvey.high.1": "Ils apprécient vraiment nos soins. Tu fais un travail merveilleux.",
+  "dialogue.petting.harvey.high.2": "Les animaux sont remarquables, n'est-ce pas ? Si confiants et affectueux.",
+  "dialogue.petting.harvey.high.3": "C'est vraiment relaxant. Merci de partager ça avec moi.",
+  "dialogue.petting.harvey.high.4": "Je comprends pourquoi tu apprécies ça. C'est très apaisant.",
+  "dialogue.petting.harvey.high.5": "Tes animaux ont de la chance d'avoir un propriétaire si attentionné."
+}

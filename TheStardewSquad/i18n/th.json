@@ -1,0 +1,30 @@
+{
+  "config.recruitKey.name": "ปุ่ม มอบคำขอ/สิ้นสุดคำขอ",
+  "config.recruitKey.description": "ปุ่มสำหรับใช้มอบคำขอหรือสิ้นสุดคำขอแก่ NPC",
+  "config.manualTaskKey.name": "ปุ่ม คำสั่ง",
+  "config.manualTaskKey.description": "กดปุ่มนี้ขณะชี้เมาส์ที่เป้าหมายเพื่อมอบคำขอให้สมาชิกในกลุ่มตอบสนองต่อวัตถุ",
+
+  "config.disableInteraction.name": "หยุดการกระทำของสมาชิก",
+  "config.disableInteraction.description": "ควรหลีกเลี่ยงการใช้คำสั่งในระหว่างการสนทนา หรือการให้ของขวัญ",
+  "config.disableInteraction.option.Never": "หยุดนิ่ง",
+  "config.disableInteraction.option.CombatOnly": "อยู่ในเขตการต่อสู้",
+  "config.disableInteraction.option.Always": "อิสระ",
+
+  "config.enabledTasks.name": "เปิดการใช้งานคำขอ",
+  "config.enableAttacking.name": "โจมตีอัตโนมัติ",
+  "config.enableAttacking.description": "เมื่อเปิดใช้งาน สมาชิกในกลุ่มจะโจมตีศัตรู",
+  "config.enableLumbering.name": "ตัดไม้อัตโนมัติ",
+  "config.enableLumbering.description": "เมื่อเปิดใช้งาน สมาชิกในกลุ่มจะช่วยตัดต้นไม้ที่เคยถูกตีไปแล้ว",
+  "config.enableWatering.name": "รดนํ้าอัตโนมัติ",
+  "config.enableWatering.description": "เมื่อเปิดใช้งาน สมาชิกในกลุ่มจะรดนํ้าในดินที่ยังแห้งอยู่ในฟาร์ม",
+
+  "commands.noFollower": "ขณะนี้ไม่มีสมาชิกให้มอบคำขอ",
+
+  "generic.cancel": "ยกเลิก",
+  "generic.no": "ไม่",
+  "generic.yes": "ใช่",
+  "recruitment.dismiss": "สิ้นสุดคำขอ",
+  "recruitment.onlyOneFollower": "คุณสามารถมีผู้ช่วยได้คนเดียวเท่านั้น",
+  "recruitment.recruitAsk": "ขอให้ {{name}} ติดตามคุณหรือไม่",
+  "recruitment.recruitedAsk": "ขอให้ {{name}} ทำอะไรดี"
+}

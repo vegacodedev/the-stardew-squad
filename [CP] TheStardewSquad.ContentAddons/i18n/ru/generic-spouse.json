@@ -1,0 +1,41 @@
+{
+  "dialogue.recruit.spouse.generic.day.1": "Конечно, {{endearment}}. Я пойду, куда бы ты ни пошел/пошла",
+  "dialogue.recruit.spouse.generic.day.2": "Куда угодно с тобой, {{endearment}}. Давай двигаться дальше.",
+  "dialogue.recruit.spouse.generic.day.3": "С удовольствием! Чем мы сегодня займемся?",
+  "dialogue.recruit.spouse.generic.day.4": "Просто скажи слово, и я буду рядом {{endearment}}.",
+  "dialogue.recruit.spouse.generic.day.5": "Всегда. Я буду прямо за тобой.",
+  "dialogue.recruit.spouse.generic.night.1": "Гуляешь допоздна, {{endearment}}? Я с тобой.",
+
+  "dialogue.dismiss.spouse.generic.day.1": "Хорошо, {{endearment}}. Увидимся дома.",
+  "dialogue.dismiss.spouse.generic.day.2": "Ладно, будь осторожен/осторожна там, {{endearment}}.",
+  "dialogue.dismiss.spouse.generic.day.3": "Я начну идти домой. Не опаздывай!",
+  "dialogue.dismiss.spouse.generic.day.4": "Дай знать, когда закончишь. Скоро увидимся, {{endearment}}.",
+  "dialogue.dismiss.spouse.generic.day.5": "Это все? Тогда встретимся на ферме.",
+  "dialogue.dismiss.spouse.generic.night.1": "Я готов/готова ко сну. Увидимся дома, {{endearment}}.",
+
+  "dialogue.idle.spouse.generic.generic.day.1": "Мне нравится проводить день с тобой, {{endearment}}.",
+  "dialogue.idle.spouse.generic.generic.day.2": "Такое чуство, что вместе мы можем покорить мир.",
+  "dialogue.idle.spouse.generic.generic.day.3": "Просто быть с тобой — это все, что мне нужно, {{endearment}}.",
+  "dialogue.idle.spouse.generic.generic.day.4": "Каждый день с тобой — это приключение.",
+  "dialogue.idle.spouse.generic.generic.day.5": "Какой прекрасный день,чтобы провести его вместе, не правда ли?",
+  "dialogue.idle.spouse.generic.generic.night.1": "Мне нравится проводить вечера с тобой вот так.",
+  "dialogue.idle.spouse.generic.generic.night.2": "Только ты, я и лунный свет, {{endearment}}.",
+
+  "dialogue.attacking.spouse.generic.generic.day.1": "Никто не обидит моего/мою {{endearment}}!",
+  "dialogue.attacking.spouse.generic.generic.day.2": "Не смей к ним приближаться!",
+  "dialogue.attacking.spouse.generic.generic.day.3": "Прочь от {{name}}!",
+  "dialogue.attacking.spouse.generic.generic.day.4": "Я не позволю тебе причинить им боль!",
+  "dialogue.attacking.spouse.generic.generic.day.5": "Я защищу тебя, {{endearment}}!",
+
+  "dialogue.watering.spouse.generic.generic.day.1": "Помогаю на ферме своему любимому/любимой фермеру!",
+  "dialogue.watering.spouse.generic.generic.day.2": "Наша ферма будет такой красивой, {{endearment}}.",
+  "dialogue.watering.spouse.generic.generic.day.3": "Работа в команде творит чудеса, не так ли, {{endearment}}?",
+  "dialogue.watering.spouse.generic.generic.day.4": "Никаких проблем. Все для тебя.",
+  "dialogue.watering.spouse.generic.generic.day.5": "Это намного веселее, когда мы делаем это вместе.",
+
+  "dialogue.lumbering.spouse.generic.generic.day.1": "Давай я это сделаю для тебя, {{endearment}}.",
+  "dialogue.lumbering.spouse.generic.generic.day.2": "Мы это быстро расчистим!",
+  "dialogue.lumbering.spouse.generic.generic.day.3": "Осторожно, {{endearment}}!",
+  "dialogue.lumbering.spouse.generic.generic.day.4": "Мы очень эффективны, когда работаем вместе.",
+  "dialogue.lumbering.spouse.generic.generic.day.5": "Два топора лучше, чем один!"
+}

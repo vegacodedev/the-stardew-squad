@@ -1,0 +1,74 @@
+{
+  "Changes": [
+    // ===================================
+    // Sitting Sprites
+    // ===================================
+    // These are loaded as game assets so the C# code can dynamically
+    // apply them when NPCs sit. Other modders can add custom sitting
+    // sprites by loading assets to the same target path pattern.
+
+    // Abigail
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Abigail", "FromFile": "assets/Sitting/Abigail.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Abigail_Beach", "FromFile": "assets/Sitting/Abigail_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Abigail_Winter", "FromFile": "assets/Sitting/Abigail_Winter.png" },
+
+    // Alex
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Alex", "FromFile": "assets/Sitting/Alex.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Alex_Beach", "FromFile": "assets/Sitting/Alex_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Alex_Winter", "FromFile": "assets/Sitting/Alex_Winter.png" },
+
+    // Elliott
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Elliott", "FromFile": "assets/Sitting/Elliott.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Elliott_Beach", "FromFile": "assets/Sitting/Elliott_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Elliott_Winter", "FromFile": "assets/Sitting/Elliott_Winter.png" },
+
+    // Emily
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Emily", "FromFile": "assets/Sitting/Emily.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Emily_Beach", "FromFile": "assets/Sitting/Emily_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Emily_Winter", "FromFile": "assets/Sitting/Emily_Winter.png" },
+
+    // Haley
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Haley", "FromFile": "assets/Sitting/Haley.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Haley_Beach", "FromFile": "assets/Sitting/Haley_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Haley_Winter", "FromFile": "assets/Sitting/Haley_Winter.png" },
+
+    // Harvey
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Harvey", "FromFile": "assets/Sitting/Harvey.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Harvey_Beach", "FromFile": "assets/Sitting/Harvey_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Harvey_Winter", "FromFile": "assets/Sitting/Harvey_Winter.png" },
+
+    // Krobus
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Krobus", "FromFile": "assets/Sitting/Krobus.png" },
+
+    // Leah
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Leah", "FromFile": "assets/Sitting/Leah.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Leah_Beach", "FromFile": "assets/Sitting/Leah_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Leah_Winter", "FromFile": "assets/Sitting/Leah_Winter.png" },
+
+    // Maru
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Maru", "FromFile": "assets/Sitting/Maru.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Maru_Beach", "FromFile": "assets/Sitting/Maru_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Maru_Hospital", "FromFile": "assets/Sitting/Maru_Hospital.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Maru_Winter", "FromFile": "assets/Sitting/Maru_Winter.png" },
+
+    // Penny
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Penny", "FromFile": "assets/Sitting/Penny.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Penny_Beach", "FromFile": "assets/Sitting/Penny_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Penny_Winter", "FromFile": "assets/Sitting/Penny_Winter.png" },
+
+    // Sam
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Sam", "FromFile": "assets/Sitting/Sam.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Sam_Beach", "FromFile": "assets/Sitting/Sam_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Sam_Winter", "FromFile": "assets/Sitting/Sam_Winter.png" },
+
+    // Sebastian
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Sebastian", "FromFile": "assets/Sitting/Sebastian.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Sebastian_Beach", "FromFile": "assets/Sitting/Sebastian_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Sebastian_Winter", "FromFile": "assets/Sitting/Sebastian_Winter.png" },
+
+    // Shane
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Shane", "FromFile": "assets/Sitting/Shane.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Shane_Beach", "FromFile": "assets/Sitting/Shane_Beach.png" },
+    { "Action": "Load", "Target": "TheStardewSquad.ContentAddons/Sitting/Shane_Winter", "FromFile": "assets/Sitting/Shane_Winter.png" }
+  ]
+}

@@ -1,0 +1,217 @@
+{
+  // ==========================================
+  // --- AMITIÉ TROP BASSE ---
+  // ==========================================
+
+  "dialogue.friendship_too_low.haley.1": "Passer du temps avec... toi ? Toute la journée ? Euh, je crois que je suis occupée. Oui. Totalement occupée.",
+  "dialogue.friendship_too_low.haley.2": "Désolée, mais je ne pars à l'aventure qu'avec mes vrais amis.",
+  "dialogue.friendship_too_low.haley.3": "C'est une gentille pensée, mais... non. Pas maintenant.",
+  "dialogue.friendship_too_low.haley.4": "Je ne te connais pas si bien que ça. Ce serait un peu gênant, tu ne crois pas ?",
+  "dialogue.friendship_too_low.haley.5": "Peut-être si tu achetais de nouveaux vêtements d'abord. Ceux que tu portes sont... pas terribles.",
+
+  // ==========================================
+  // --- BASSE AMITIÉ (< 6 COEURS) ---
+  // ==========================================
+
+  "dialogue.recruit.haley.low_hearts.1": "Tu veux que... je te suive partout ? Pff, d'accord. Mais seulement si on ne salit pas mes vêtements.",
+  "dialogue.recruit.haley.low_hearts.2": "Sérieusement ? Tu veux que je vienne avec toi ? Bon, d'accord. Mais si je vois un seul insecte, je m'en vais.",
+  "dialogue.recruit.haley.low_hearts.3": "Je suppose que je n'ai rien de mieux à faire. Ne t'attends pas à ce que ça me plaise.",
+  "dialogue.recruit.haley.low_hearts.4": "Pourquoi moi ? Oh, peu importe. Dépêchons-nous d'en finir.",
+  "dialogue.recruit.haley.low_hearts.5": "D'accord, mais c'est moi qui choisis la musique. Attends, tu n'as vraiment pas de téléphone sur toi ? Pff.",
+
+  "dialogue.dismiss.haley.low_hearts.1": "Enfin. Je dois aller me recoiffer. Salut.",
+  "dialogue.dismiss.haley.low_hearts.2": "C'est tout ? Bien. Je retourne à la civilisation.",
+  "dialogue.dismiss.haley.low_hearts.3": "Ok, j'ai eu ma dose de 'plein air' pour aujourd'hui. Bye.",
+  "dialogue.dismiss.haley.low_hearts.4": "Ne m'appelle pas, je t'appellerai. En fait, ne t'y attends pas.",
+  "dialogue.dismiss.haley.low_hearts.5": "Je m'en vais. Cette tenue n'est pas faite pour ça.",
+
+  "dialogue.idle.haley.low_hearts.generic.1": "Alors, on va juste rester plantés là ? C'est tellement ennuyeux.",
+  "dialogue.idle.haley.low_hearts.generic.2": "Je n'ai pas de réseau ici. Comment les gens font-ils pour vivre comme ça ?",
+  "dialogue.idle.haley.low_hearts.generic.3": "Je suis presque sûre d'avoir vu une araignée. Je dis ça comme ça.",
+  "dialogue.idle.haley.low_hearts.generic.4": "Tu pourrais, genre, marcher un peu plus vite ? Ou plus lentement ? Je ne sais pas, fais quelque chose.",
+  "dialogue.idle.haley.low_hearts.generic.5": "Préviens-moi quand on ira quelque part où il y a un vrai sol.",
+
+  "dialogue.idle.haley.low_hearts.farm.1": "C'est vraiment comme ça que tu passes tes journées ? Il y a de la terre partout...",
+  "dialogue.idle.haley.low_hearts.farm.2": "Ça sent... l'herbe. Et la boue. Beurk.",
+  "dialogue.idle.haley.low_hearts.farm.3": "Ta maison est... rustique. Oui, c'est le mot.",
+  "dialogue.idle.haley.low_hearts.farm.4": "Tu as des animaux ? Ils ne mordent pas, hein ?",
+  "dialogue.idle.haley.low_hearts.farm.5": "J'essaie d'imaginer une tenue mignonne pour le travail à la ferme. Je ne trouve rien.",
+
+  "dialogue.idle.haley.low_hearts.mines.1": "Beurk, ça sent si mauvais ici ! Et il fait tout noir ! Je vais abîmer mes chaussures.",
+  "dialogue.idle.haley.low_hearts.mines.2": "Il y a sûrement des chauves-souris ici. DES CHAUVES-SOURIS. Je déteste ça.",
+  "dialogue.idle.haley.low_hearts.mines.3": "Ok, c'est officiellement l'endroit le moins glamour où je sois jamais allée.",
+  "dialogue.idle.haley.low_hearts.mines.4": "Si mes cheveux se mettent à friser avec cet air humide, ce sera de ta faute.",
+  "dialogue.idle.haley.low_hearts.mines.5": "Pourquoi tous les cailloux sont si... pointus ? Cet endroit n'a aucune esthétique.",
+
+  "dialogue.idle.haley.low_hearts.town.1": "La meilleure chose à propos de Pélican Ville, c'est la route qui en sort. Je plaisante ! À moitié.",
+  "dialogue.idle.haley.low_hearts.town.2": "Pff, je sens que tout le monde me regarde. Cette ville est un cercle de commérages géant.",
+  "dialogue.idle.haley.low_hearts.town.3": "Regarde la 'mode' ici. C'est comme un musée d'histoire, mais avec plus de salopettes.",
+  "dialogue.idle.haley.low_hearts.town.4": "Si je dois regarder cette fontaine ennuyeuse encore une fois, je vais hurler.",
+  "dialogue.idle.haley.low_hearts.town.5": "Y a-t-il quelque chose à faire ici à part... se promener ? Non ? Super.",
+
+  "dialogue.idle.haley.low_hearts.house.1": "Bienvenue dans ma modeste demeure. Et j'insiste sur le modeste.",
+  "dialogue.idle.haley.low_hearts.house.2": "Ne fais pas attention aux trucs bizarres d'Emily. J'essaie d'ignorer l'odeur de sauge.",
+  "dialogue.idle.haley.low_hearts.house.3": "Ma chambre est le seul endroit de cette maison qui a un vrai style.",
+  "dialogue.idle.haley.low_hearts.house.4": "Je jure que si Emily a encore laissé traîner ses affaires de couture sur le canapé...",
+  "dialogue.idle.haley.low_hearts.house.5": "C'est si calme ici. Trop calme. J'ai besoin du bruit de la ville.",
+
+  "dialogue.attacking.haley.low_hearts.1": "Va-t'en, espèce de truc moche !",
+  "dialogue.attacking.haley.low_hearts.2": "Beurk, beurk, beurk ! Du balai !",
+  "dialogue.attacking.haley.low_hearts.3": "Ne me touche pas !",
+  "dialogue.attacking.haley.low_hearts.4": "C'est dégoûtant ! Fais quelque chose !",
+  "dialogue.attacking.haley.low_hearts.5": "Agh ! C'est encore plus gluant de près !",
+
+  "dialogue.lumbering.haley.low_hearts.1": "Tu t'attends à ce que je manie une hache ? Sérieusement ? Mes ongles !",
+  "dialogue.lumbering.haley.low_hearts.2": "C'est du travail manuel. Je ne fais pas de travail manuel.",
+  "dialogue.lumbering.haley.low_hearts.3": "Tu ne peux pas juste acheter du bois ? Dans un magasin ?",
+  "dialogue.lumbering.haley.low_hearts.4": "Il y a des échardes partout ! C'est un cauchemar.",
+  "dialogue.lumbering.haley.low_hearts.5": "D'accord, un seul coup. C'est tout ce que tu auras.",
+
+  "dialogue.mining.haley.low_hearts.1": "Je ne vais PAS avoir d'ampoules pour ça. Je te préviens.",
+  "dialogue.mining.haley.low_hearts.2": "Donc je dois juste... le frapper ? Avec une pioche ? Ça semble si primitif.",
+  "dialogue.mining.haley.low_hearts.3": "Ça va complètement ruiner ma manucure.",
+  "dialogue.mining.haley.low_hearts.4": "Pourquoi ne vendent-ils pas de cailloux pré-cassés ?",
+  "dialogue.mining.haley.low_hearts.5": "J'espère qu'il n'y a pas d'insecte sous ce rocher. Je te jure...",
+
+  "dialogue.watering.haley.low_hearts.1": "Arroser des plantes. Révolutionnaire.",
+  "dialogue.watering.haley.low_hearts.2": "Génial. Maintenant, mes chaussures sont pleines de boue.",
+  "dialogue.watering.haley.low_hearts.3": "Donc tu verses juste... de l'eau sur de la terre. Et ça te plaît ?",
+  "dialogue.watering.haley.low_hearts.4": "J'ai l'impression que je devrais porter des bottes de pluie de créateur pour faire ça.",
+  "dialogue.watering.haley.low_hearts.5": "C'est exactement aussi ennuyeux que ça en a l'air.",
+
+  "dialogue.harvesting.haley.low_hearts.1": "Je dois toucher ça avec mes mains ? Tu te moques de moi ?",
+  "dialogue.harvesting.haley.low_hearts.2": "Ok, celui-ci a l'air moins... gluant. Je suppose que je vais le prendre.",
+  "dialogue.harvesting.haley.low_hearts.3": "Tu ne peux pas le faire toi-même ? C'est toi, le fermier.",
+  "dialogue.harvesting.haley.low_hearts.4": "Il y a sûrement un insecte dessus. Je n'y touche pas s'il y a un insecte dessus.",
+  "dialogue.harvesting.haley.low_hearts.5": "Pff, d'accord. Mais je me lave les mains pendant une heure après ça.",
+
+  "dialogue.foraging.haley.low_hearts.1": "T'es sûr(e) que c'est pas, genre, une ortie ou un truc du genre ?",
+  "dialogue.foraging.haley.low_hearts.2": "Tu veux que je ramasse ça ? Par terre ? Non.",
+  "dialogue.foraging.haley.low_hearts.3": "C'est même comestible, ce truc ? On dirait de la mauvaise herbe.",
+  "dialogue.foraging.haley.low_hearts.4": "Ma sœur adorerait sûrement ces trucs de 'nature'. Moi, par contre, non.",
+  "dialogue.foraging.haley.low_hearts.5": "Je ne ferai pas ça. C'est probablement toxique.",
+
+  // ==========================================
+  // --- HAUTE AMITIÉ (>= 6 COEURS) ---
+  // ==========================================
+
+  "dialogue.recruit.haley.high_hearts.1": "Une aventure avec toi ? Bien sûr ! Ça a l'air amusant. Allons prendre de superbes photos !",
+  "dialogue.recruit.haley.high_hearts.2": "J'espérais que tu demanderais ! J'ai libéré mon emploi du temps. Montre-moi le chemin !",
+  "dialogue.recruit.haley.high_hearts.3": "Oui ! J'adorerais venir avec toi. C'est quoi le programme aujourd'hui ?",
+  "dialogue.recruit.haley.high_hearts.4": "Absolument ! C'est toujours mieux quand on est ensemble.",
+  "dialogue.recruit.haley.high_hearts.5": "Je te suivrais n'importe où. Allons créer des souvenirs !",
+
+  "dialogue.dismiss.haley.high_hearts.1": "D'accord ! C'était amusant. On refait ça bientôt, d'accord ?",
+  "dialogue.dismiss.haley.high_hearts.2": "Très bien, je rentre. Merci de m'avoir invitée !",
+  "dialogue.dismiss.haley.high_hearts.3": "C'était super de passer du temps avec toi. On se reparle plus tard !",
+  "dialogue.dismiss.haley.high_hearts.4": "Je devrais probablement y aller maintenant. C'était une très belle journée !",
+  "dialogue.dismiss.haley.high_hearts.5": "Ok, fais attention à toi ! Dis-moi quand tu rentres à la maison.",
+
+  "dialogue.idle.haley.high_hearts.generic.1": "Je passe un très bon moment, tu sais ? Juste en étant avec toi.",
+  "dialogue.idle.haley.high_hearts.generic.2": "C'est bien plus amusant que de rester à la maison.",
+  "dialogue.idle.haley.high_hearts.generic.3": "La lumière en ce moment est magnifique. Souris !",
+  "dialogue.idle.haley.high_hearts.generic.4": "Avant, je pensais que cette ville était ennuyeuse, mais tu la transformes en aventure.",
+  "dialogue.idle.haley.high_hearts.generic.5": "Peu importe ce qu'on fait après, je sais que ce sera génial.",
+
+  "dialogue.idle.haley.high_hearts.farm.1": "En fait, c'est vraiment joli ici. La lumière est parfaite pour des photos.",
+  "dialogue.idle.haley.high_hearts.farm.2": "Tes animaux sont si mignons ! Je peux les prendre en photo ?",
+  "dialogue.idle.haley.high_hearts.farm.3": "Tu as travaillé si dur sur cet endroit. Ça se voit vraiment.",
+  "dialogue.idle.haley.high_hearts.farm.4": "L'air est frais et pur ici. C'est agréable.",
+  "dialogue.idle.haley.high_hearts.farm.5": "J'adore voir les fleurs que tu as plantées. Elles ont de si belles couleurs.",
+
+  "dialogue.idle.haley.high_hearts.mines.1": "C'est un peu effrayant, mais je n'ai pas peur quand je suis avec toi. Trouvons de belles gemmes !",
+  "dialogue.idle.haley.high_hearts.mines.2": "La façon dont la lumière de la torche se reflète sur les murs est assez belle, non ?",
+  "dialogue.idle.haley.high_hearts.mines.3": "Reste près de moi ! Je surveillerai les monstres.",
+  "dialogue.idle.haley.high_hearts.mines.4": "Je me demande si on trouvera une améthyste ? Emily adorerait ça.",
+  "dialogue.idle.haley.high_hearts.mines.5": "C'est bien plus excitant que ce que j'imaginais !",
+
+  "dialogue.idle.haley.high_hearts.volcano.1": "Waouh, il fait chaud ! Mais regarde toutes ces couleurs incroyables. C'est le rêve d'un photographe !",
+  "dialogue.idle.haley.high_hearts.volcano.2": "Fais attention près de la lave ! Je ne veux pas que tu te blesses.",
+  "dialogue.idle.haley.high_hearts.volcano.3": "C'est l'endroit le plus exotique où je sois jamais allée. C'est incroyable !",
+  "dialogue.idle.haley.high_hearts.volcano.4": "Je n'aurais jamais été assez courageuse pour venir ici seule. Merci de m'avoir emmenée.",
+  "dialogue.idle.haley.high_hearts.volcano.5": "Les photos que je vais tirer de ce voyage seront légendaires !",
+
+  "dialogue.idle.haley.high_hearts.town.1": "C'est agréable de se promener en ville et de saluer tout le monde. Je connais des gens maintenant !",
+  "dialogue.idle.haley.high_hearts.town.2": "Le jardin communautaire est vraiment mignon. Evelyn s'en occupe bien.",
+  "dialogue.idle.haley.high_hearts.town.3": "Parfois, j'aime juste m'asseoir au bord de la rivière. C'est si paisible et ça donne de superbes photos.",
+  "dialogue.idle.haley.high_hearts.town.4": "Tu sais, cette petite ville a un certain charme. Je comprends pourquoi les gens aiment vivre ici.",
+  "dialogue.idle.haley.high_hearts.town.5": "Peut-être qu'on verra Alex. Il est toujours dehors à s'entraîner avec son gridball.",
+
+  "dialogue.idle.haley.high_hearts.house.1": "Ça fait du bien d'être un peu à la maison. C'est confortable, tu sais ?",
+  "dialogue.idle.haley.high_hearts.house.2": "J'étais dans ma chambre noire. Je crois que j'ai pris une photo vraiment réussie d'un papillon.",
+  "dialogue.idle.haley.high_hearts.house.3": "Parfois, la collection de cristaux d'Emily capte la lumière juste comme il faut. C'est plutôt joli en fait.",
+  "dialogue.idle.haley.high_hearts.house.4": "Cet endroit renferme beaucoup de souvenirs. Des bons, pour la plupart.",
+  "dialogue.idle.haley.high_hearts.house.5": "Je devrais probablement aider Emily à ranger plus tard. C'est notre maison, après tout.",
+
+  "dialogue.attacking.haley.high_hearts.1": "Ne t'inquiète pas, je vais t'aider ! Reste en arrière !",
+  "dialogue.attacking.haley.high_hearts.2": "Je te couvre ! Hya !",
+  "dialogue.attacking.haley.high_hearts.3": "Laisse mon ami(e) tranquille !",
+  "dialogue.attacking.haley.high_hearts.4": "On peut le vaincre ! Ensemble !",
+  "dialogue.attacking.haley.high_hearts.5": "Tu t'en es pris à la mauvaise personne... et à la mauvaise photographe !",
+
+  "dialogue.lumbering.haley.high_hearts.1": "Travail d'équipe ! Faisons un peu de place. C'est sympa, comme exercice.",
+  "dialogue.lumbering.haley.high_hearts.2": "Tiens, je peux aider avec ça. Laisse-moi essayer !",
+  "dialogue.lumbering.haley.high_hearts.3": "Attention !",
+  "dialogue.lumbering.haley.high_hearts.4": "À deux, ça va beaucoup plus vite.",
+  "dialogue.lumbering.haley.high_hearts.5": "Plus de bois pour ta ferme. C'est la moindre des choses.",
+
+  "dialogue.mining.haley.high_hearts.1": "Peut-être qu'on trouvera un joli cristal !",
+  "dialogue.mining.haley.high_hearts.2": "Ouvrons celui-ci. Peut-être qu'il y a une géode à l'intérieur !",
+  "dialogue.mining.haley.high_hearts.3": "Je suis plus forte que j'en ai l'air, tu sais.",
+  "dialogue.mining.haley.high_hearts.4": "Je m'en occupe. Garde ton énergie.",
+  "dialogue.mining.haley.high_hearts.5": "En fait, c'est assez amusant !",
+
+  "dialogue.watering.haley.high_hearts.1": "Tiens, laisse-moi t'aider avec ça. Tout est si charmant sur ta ferme.",
+  "dialogue.watering.haley.high_hearts.2": "Les plantes seront si heureuses ! Elles vont devenir grandes et fortes.",
+  "dialogue.watering.haley.high_hearts.3": "Ça fait du bien d'aider. Ta ferme devient si belle.",
+  "dialogue.watering.haley.high_hearts.4": "Plus on est de fous, plus on rit, n'est-ce pas ?",
+  "dialogue.watering.haley.high_hearts.5": "Et voilà ! Tout est bien arrosé.",
+
+  "dialogue.harvesting.haley.high_hearts.1": "Regarde celui-là ! Il est parfait. La couleur est si vive.",
+  "dialogue.harvesting.haley.high_hearts.2": "C'est beaucoup plus satisfaisant que ce que je pensais.",
+  "dialogue.harvesting.haley.high_hearts.3": "Ce sera délicieux pour le dîner de ce soir. Les fruits et légumes frais sont les meilleurs.",
+  "dialogue.harvesting.haley.high_hearts.4": "Ça fait plaisir de voir que tout ton dur labeur porte ses fruits.",
+  "dialogue.harvesting.haley.high_hearts.5": "Tiens, je vais prendre celui-là pour toi. On forme une bonne équipe !",
+
+  "dialogue.foraging.haley.high_hearts.1": "Oh, celui-ci est magnifique ! Regarde cette couleur.",
+  "dialogue.foraging.haley.high_hearts.2": "C'est comme une petite chasse au trésor. C'est amusant !",
+  "dialogue.foraging.haley.high_hearts.3": "Celui-ci est si joli. Je devrais le prendre en photo avant qu'on ne le cueille.",
+  "dialogue.foraging.haley.high_hearts.4": "Trouver des choses dans la nature, c'est plutôt relaxant en fait.",
+  "dialogue.foraging.haley.high_hearts.5": "Bien vu ! J'ai failli le manquer.",
+
+  "dialogue.fishing_waiting.haley.low_hearts.1": "Pourquoi quelqu'un resterait juste... assis là ? À attendre ?",
+  "dialogue.fishing_waiting.haley.low_hearts.2": "Est-ce que j'ai l'air de quelqu'un qui pêche ? Parce que je ne pêche pas.",
+  "dialogue.fishing_waiting.haley.low_hearts.3": "C'est tellement ennuyeux. Comment est-ce que c'est amusant pour toi ?",
+  "dialogue.fishing_waiting.haley.low_hearts.4": "Tu ne peux pas juste acheter du poisson au magasin comme une personne normale ?",
+  "dialogue.fishing_waiting.haley.low_hearts.5": "Si je me casse un ongle sur cette canne à pêche, on arrête tout.",
+
+  "dialogue.fishing_caught.haley.low_hearts.1": "Oh. J'ai vraiment attrapé quelque chose. Hum.",
+  "dialogue.fishing_caught.haley.low_hearts.2": "Beurk, c'est tout gluant ! Enlève-le, enlève-le !",
+  "dialogue.fishing_caught.haley.low_hearts.3": "J'en ai attrapé un, mais il pue. Quelqu'un d'autre peut s'en occuper ?",
+  "dialogue.fishing_caught.haley.low_hearts.4": "Il gigote partout ! Qu'est-ce que je fais ?!",
+  "dialogue.fishing_caught.haley.low_hearts.5": "Génial, j'ai attrapé un poisson. Maintenant je sens l'eau poissonneuse.",
+
+  "dialogue.petting.haley.low_hearts.1": "Il n'a pas de puces, hein ? Ni de boue dessus.",
+  "dialogue.petting.haley.low_hearts.2": "D'accord, une caresse. C'est tout. Mes mains sont propres, et je veux qu'elles le restent.",
+  "dialogue.petting.haley.low_hearts.3": "Il mord ? On dirait qu'il pourrait mordre.",
+  "dialogue.petting.haley.low_hearts.4": "Je vais sentir l'étable pour le reste de la journée, n'est-ce pas ?",
+  "dialogue.petting.haley.low_hearts.5": "Pourquoi doivent-ils être si... poilus ?",
+
+  "dialogue.fishing_waiting.haley.high_hearts.1": "C'est en fait assez relaxant ! L'eau est si belle dans cette lumière.",
+  "dialogue.fishing_waiting.haley.high_hearts.2": "La façon dont le soleil scintille sur l'eau... c'est si joli.",
+  "dialogue.fishing_waiting.haley.high_hearts.3": "Je n'aurais jamais pensé aimer la pêche, mais c'est plutôt paisible.",
+  "dialogue.fishing_waiting.haley.high_hearts.4": "C'est agréable de rester là avec toi. Même si on n'attrape rien.",
+  "dialogue.fishing_waiting.haley.high_hearts.5": "Tu es si patient(e). J'admire ça.",
+
+  "dialogue.fishing_caught.haley.high_hearts.1": "Oh wow, j'en ai attrapé un ! C'est tellement excitant !",
+  "dialogue.fishing_caught.haley.high_hearts.2": "Regarde ! Je l'ai vraiment fait ! Tu as vu ça ?",
+  "dialogue.fishing_caught.haley.high_hearts.3": "C'est quel genre de poisson ? Ses couleurs sont vraiment jolies !",
+  "dialogue.fishing_caught.haley.high_hearts.4": "J'en ai attrapé un ! Attends, tu peux prendre une photo de moi avec ?",
+  "dialogue.fishing_caught.haley.high_hearts.5": "Celui-là est énorme ! Je n'arrive pas à croire que je l'ai attrapé !",
+
+  "dialogue.petting.haley.high_hearts.1": "Aww, regarde comme ils sont heureux ! Je peux prendre une photo ?",
+  "dialogue.petting.haley.high_hearts.2": "Tes animaux sont si bien soignés. Ils te font vraiment confiance.",
+  "dialogue.petting.haley.high_hearts.3": "Celui-ci est si doux ! Je ne m'y attendais pas.",
+  "dialogue.petting.haley.high_hearts.4": "Ils ont tellement de personnalité ! Chacun est différent.",
+  "dialogue.petting.haley.high_hearts.5": "Je pourrais passer toute la journée avec ces petits loulous. Ne le dis à personne."
+}

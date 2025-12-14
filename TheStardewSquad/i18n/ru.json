@@ -1,0 +1,30 @@
+{
+  "config.recruitKey.name": "Клавиша Призыва/Отзыва",
+  "config.recruitKey.description": "Основная клавиша для призыва или отзыва NPC",
+  "config.manualTaskKey.name": "Клавиша Ручной Команды",
+  "config.manualTaskKey.description": "Нажмите эту клавишу, целясь на объект, чтобы приказать члену отряда взаимодействовать с ним.",
+
+  "config.disableInteraction.name": "Отключить Взаимодействие с Членами Отряда",
+  "config.disableInteraction.description": "Настраивает, когда следует запрещать разговоры или подарки членам отряда.",
+  "config.disableInteraction.option.Never": "Никогда",
+  "config.disableInteraction.option.CombatOnly": "В Боевых Зонах",
+  "config.disableInteraction.option.Always": "Везде",
+
+  "config.enabledTasks.name": "Включенные Задачи",
+  "config.enableAttacking.name": "Авто-Атака",
+  "config.enableAttacking.description": "Если включено, члены отряда будут атаковать враждебных монстров.",
+  "config.enableLumbering.name": "Авто-Рубка Деревьев",
+  "config.enableLumbering.description": "Если включено, члены отряда будут помогать рубить поврежденные деревья.",
+  "config.enableWatering.name": "Авто-Полив",
+  "config.enableWatering.description": "Если включено, члены отряда будут поливать сухую вспаханную почву на ферме.",
+
+  "commands.noFollower": "У вас нет никого в отряде, чтобы отдавать команды.",
+
+  "generic.cancel": "Отмена",
+  "generic.no": "Нет",
+  "generic.yes": "Да",
+  "recruitment.dismiss": "Отпустить",
+  "recruitment.onlyOneFollower": "Вы можете иметь только одного спутника одновременно.",
+  "recruitment.recruitAsk": "Попросить {{name}} следовать за вами?",
+  "recruitment.recruitedAsk": "Что делать с {{name}}?"
+}

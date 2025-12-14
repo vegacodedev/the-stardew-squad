@@ -1,0 +1,88 @@
+{
+  "Changes": [
+    {
+      "Action": "EditData",
+      "Target": "ThaliaFawnheart.TheStardewSquad/NpcConfig",
+      "Entries": {
+        "JeanCat": {
+          "NpcType": "Cat",
+          "Sprites": {
+            "Sitting": {
+              "FramesByDirection": {
+                "Down": [24, 25],
+                "Right": [
+                  { "Frame": 24, "Flip": true },
+                  { "Frame": 25, "Flip": true }
+                ],
+                "Up": [24, 25],
+                "Left": [24, 25]
+              },
+              "FrameDuration": 1000,
+              "Loop": true,
+              "FallbackFrame": 24
+            }
+          }
+        },
+        "JortsCat": {
+          "NpcType": "Cat",
+          "Sprites": {
+            "Sitting": {
+              "FramesByDirection": {
+                "Down": [36, 37],
+                "Right": [36, 37],
+                "Up": [36, 37],
+                "Left": [
+                  { "Frame": 36, "Flip": true },
+                  { "Frame": 37, "Flip": true }
+                ]
+              },
+              "FrameDuration": 1000,
+              "Loop": true,
+              "FallbackFrame": 36
+            }
+          }
+        },
+        "MisterGinger": {
+          "NpcType": "Cat",
+          "Sprites": {
+            "Sitting": {
+              "FramesByDirection": {
+                "Down": [36, 37],
+                "Right": [
+                  { "Frame": 36, "Flip": true },
+                  { "Frame": 37, "Flip": true }
+                ],
+                "Up": [36, 37],
+                "Left": [36, 37]
+              },
+              "FrameDuration": 1000,
+              "Loop": true,
+              "FallbackFrame": 36
+            }
+          }
+        },
+        "Enya": {
+          "NpcType": "Cat",
+          "Sprites": {
+            "Sitting": {
+              "FramesByDirection": {
+                "Down": [32, 33, 34, 35],
+                "Right": [
+                  { "Frame": 32, "Flip": true },
+                  { "Frame": 33, "Flip": true },
+                  { "Frame": 34, "Flip": true },
+                  { "Frame": 35, "Flip": true }
+                ],
+                "Up": [32, 33, 34, 35],
+                "Left": [32, 33, 34, 35]
+              },
+              "FrameDuration": 500,
+              "Loop": true,
+              "FallbackFrame": 32
+            }
+          }
+        }
+      }
+    }
+  ]
+}

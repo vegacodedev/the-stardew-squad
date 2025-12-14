@@ -1,0 +1,30 @@
+{
+  "config.recruitKey.name": "Tasto Recluta/Allontana",
+  "config.recruitKey.description": "Il tasto principale da usare per reclutare o congedare i personaggi.",
+  "config.manualTaskKey.name": "Tasto Comando Manuale",
+  "config.manualTaskKey.description": "Premi questo tasto mentre miri a un oggetto per ordinare a un membro della squadra di interagire con esso.",
+
+  "config.disableInteraction.name": "Disattiva l'interazione dei membri della squadra",
+  "config.disableInteraction.description": "Imposta quando impedire di parlare o fare regali ai membri della squadra.",
+  "config.disableInteraction.option.Never": "Mai",
+  "config.disableInteraction.option.CombatOnly": "Nelle zone di combattimento",
+  "config.disableInteraction.option.Always": "Ovunque",
+
+  "config.enabledTasks.name": "Mansioni abilitate",
+  "config.enableAttacking.name": "Attacco automatico",
+  "config.enableAttacking.description": "Se attivato, i membri della squadra attaccheranno automaticamente i mostri ostili.",
+  "config.enableLumbering.name": "Taglio legna automatico",
+  "config.enableLumbering.description": "Se abilitato, i membri della squadra aiuteranno a tagliare gli alberi danneggiati.",
+  "config.enableWatering.name": "Annaffiatura automatica",
+  "config.enableWatering.description": "Se abilitato, i membri della squadra annaffieranno il terreno arato secco nella fattoria.",
+
+  "commands.noFollower": "Nessun membro nella squadra da comandare.",
+
+  "generic.cancel": "Annulla",
+  "generic.no": "No",
+  "generic.yes": "Sì",
+  "recruitment.dismiss": "Congeda",
+  "recruitment.onlyOneFollower": "È possibile avere un solo compagno alla volta.",
+  "recruitment.recruitAsk": "Chiedi a {{name}} di seguirti?",
+  "recruitment.recruitedAsk": "Cosa fare con {{name}}?"
+}
