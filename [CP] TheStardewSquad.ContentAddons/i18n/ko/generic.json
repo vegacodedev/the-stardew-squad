@@ -19,7 +19,7 @@
   "dialogue.friendship_too_low.generic.2": "미안해, 난 좀 더 가까운 사람들이랑 어울리고 싶어.",
   "dialogue.friendship_too_low.generic.3": "우선 서로를 좀 더 알아가는 게 어때?",
   "dialogue.friendship_too_low.generic.4": "제안은 고맙지만, 아직은 좀 불편해.",
-
+  
   "dialogue.recruitment_refusal.generic.1": "미안해, 지금은 좀 바빠. 나중에 어때?",
 
   "dialogue.idle.generic.generic.1": "다음엔 뭐 할까?",
@@ -96,5 +96,23 @@
   "dialogue.foraging.generic.generic.2": "누군가 이걸 놓쳤네. 우리에겐 행운이지!",
   "dialogue.foraging.generic.generic.3": "자연은 늘 선물을 주네.",
   "dialogue.foraging.generic.generic.4": "이런 건 눈 크게 뜨고 찾아야 해.",
-  "dialogue.foraging.generic.generic.5": "근처에 또 뭐가 있는지 찾아보자."
+  "dialogue.foraging.generic.generic.5": "근처에 또 뭐가 있는지 찾아보자.",
+  
+  "dialogue.fishing_waiting.generic.generic.1": "오늘 물이 정말 평온해 보이네.",
+  "dialogue.fishing_waiting.generic.generic.2": "방금 물고기가 찌를 건드린 거 같아!",
+  "dialogue.fishing_waiting.generic.generic.3": "낚시하면 마음이 정말 편안해지지 않아?",
+  "dialogue.fishing_waiting.generic.generic.4": "낚시는 인내심이 중요해.",
+  "dialogue.fishing_waiting.generic.generic.5": "곧 뭐라도 걸리면 좋겠다!",
+
+  "dialogue.fishing_caught.generic.generic.1": "잡았다!",
+  "dialogue.fishing_caught.generic.generic.2": "이 크기 좀 봐!",
+  "dialogue.fishing_caught.generic.generic.3": "하! 완벽하게 낚았어!",
+  "dialogue.fishing_caught.generic.generic.4": "정말 멋지네!",
+  "dialogue.fishing_caught.generic.generic.5": "이건 제대로 가져가야지!",
+
+  "dialogue.petting.generic.generic.1": "누가 착한 친구일까? 바로 너야!",
+  "dialogue.petting.generic.generic.2": "정말 사랑스러운 녀석이네!",
+  "dialogue.petting.generic.generic.3": "동물은 진심을 느낄 수 있는 것 같아.",
+  "dialogue.petting.generic.generic.4": "오늘 정말 기분 좋아 보이네!",
+  "dialogue.petting.generic.generic.5": "조금의 애정으로도 동물들에게 큰 힘을 줄 수 있어.",
 }

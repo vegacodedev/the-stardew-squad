@@ -69,5 +69,24 @@
   "dialogue.foraging.harvey.spouse.2": "내가 제일 좋아하는 사람이랑 함께 하는 산책... 더 바랄 게 없네.",
   "dialogue.foraging.harvey.spouse.3": "우리 둘이랑 자연의 소리만 있으니 정말 좋다.",
   "dialogue.foraging.harvey.spouse.4": "오늘 저녁으로 뭐 해먹을까? 뭔가 특별한 게 있을 것 같아.",
-  "dialogue.foraging.harvey.spouse.5": "이 허브들 중엔 약효가 있는 것도 있어. 근처에 뭐가 자라고 있는지 아는 건 꽤 중요한 일이지."
+  "dialogue.foraging.harvey.spouse.5": "이 허브들 중엔 약효를 가지고 있는 것도 있어. 근처에 뭐가 자라고 있는지 아는 건 꽤 중요한 일이지.",
+  
+  "dialogue.fishing_waiting.harvey.spouse.1": "우리 둘과 자연만 있네. 이보다 더 좋은 오후는 없을 거야, 내 사랑.",
+  "dialogue.fishing_waiting.harvey.spouse.2": "있잖아, 이제 너랑 낚시하는 게 내가 가장 좋아하는 일 중 하나가 됐어.",
+  "dialogue.fishing_waiting.harvey.spouse.3": "뭘 잡더라도, 아니면 아예 못 잡더라도 그냥 너랑 여기 있다는 것만으로 행복해.",
+  "dialogue.fishing_waiting.harvey.spouse.4": "병원에서 긴 한 주를 보냈거든. 정말 이런 시간이 필요했어. 고마워, {{endearment}}.",
+  "dialogue.fishing_waiting.harvey.spouse.5": "너와 함께 하는 모든 순간이 선물 같아. 이런 고요한 시간도.",
+
+  "dialogue.fishing_caught.harvey.spouse.1": "좋아! 잡았어, {{endearment}}!",
+  "dialogue.fishing_caught.harvey.spouse.2": "멋진 물고기네! 훌륭한 우리 식사가 되어줄 거야, 내 사랑!",
+  "dialogue.fishing_caught.harvey.spouse.3": "잡았어! 오늘 저녁은 정말 맛있겠다.",
+  "dialogue.fishing_caught.harvey.spouse.4": "성공이야! 방금 잡은 걸 보고 너도 뿌듯했으면 좋겠어!",
+  "dialogue.fishing_caught.harvey.spouse.5": "또 잡았어! 너랑 낚시하면 정말 즐거워져.",
+
+  "dialogue.petting.harvey.spouse.1": "함께 동물들을 돌보는 것... 우리 삶에서 가장 소박하고 큰 기쁨 중 하나야.",
+  "dialogue.petting.harvey.spouse.2": "이 아이들은 우리를 완전히 믿고 있어. 우리가 함께 지는 아름다운 책임이겠지.",
+  "dialogue.petting.harvey.spouse.3": "네 덕분에 이 아이들을 돌보는 법을 정말 많이 배웠어, {{endearment}}.",
+  "dialogue.petting.harvey.spouse.4": "우리 작은 가족이 점점 더 커지고 있네? 정말 좋아.",
+  "dialogue.petting.harvey.spouse.5": "너와 동물들과 있는 모습을 보면... 내가 왜 너를 사랑하게 됐는지 되새기게 돼.",
+
 }

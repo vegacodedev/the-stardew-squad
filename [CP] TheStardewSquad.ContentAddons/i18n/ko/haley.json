@@ -49,10 +49,10 @@
   "dialogue.idle.haley.low_hearts.town.4": "저 분수 또 보면 진짜 소리 지를지도 몰라.",
   "dialogue.idle.haley.low_hearts.town.5": "여기서 할 수 있는 게... 걷기밖에 없다고? 진짜야? 대박이네.",
 
-  "dialogue.idle.haley.low_hearts.house.1": "여기가 나의 소박한 공간이야. 진짜로 소박하지.",
+  "dialogue.idle.haley.low_hearts.house.1": "여기가 나의 소박한 공간이야. 정말 소박하지.",
   "dialogue.idle.haley.low_hearts.house.2": "에밀리의 이상한 물건들은 신경 쓰지 마. 난 향 냄새 무시하는 중이야.",
   "dialogue.idle.haley.low_hearts.house.3": "이 집에서 스타일이라고 할 만한 게 있는 공간은 내 방뿐이야.",
-  "dialogue.idle.haley.low_hearts.house.4": "또 에밀리가 재봉틀을 소파에 놔뒀으면 그땐 진짜...",
+  "dialogue.idle.haley.low_hearts.house.4": "또 에밀리가 재봉틀을 소파에 놔뒀다면 그땐 진짜...",
   "dialogue.idle.haley.low_hearts.house.5": "여기 왜 이렇게 조용할까? 너무 조용해, 도시 소음이 그리워.",
 
   "dialogue.attacking.haley.low_hearts.1": "저리 가, 이 못생긴 괴물아!",
@@ -176,6 +176,43 @@
   "dialogue.foraging.haley.high_hearts.1": "우와, 색감 좀 봐. 이거 진짜 예쁘다!",
   "dialogue.foraging.haley.high_hearts.2": "작은 보물찾기 같아. 완전 재미있다!",
   "dialogue.foraging.haley.high_hearts.3": "이거 정말 예쁘다. 따기 전에 사진이라도 찍어야겠어.",
-  "dialogue.foraging.haley.high_hearts.4": "자연 속에서 뭔가를 찾는 게 생각보다 힐링 되네.",
-  "dialogue.foraging.haley.high_hearts.5": "눈썰미가 좋네! 난 그거 놓칠 뻔했어."
+  "dialogue.foraging.haley.high_hearts.4": "자연 속에서 뭔가를 찾는 게 생각보다 힐링되네.",
+  "dialogue.foraging.haley.high_hearts.5": "눈썰미가 좋네! 난 그거 놓칠 뻔했어.",
+  
+  "dialogue.fishing_waiting.haley.low_hearts.1": "도대체... 여기 그냥 앉아서? 기다린다고? 물고기를?",
+  "dialogue.fishing_waiting.haley.low_hearts.2": "내가 낚시할 사람처럼 보여? 전혀 아니거든.",
+  "dialogue.fishing_waiting.haley.low_hearts.3": "너무 지루해. 이게 어떻게 재밌다는 거야?",
+  "dialogue.fishing_waiting.haley.low_hearts.4": "보통 사람처럼 그냥 가게에서 생선을 사면 안 돼?",
+  "dialogue.fishing_waiting.haley.low_hearts.5": "이 낚싯대 때문에 손톱이라도 부러지면, 나랑 네 관계는 여기서 끝이야.",
+
+  "dialogue.fishing_caught.haley.low_hearts.1": "어... 뭐가 잡히긴 했네. 흠.",
+  "dialogue.fishing_caught.haley.low_hearts.2": "으, 완전 미끈거려! 빨리 떼줘, 빨리!",
+  "dialogue.fishing_caught.haley.low_hearts.3": "잡긴 했는데 냄새가 너무 심해. 대신 좀 처리해줄래?",
+  "dialogue.fishing_caught.haley.low_hearts.4": "팔딱거려! 나 어떡해?!",
+  "dialogue.fishing_caught.haley.low_hearts.5": "좋아, 물고기 잡았어. 이제 나한테서 생선 비린내 나겠네.",
+
+  "dialogue.petting.haley.low_hearts.1": "벼룩이나 진흙 같은 건 없겠지? 있어서는 안 돼.",
+  "dialogue.petting.haley.low_hearts.2": "좋아, 한 번만 쓰다듬을게. 내 손은 깨끗한 상태를 유지하고 싶거든.",
+  "dialogue.petting.haley.low_hearts.3": "이거 물어? 물 것처럼 생겼는데.",
+  "dialogue.petting.haley.low_hearts.4": "오늘 하루 종일 외양간 냄새 나겠네, 안 그래?",
+  "dialogue.petting.haley.low_hearts.5": "왜 이렇게... 털이 많아?",
+
+  "dialogue.fishing_waiting.haley.high_hearts.1": "이거 은근히 편안하다! 물빛이 이 빛에서 정말 예뻐.",
+  "dialogue.fishing_waiting.haley.high_hearts.2": "햇빛이 물 위에서 반짝이는 게... 정말 예쁘다.",
+  "dialogue.fishing_waiting.haley.high_hearts.3": "내가 낚시를 즐기게 될 줄 몰랐어. 꽤 평온하네.",
+  "dialogue.fishing_waiting.haley.high_hearts.4": "여기서 너랑 이렇게 서 있는 것만으로도 좋아. 아무것도 안 잡혀도 말이야.",
+  "dialogue.fishing_waiting.haley.high_hearts.5": "너 정말 인내심 많다. 네 그런 점을 존경해.",
+
+  "dialogue.fishing_caught.haley.high_hearts.1": "와, 잡았다! 너무 신난다!",
+  "dialogue.fishing_caught.haley.high_hearts.2": "봐! 나 진짜 잡았어! 봤어?",
+  "dialogue.fishing_caught.haley.high_hearts.3": "이건 어떤 종류야? 색이 정말 예쁘다!",
+  "dialogue.fishing_caught.haley.high_hearts.4": "나 잡았어! 잠깐, 나랑 같이 사진 찍어줄래?",
+  "dialogue.fishing_caught.haley.high_hearts.5": "이거 엄청 크네! 내가 잡았다니 믿기지 않아!",
+
+  "dialogue.petting.haley.high_hearts.1": "어머, 얘들 너무 행복해 보여! 사진 찍어도 돼?",
+  "dialogue.petting.haley.high_hearts.2": "네 동물들을 정말 잘 돌보았구나. 완전히 너를 믿는 것 같아.",
+  "dialogue.petting.haley.high_hearts.3": "이 아이, 너무 부드러워! 이렇게까지 부드러울 줄 몰랐어.",
+  "dialogue.petting.haley.high_hearts.4": "얘네들 성격이 다 다르네! 각자의 매력이 있어.",
+  "dialogue.petting.haley.high_hearts.5": "하루 종일 얘들이랑 있어도 좋겠다. 내가 이렇게 말한 건 아무한테도 말하면 안 돼.",
+
 }

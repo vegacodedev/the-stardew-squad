@@ -177,5 +177,42 @@
   "dialogue.foraging.harvey.high_hearts.2": "너와 같이 걷는 하루는 나에게 있어 완벽한 하루야.",
   "dialogue.foraging.harvey.high_hearts.3": "이게 네가 제일 좋아하는 거지?",
   "dialogue.foraging.harvey.high_hearts.4": "마치 작은 보물찾기 같아. 또 뭘 찾을 수 있을까?",
-  "dialogue.foraging.harvey.high_hearts.5": "너와 함께 자연 속에 있으니 정말 상쾌해."
+  "dialogue.foraging.harvey.high_hearts.5": "너와 함께 자연 속에 있으니 정말 상쾌한 기분이 들어.",
+  
+  "dialogue.fishing_waiting.harvey.low_hearts.1": "낚시는 인내심과 고요함이 필요하죠. 둘 다 스트레스 완화에 좋아요.",
+  "dialogue.fishing_waiting.harvey.low_hearts.2": "이 지역의 물고기들은 상당히 건강할 거예요. 깨끗한 물과 좋은 생태계 덕분이죠.",
+  "dialogue.fishing_waiting.harvey.low_hearts.3": "바늘을 조심하세요. 날카로운 것에 찔린 상처는 심각해질 수 있어요.",
+  "dialogue.fishing_waiting.harvey.low_hearts.4": "오랫동안 앉아 있는 건 좋지 않아요. 가끔씩 스트레칭을 해주세요.",
+  "dialogue.fishing_waiting.harvey.low_hearts.5": "선크림 발랐죠? 장시간 햇볕 노출은 해로울 수 있어요.",
+
+  "dialogue.fishing_caught.harvey.low_hearts.1": "아, 잡혔네요. 건강한 개체예요.",
+  "dialogue.fishing_caught.harvey.low_hearts.2": "성공이네요. 감아들일 때 자세도 잘 유지했어요.",
+  "dialogue.fishing_caught.harvey.low_hearts.3": "신선한 생선이군요. 오메가-3 지방산의 훌륭한 공급원이죠.",
+  "dialogue.fishing_caught.harvey.low_hearts.4": "바늘을 뺄 때 조심해야겠군요.",
+  "dialogue.fishing_caught.harvey.low_hearts.5": "좋은 생선이네요. 제대로 손질해볼게요.",
+
+  "dialogue.petting.harvey.low_hearts.1": "동물들은 병원균을 가지고 있을 수 있습니다. 끝나고 손을 씻는 게 좋아요.",
+  "dialogue.petting.harvey.low_hearts.2": "동물들의 건강 상태가 좋아 보이네요. 잘 돌보셨군요.",
+  "dialogue.petting.harvey.low_hearts.3": "동물과의 교감은 혈압을 낮춘다고 알려져 있죠.",
+  "dialogue.petting.harvey.low_hearts.4": "얘는 꽤 온순해 보이네요. 놀라지 않게 천천히 접근하세요.",
+  "dialogue.petting.harvey.low_hearts.5": "정기적으로 동물들 검진을 받아주시는 게 좋을 거예요.",
+
+  "dialogue.fishing_waiting.harvey.high_hearts.1": "정말 좋네. 낚시하러 이렇게 자주 나오지는 못하거든.",
+  "dialogue.fishing_waiting.harvey.high_hearts.2": "낚시는 뭔가 치료 같은 느낌이 있어. 이 리듬, 이 기다림...",
+  "dialogue.fishing_waiting.harvey.high_hearts.3": "초대해줘서 고마워. 이렇게 함께 시간을 보내니 정말 좋네.",
+  "dialogue.fishing_waiting.harvey.high_hearts.4": "이 신선한 공기는 폐 건강에도 아주 좋아.",
+  "dialogue.fishing_waiting.harvey.high_hearts.5": "이런 시간에 익숙해질 것 같네. 정기적으로 해볼까?",
+
+  "dialogue.fishing_caught.harvey.high_hearts.1": "잡았어! 꽤 훌륭한 물고기네!",
+  "dialogue.fishing_caught.harvey.high_hearts.2": "오, 이걸 봐! 내 기술이 정말 늘고 있어!",
+  "dialogue.fishing_caught.harvey.high_hearts.3": "멋진 물고기네! 저녁에 신선한 생선을 먹는 건 정말 좋아.",
+  "dialogue.fishing_caught.harvey.high_hearts.4": "성공이야! 이번에 낚은 게 꽤 만족스러워.",
+  "dialogue.fishing_caught.harvey.high_hearts.5": "훌륭해! 아주 생산적인 하루였어.",
+
+  "dialogue.petting.harvey.high_hearts.1": "동물들을 정성스럽게 대해주면 이렇게 잘 반응하고는 해. 정말 잘 돌보고 있네.",
+  "dialogue.petting.harvey.high_hearts.2": "동물은 참 놀라워, 그렇지 않아? 이렇게 믿음도 많고, 애정도 깊잖아.",
+  "dialogue.petting.harvey.high_hearts.3": "정말 편안하네. 이런 시간을 나눠줘서 고마워.",
+  "dialogue.petting.harvey.high_hearts.4": "네가 이걸 좋아하는 이유를 알겠어. 마음이 차분해지네.",
+  "dialogue.petting.harvey.high_hearts.5": "너 같은 주인을 둔 동물들은 정말 행운이야.",
+
 }

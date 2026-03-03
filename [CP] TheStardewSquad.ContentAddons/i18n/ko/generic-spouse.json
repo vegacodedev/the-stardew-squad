@@ -55,5 +55,23 @@
   "dialogue.foraging.spouse.generic.generic.2": "그건 내가 가져다줄게, {{endearment}}.",
   "dialogue.foraging.spouse.generic.generic.3": "마치 작은 보물찾기를 함께하는 기분이야.",
   "dialogue.foraging.spouse.generic.generic.4": "이거 봐! 우리가 가져가자!",
-  "dialogue.foraging.spouse.generic.generic.5": "인생에서 가장 좋은 건 공짜와... 너와 함께 나누는 거야."
+  "dialogue.foraging.spouse.generic.generic.5": "인생에서 가장 좋은 건 공짜와... 너와 함께 나누는 거야.",
+  
+  "dialogue.fishing_waiting.spouse.generic.generic.1": "여기 이렇게 너랑 함께 있으니까 정말 평온해, {{endearment}}.",
+  "dialogue.fishing_waiting.spouse.generic.generic.2": "너랑이라면 하루 종일 낚시해도 좋아.",
+  "dialogue.fishing_waiting.spouse.generic.generic.3": "이런 순간들이 정말 소중해.",
+  "dialogue.fishing_waiting.spouse.generic.generic.4": "너랑 나, 그리고 물가. 완벽하잖아.",
+  "dialogue.fishing_waiting.spouse.generic.generic.5": "너랑 함께라면 기다리는 것도 싫지 않아.",
+
+  "dialogue.fishing_caught.spouse.generic.generic.1": "잡았어, {{endearment}}!",
+  "dialogue.fishing_caught.spouse.generic.generic.2": "봐! 이거 저녁으로 해먹자.",
+  "dialogue.fishing_caught.spouse.generic.generic.3": "와! 정말 큰 물고기야!",
+  "dialogue.fishing_caught.spouse.generic.generic.4": "하! 기다린 보람이 있네!",
+  "dialogue.fishing_caught.spouse.generic.generic.5": "너랑 같이 낚시하는 거 정말 좋아.",
+
+  "dialogue.petting.spouse.generic.generic.1": "우리 귀여운 친구들!",
+  "dialogue.petting.spouse.generic.generic.2": "우리가 돌봐주면 얘네들 정말 행복해 보여.",
+  "dialogue.petting.spouse.generic.generic.3": "둘이서 함께 돌보니까 더 즐거운걸.",
+  "dialogue.petting.spouse.generic.generic.4": "얘네가 우리를 이렇게 좋아하는 거 봐, {{endearment}}.",
+  "dialogue.petting.spouse.generic.generic.5": "이 동물들은 이제 우리 가족이야.",
 }

@@ -1,7 +1,7 @@
 {
   "Name": "The Stardew Squad",
   "Author": "ThaliaFawnheart",
-  "Version": "0.10.0",
+  "Version": "0.10.1",
   "Description": "Recruit NPCs to follow you and help with tasks.",
   "UniqueID": "ThaliaFawnheart.TheStardewSquad",
   "EntryDll": "TheStardewSquad.dll",

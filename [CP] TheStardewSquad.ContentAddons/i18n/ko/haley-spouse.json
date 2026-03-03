@@ -57,5 +57,24 @@
   "dialogue.watering.haley.spouse.2": "우리 집을 예쁘게 가꾸는 걸 도울 수 있어서 좋아.",
   "dialogue.watering.haley.spouse.3": "건강한 식물은 행복한 농장을 만들고, 행복한 농장은 최고의 사진 배경이지!",
   "dialogue.watering.haley.spouse.4": "다음 케이크에 들어갈 신선한 재료들이 바로 여기 있네!",
-  "dialogue.watering.haley.spouse.5": "자기랑 이런 삶을 살 수 있어서 정말 행복해."
+  "dialogue.watering.haley.spouse.5": "자기랑 이런 삶을 살 수 있어서 정말 행복해.",
+  
+  "dialogue.fishing_waiting.haley.spouse.1": "너랑 나, 그리고 물가뿐이네. 완벽해, {{endearment}}.",
+  "dialogue.fishing_waiting.haley.spouse.2": "예전에 내가 낚시 지루하다고 했던 거 기억나? 그거, 완전 틀린 생각이었어.",
+  "dialogue.fishing_waiting.haley.spouse.3": "물 위에 비친 풍경이 정말 멋져. 너만큼 멋지진 않지만!",
+  "dialogue.fishing_waiting.haley.spouse.4": "이렇게 조용히 함께 있는 시간이 너무 좋아. 여유로운 분위기에서 우리 둘만 있잖아.",
+  "dialogue.fishing_waiting.haley.spouse.5": "아무것도 못 잡더라도 이 시간은 정말 소중해.",
+
+  "dialogue.fishing_caught.haley.spouse.1": "잡았다! 봤지, {{endearment}}?",
+  "dialogue.fishing_caught.haley.spouse.2": "완벽해! 오늘 저녁은 이걸로 요리할게. 어때?",
+  "dialogue.fishing_caught.haley.spouse.3": "이것 좀 봐! 나 꽤 잘하게 된 것 같지?",
+  "dialogue.fishing_caught.haley.spouse.4": "또 잡았어! 우리 정말 환상의 팀이야.",
+  "dialogue.fishing_caught.haley.spouse.5": "정말 예쁜 물고기야! 나랑 같이 사진 찍어줄래?",
+
+  "dialogue.petting.haley.spouse.1": "우리 동물들은 정말 운이 좋아. 봐, 얼마나 행복해 보이는지!",
+  "dialogue.petting.haley.spouse.2": "나 예전에 농장 동물 무서워했던 거 기억해? 이제는 너만큼 좋아하게 됐어.",
+  "dialogue.petting.haley.spouse.3": "같이 돌보니까... 진짜 팀 같아.",
+  "dialogue.petting.haley.spouse.4": "오늘 얘들 사진 정말 잘 찍혔어. 이따 보여줄까?",
+  "dialogue.petting.haley.spouse.5": "얘네들이 우리의 작은 가족 같지 않아, {{endearment}}?",
+
 }
