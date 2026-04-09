@@ -31,6 +31,7 @@ namespace TheStardewSquad.Framework
         private readonly IRandomService _randomService;
         private readonly ITaskService _taskService;
         private readonly IPlayerService _playerService;
+        private SpriteManager? _spriteManager;
         private readonly HashSet<Vector2> _claimedInteractionSpots = new();
         private readonly HashSet<Point> _claimedTaskTargets = new();
 
@@ -42,6 +43,7 @@ namespace TheStardewSquad.Framework
         private bool _wasInFestival = false;
         private bool _wasInCutscene = false;
         private bool _wasPlayerFishing = false;
+        private bool _wasPlayerRiding = false;
         private int _updateCounter = 0;
         private int _lastFriendshipGainHour = -1;
 
@@ -75,6 +77,12 @@ namespace TheStardewSquad.Framework
             this._playerService = playerService;
         }
 
+        /// <summary>Sets the SpriteManager dependency (called after construction due to initialization order).</summary>
+        public void SetSpriteManager(SpriteManager spriteManager)
+        {
+            this._spriteManager = spriteManager;
+        }
+
         public void ResetStateForNewSession()
         {
             this._claimedInteractionSpots.Clear();
@@ -82,9 +90,15 @@ namespace TheStardewSquad.Framework
             foreach (var mate in this._squadManager.Members)
             {
                 mate.ClaimedInteractionSpot = null;
+                if (mate.IsRidingWithPlayer)
+                {
+                    mate.Npc.HideShadow = false;
+                    mate.IsRidingWithPlayer = false;
+                }
             }
             this._formationManager.Reset();
             this._lastFriendshipGainHour = -1;
+            this._wasPlayerRiding = false;
         }
 
         private void ClearMateTask(ISquadMate mate)
@@ -309,10 +323,20 @@ namespace TheStardewSquad.Framework
                 _wasPlayerFishing = isPlayerFishing;
             }
 
+            // Handle riding state transitions and identify the riding member
+            var ridingMate = UpdateRidingState();
+
             var members = this._squadManager.Members.ToList();
             for (int i = 0; i < members.Count; i++)
             {
                 var mate = members[i];
+
+                // If this member is riding on the horse, update riding logic instead of normal following
+                if (mate == ridingMate)
+                {
+                    UpdateRidingMember(mate);
+                    continue;
+                }
 
                 bool isFastTick = this._updateCounter % FastTickInterval == 0;
                 bool isSlowTick = (this._updateCounter + i) % SlowTickInterval == 0;
@@ -383,6 +407,12 @@ namespace TheStardewSquad.Framework
                 mate.CurrentMoveDirection = -1;
                 mate.IsInPool = false;
                 mate.LastTilePoint = null;
+                if (mate.IsRidingWithPlayer)
+                {
+                    mate.IsRidingWithPlayer = false;
+                    npc.HideShadow = false;
+                }
+                npc.drawOffset = Vector2.Zero;
                 mate.Halt();
             }
         }
@@ -994,5 +1024,130 @@ namespace TheStardewSquad.Framework
             
             this._lastFriendshipGainHour = currentHour;
         }
+
+        #region Horse Riding
+
+        /// <summary>
+        /// Updates riding state transitions (mount/dismount) and identifies the riding squad member.
+        /// Returns the squad member currently riding with the player, or null if no one is riding.
+        /// </summary>
+        private ISquadMate? UpdateRidingState()
+        {
+            bool isPlayerRiding = _config.EnableRiding && _playerService.IsRiding;
+
+            if (isPlayerRiding && !_wasPlayerRiding)
+            {
+                // Player just mounted — assign the first non-pet squad member to ride
+                var firstMate = _squadManager.Members.FirstOrDefault(m => m.Npc is not Pet);
+                if (firstMate != null)
+                {
+                    ClearMateTaskAndReset(firstMate);
+                    firstMate.IsRidingWithPlayer = true;
+                    firstMate.Npc.HideShadow = true;
+
+                    // Apply sitting sprite (same as Sitting feature)
+                    _spriteManager?.TryApplySittingSpriteSheet(firstMate.Npc, firstMate, firstMate.Npc.FacingDirection);
+                }
+            }
+            else if (!isPlayerRiding && _wasPlayerRiding)
+            {
+                // Player just dismounted — release the riding member and restore sprites
+                foreach (var mate in _squadManager.Members)
+                {
+                    if (mate.IsRidingWithPlayer)
+                    {
+                        mate.IsRidingWithPlayer = false;
+                        mate.Npc.drawOffset = Vector2.Zero;
+                        mate.Npc.HideShadow = false;
+                        _spriteManager?.RestoreOriginalTexture(mate.Npc, mate);
+                        mate.Npc.Sprite.StopAnimation();
+                        mate.Npc.flip = false;
+                        mate.Halt();
+                    }
+                }
+            }
+
+            _wasPlayerRiding = isPlayerRiding;
+
+            if (isPlayerRiding)
+            {
+                return _squadManager.Members.FirstOrDefault(m => m.IsRidingWithPlayer);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Updates a squad member that is riding on the horse behind the player.
+        /// Aligns the NPC to the player's visual riding position using drawOffset,
+        /// applies sitting sprite, and syncs the horse wobble animation.
+        /// </summary>
+        private void UpdateRidingMember(ISquadMate mate)
+        {
+            var npc = mate.Npc;
+            var player = _playerService.Player;
+
+            SquadMateStateHelper.MaintainControl(npc);
+
+            // Ensure the NPC is in the same location as the player
+            if (npc.currentLocation != _playerService.CurrentLocation)
+            {
+                _warpService.WarpCharacter(npc, _playerService.CurrentLocation.Name, _playerService.TilePoint);
+            }
+
+            // Wobble: sync to the horse's sprite animation index,
+            // exactly as Farmer.showRiding() sets yOffset.
+            float wobble = 0f;
+            if (player.isMoving() && player.mount != null)
+            {
+                wobble = player.mount.Sprite.currentAnimationIndex switch
+                {
+                    1 => -4f,
+                    2 => -4f,
+                    4 => 4f,
+                    5 => 4f,
+                    _ => 0f // frames 0 and 3
+                };
+            }
+
+            // Use a small Y position offset solely to control the NPC's draw order
+            // (behind the player when facing down, in front otherwise).
+            // All visual positioning goes through drawOffset so the player/horse depth is unaffected.
+            float depthOffset = (player.FacingDirection == 2) ? -8f : 8f;
+            npc.Position = new Vector2(player.Position.X, player.Position.Y + depthOffset);
+
+            float xDrawOffset;
+            float yDrawOffset = 0f;
+            switch (player.FacingDirection)
+            {
+                case 0: // Up
+                    xDrawOffset = 18f;
+                    yDrawOffset = -8f;
+                    break;
+                case 2: // Down
+                    xDrawOffset = 18f;
+                    yDrawOffset = 8f;
+                    break;
+                case 1: // Right
+                    xDrawOffset = -8f;
+                    break;
+                case 3: // Left
+                    xDrawOffset = 56f;
+                    break;
+                default:
+                    xDrawOffset = 18f;
+                    break;
+            }
+            npc.drawOffset = new Vector2(xDrawOffset, -32f - depthOffset + yDrawOffset - wobble);
+
+            npc.faceDirection(player.FacingDirection);
+
+            bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(npc, mate, player.FacingDirection) ?? false;
+            if (!usedCustomSprite)
+            {
+                _spriteManager?.ForceApplyTaskAnimation(npc, "Sitting");
+            }
+        }
+
+        #endregion
     }
 }

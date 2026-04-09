@@ -157,6 +157,14 @@ namespace TheStardewSquad.Config
                 tooltip: () => _helper.Translation.Get("config.enableSitting.description")
             );
 
+            configMenu.AddBoolOption(
+                mod: _modEntry.ModManifest,
+                getValue: () => _modEntry.Config.EnableRiding,
+                setValue: value => _modEntry.Config.EnableRiding = value,
+                name: () => _helper.Translation.Get("config.enableRiding.name"),
+                tooltip: () => _helper.Translation.Get("config.enableRiding.description")
+            );
+
             configMenu.AddTextOption(
                 mod: _modEntry.ModManifest,
                 getValue: () => _modEntry.Config.DisableTrashRummagingReaction.ToString(),

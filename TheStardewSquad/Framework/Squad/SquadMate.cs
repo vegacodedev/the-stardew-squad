@@ -35,6 +35,7 @@ namespace TheStardewSquad.Framework.Squad
         public bool IsInPool { get; set; }
         public Point? LastTilePoint { get; set; }
         public bool WasWearingIslandAttireBeforeSwimming { get; set; }
+        public bool IsRidingWithPlayer { get; set; }
         public string? OriginalTexture { get; set; }
 
         public SquadMate(NPC npc, ITaskBehavior taskBehavior, IInteractionBehavior interactionBehavior, ICommunicationBehavior communicationBehavior)

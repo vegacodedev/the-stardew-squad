@@ -61,6 +61,8 @@ public sealed class ModConfig
 
     public bool EnableSitting { get; set; } = true;
 
+    public bool EnableRiding { get; set; } = true;
+
     public TaskMode WateringMode { get; set; } = TaskMode.Mimicking;
     public TaskMode LumberingMode { get; set; } = TaskMode.Mimicking;
     public TaskMode MiningMode { get; set; } = TaskMode.Mimicking;

@@ -90,6 +90,7 @@ namespace TheStardewSquad
             this.InteractionManager.SquadMateFactory = this.SquadMateFactory;
             this.FollowerManager = new FollowerManager(this.Monitor, this.SquadManager, this.WaitingNpcsManager, this.Config, this.DebrisCollector, this.UnifiedTaskManager, this.FormationManager, this.BehaviorManager, gameStateService, warpService, randomService, taskService, playerService);
             this.RecruitmentManager.SetFollowerManager(this.FollowerManager);
+            this.FollowerManager.SetSpriteManager(this.SpriteManager);
             this.AssetManager = new AssetManager();
             TaskManager.Initialize(this.Config, this.FollowerManager, this.SpriteManager);
             TaskManager.SetMonitor(this.Monitor);
