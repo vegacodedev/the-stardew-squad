@@ -1118,10 +1118,9 @@ namespace TheStardewSquad.Framework
                 };
             }
 
-            // Use a small Y position offset solely to control the NPC's draw order
-            // (behind the player when facing down, in front otherwise).
-            // All visual positioning goes through drawOffset so the player/horse depth is unaffected.
-            float depthOffset = (player.FacingDirection == 2) ? -8f : 8f;
+            // +Y offset layers the NPC in front of the player for Up/Left/Right.
+            // For Down, HarmonyPatches.AdjustSittingNpcDepth overrides depth to slot the NPC behind the player.
+            float depthOffset = 8f;
             npc.Position = new Vector2(player.Position.X, player.Position.Y + depthOffset);
 
             float xDrawOffset;
@@ -1134,7 +1133,7 @@ namespace TheStardewSquad.Framework
                     break;
                 case 2: // Down
                     xDrawOffset = 18f;
-                    yDrawOffset = 8f;
+                    yDrawOffset = -14f;
                     break;
                 case 1: // Right
                     xDrawOffset = -8f;

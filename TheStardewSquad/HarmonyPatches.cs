@@ -31,6 +31,7 @@ namespace TheStardewSquad.Patches
         private static int _ignorePettingDepth = 0;
         private static long? _playerSittingStartTime = null;
         private static bool _wasPlayerSitting = false;
+        private static bool _lowerHorseBodyDepth = false;
 
         #endregion
 
@@ -320,6 +321,34 @@ namespace TheStardewSquad.Patches
                     original: petDrawMethod,
                     transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(NPC_Draw_LogDepth_Transpiler))
                 );
+            }
+
+            // Lower horse-body depth when riding Down with a recruited mate (body would otherwise show above the player and the NPC for some reason).
+            var horseDrawMethod = AccessTools.Method(typeof(Horse), nameof(Horse.draw), new Type[] { typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch) });
+            if (horseDrawMethod != null)
+            {
+                harmony.Patch(
+                    original: horseDrawMethod,
+                    prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Horse_Draw_Prefix)),
+                    postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Horse_Draw_Postfix))
+                );
+            }
+            else
+            {
+                _modEntry.Monitor.Log("Failed to find Horse.draw() method", StardewModdingAPI.LogLevel.Error);
+            }
+
+            var standingPixelGetter = AccessTools.PropertyGetter(typeof(Character), nameof(Character.StandingPixel));
+            if (standingPixelGetter != null)
+            {
+                harmony.Patch(
+                    original: standingPixelGetter,
+                    postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Horse_StandingPixel_Postfix))
+                );
+            }
+            else
+            {
+                _modEntry.Monitor.Log("Failed to find Character.StandingPixel property getter", StardewModdingAPI.LogLevel.Error);
             }
         }
 
@@ -1196,9 +1225,8 @@ namespace TheStardewSquad.Patches
         /// </summary>
         public static float AdjustSittingNpcDepth(float npcDepth, StardewValley.Character character)
         {
-            // Only apply if player is sitting
             var player = Game1.player;
-            if (player == null || (player.sittingFurniture == null && !player.isSitting.Value))
+            if (player == null)
                 return npcDepth;
 
             // Only apply if there's at least one squad member
@@ -1207,6 +1235,23 @@ namespace TheStardewSquad.Patches
 
             // Only apply to NPCs that are squad members
             if (!_squadManager.IsRecruited(character))
+                return npcDepth;
+
+            // Riding Down: slot the mate behind the player. Anchoring off horse
+            // body depth would be unsafe because drawLayerDisambiguator is 0 in single-player.
+            if (character is StardewValley.NPC ridingNpc
+                && player.isRidingHorse()
+                && player.FacingDirection == 2
+                && player.mount != null)
+            {
+                var mate = _squadManager.GetMember(ridingNpc);
+                if (mate != null && mate.IsRidingWithPlayer)
+                {
+                    return MathF.BitDecrement(player.getDrawLayer());
+                }
+            }
+
+            if (player.sittingFurniture == null && !player.isSitting.Value)
                 return npcDepth;
 
             if (character is StardewValley.NPC npc)
@@ -1259,6 +1304,45 @@ namespace TheStardewSquad.Patches
                 }
             }
             return npcDepth; // Return unchanged for non-sitting NPCs
+        }
+
+        private static bool IsHorseCarryingRidingMateFacingDown(Horse horse)
+        {
+            if (horse == null || horse.rider == null) return false;
+            if (horse.rider.FacingDirection != 2) return false;
+            if (_squadManager == null || _squadManager.Count == 0) return false;
+            foreach (var member in _squadManager.Members)
+            {
+                if (member.IsRidingWithPlayer) return true;
+            }
+            return false;
+        }
+
+        public static void Horse_Draw_Prefix(Horse __instance)
+        {
+            if (IsHorseCarryingRidingMateFacingDown(__instance))
+                _lowerHorseBodyDepth = true;
+        }
+
+        public static void Horse_Draw_Postfix()
+        {
+            _lowerHorseBodyDepth = false;
+        }
+
+        /// <summary>
+        /// Flag-gated override: drop horse StandingPixel.Y below the rider's during Horse.draw
+        /// so the body sprite's layer depth lands under the player. Shadow/emote positioning
+        /// read Position directly and stay put.
+        /// </summary>
+        public static void Horse_StandingPixel_Postfix(Character __instance, ref Point __result)
+        {
+            if (!_lowerHorseBodyDepth) return;
+            if (__instance is not Horse horse) return;
+            if (horse.rider == null) return;
+
+            int riderStandingY = horse.rider.StandingPixel.Y;
+            if (__result.Y >= riderStandingY)
+                __result = new Point(__result.X, riderStandingY - 1);
         }
 
         /// <summary>
