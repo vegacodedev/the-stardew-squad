@@ -188,8 +188,16 @@ namespace TheStardewSquad.Patches
             );
 
             harmony.Patch(
-                original: AccessTools.Method(typeof(NPC), nameof(NPC.getHitByPlayer)),
+                original: AccessTools.Method(typeof(NPC), nameof(NPC.getHitByPlayer), new Type[] { typeof(Farmer), typeof(GameLocation) }),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(GetHitByPlayer_Prefix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Projectiles.BasicProjectile), "behaviorOnCollisionWithMonster"),
+                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(BasicProjectile_BehaviorOnCollisionWithMonster_Prefix))
+                {
+                    priority = Priority.High  // Should hopefully play nice with SpaceCore - disables the behavior only if the NPC is in the Squad.
+                }
             );
 
             harmony.Patch(
@@ -659,13 +667,21 @@ namespace TheStardewSquad.Patches
         /// <summary>Prevents recruited squad members from reacting negatively to being hit by the player's slingshot.</summary>
         private static bool GetHitByPlayer_Prefix(NPC __instance)
         {
-            // If the NPC is recruited, block the original method (return false).
             if (_squadManager.IsRecruited(__instance))
             {
                 return false;
             }
 
-            // Otherwise, let the original method run for non-squad members.
+            return true;
+        }
+
+        private static bool BasicProjectile_BehaviorOnCollisionWithMonster_Prefix(NPC n)
+        {
+            if (n != null && _squadManager.IsRecruited(n))
+            {
+                return false;
+            }
+
             return true;
         }
 
