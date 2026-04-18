@@ -438,6 +438,15 @@ namespace TheStardewSquad.Framework
                 npc.Sprite.CurrentFrame = BehaviorManager.GetIdleFrame(npc.FacingDirection);
             }
 
+            // Recover if an external caller (e.g., another mod's Harmony patch) cleared
+            // IsAnimating without going through Halt(), leaving the sentinel cooldown stranded.
+            if (!mate.IsAnimating && mate.ActionCooldown > 500)
+            {
+                mate.Halt(); // This stops the animation and resets the IsAnimating flag.
+                mate.ActionCooldown = 0;
+                npc.Sprite.CurrentFrame = BehaviorManager.GetIdleFrame(npc.FacingDirection);
+            }
+
             if (mate.IsOnCooldown())
             {
                 // DecrementCooldown() returns true on the exact tick the cooldown finishes.

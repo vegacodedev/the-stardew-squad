@@ -92,6 +92,10 @@ namespace TheStardewSquad.Framework.Squad
         public void Halt()
         {
             this.IsAnimating = false;
+            // Clear the int.MaxValue sentinel set by PlayIdleAnimation for looping idles,
+            // otherwise the mate gets wedged on cooldown forever.
+            if (this.ActionCooldown == int.MaxValue)
+                this.ActionCooldown = 0;
             Npc.Halt();
         }
     }
