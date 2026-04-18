@@ -156,7 +156,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                                 var config = jObj.ToObject<SpriteAnimationConfig>();
                                 if (config != null)
                                 {
-                                    _monitor.Log($"[Sprite] Matched sprite config for {taskType} with condition: {condition ?? "(none)"}", LogLevel.Debug);
+                                    _monitor.Log($"[Sprite] Matched sprite config for {taskType} with condition: {condition ?? "(none)"}", LogLevel.Trace);
                                     return config; // First match wins!
                                 }
                             }
@@ -452,7 +452,7 @@ namespace TheStardewSquad.Framework.NpcConfig
             // Load the task sprite sheet
             if (npc.TryLoadSprites(assetPath, out string error))
             {
-                _monitor.Log($"[Sprite] Applied {taskType} sprite sheet for {npc.Name}: {assetPath}", LogLevel.Debug);
+                _monitor.Log($"[Sprite] Applied {taskType} sprite sheet for {npc.Name}: {assetPath}", LogLevel.Trace);
 
                 // Set the correct frame based on direction using NpcConfig
                 SetTaskFrame(npc, taskType, facingDirection);
@@ -532,7 +532,7 @@ namespace TheStardewSquad.Framework.NpcConfig
 
             if (npc.TryLoadSprites(originalTexture, out string error))
             {
-                _monitor.Log($"[Sprite] Restored original texture for {npc.Name}: {originalTexture}", LogLevel.Debug);
+                _monitor.Log($"[Sprite] Restored original texture for {npc.Name}: {originalTexture}", LogLevel.Trace);
             }
             else
             {

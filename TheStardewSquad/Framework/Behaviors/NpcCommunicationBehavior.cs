@@ -30,7 +30,7 @@ namespace TheStardewSquad.Framework.Behaviors
 
             if (string.IsNullOrEmpty(dialogueText))
             {
-                _monitor.Log($"[Communication] {npc.Name}: No dialogue text found for {dialogueKey}, skipping", LogLevel.Debug);
+                _monitor.Log($"[Communication] {npc.Name}: No dialogue text found for {dialogueKey}, skipping", LogLevel.Trace);
                 return;
             }
 
@@ -39,7 +39,7 @@ namespace TheStardewSquad.Framework.Behaviors
             // Keys for UI dialogues
             if (dialogueKey is DialogueKeys.Recruit or DialogueKeys.Dismiss or DialogueKeys.FriendshipTooLow)
             {
-                _monitor.Log($"[Communication] {npc.Name}: Showing UI dialogue for {dialogueKey}", LogLevel.Debug);
+                _monitor.Log($"[Communication] {npc.Name}: Showing UI dialogue for {dialogueKey}", LogLevel.Trace);
                 Game1.DrawDialogue(new StardewValley.Dialogue(npc, null, dialogueText));
             }
             // Keys for speech bubbles
@@ -47,7 +47,7 @@ namespace TheStardewSquad.Framework.Behaviors
             {
                 if (!_config.EnableCommunication)
                 {
-                    _monitor.Log($"[Communication] {npc.Name}: Communication disabled in config, skipping {dialogueKey} bubble", LogLevel.Debug);
+                    _monitor.Log($"[Communication] {npc.Name}: Communication disabled in config, skipping {dialogueKey} bubble", LogLevel.Trace);
                     return;
                 }
 
@@ -71,7 +71,7 @@ namespace TheStardewSquad.Framework.Behaviors
                     return; // Skip dialogue based on squad size
                 }
 
-                _monitor.Log($"[Communication] {npc.Name}: Showing dialogue bubble for {dialogueKey}: \"{dialogueText}\"", LogLevel.Debug);
+                _monitor.Log($"[Communication] {npc.Name}: Showing dialogue bubble for {dialogueKey}: \"{dialogueText}\"", LogLevel.Trace);
                 _dialogueManager.ShowDialogueBubble(npc, dialogueText);
                 mate.LastCommunicationTick = currentTick;
             }

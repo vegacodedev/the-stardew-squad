@@ -67,7 +67,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                 if (npcKeys.Any())
                 {
                     allDialogueKeys.AddRange(npcKeys);
-                    _monitor.Log($"[Dialogue] {npc.Name} has {npcKeys.Count} {dialogueType} dialogue line(s) (using NPC-specific)", LogLevel.Debug);
+                    _monitor.Log($"[Dialogue] {npc.Name} has {npcKeys.Count} {dialogueType} dialogue line(s) (using NPC-specific)", LogLevel.Trace);
                 }
             }
 
@@ -80,7 +80,7 @@ namespace TheStardewSquad.Framework.NpcConfig
 
                 if (genericKeys.Any())
                 {
-                    _monitor.Log($"[Dialogue] {npc.Name} has no {dialogueType} dialogue, using {genericKeys.Count} Generic line(s) as fallback", LogLevel.Debug);
+                    _monitor.Log($"[Dialogue] {npc.Name} has no {dialogueType} dialogue, using {genericKeys.Count} Generic line(s) as fallback", LogLevel.Trace);
                 }
             }
 

@@ -76,11 +76,11 @@ namespace TheStardewSquad.Framework.NpcConfig
             {
                 var npcAnimations = GetMatchingIdleAnimations(npcConfig.Behavior.IdleAnimations, npc);
                 allAnimations.AddRange(npcAnimations);
-                _monitor.Log($"[Behavior] {npc.Name} has {npcAnimations.Count} idle animation(s) available after condition matching", LogLevel.Debug);
+                _monitor.Log($"[Behavior] {npc.Name} has {npcAnimations.Count} idle animation(s) available after condition matching", LogLevel.Trace);
             }
             else
             {
-                _monitor.Log($"[Behavior] {npc.Name} has no idle animations defined", LogLevel.Debug);
+                _monitor.Log($"[Behavior] {npc.Name} has no idle animations defined", LogLevel.Trace);
             }
 
             if (!allAnimations.Any())
@@ -335,7 +335,7 @@ namespace TheStardewSquad.Framework.NpcConfig
             // Case 1: Simple string (no conditions)
             if (allowedTasksValue is string simpleTasks)
             {
-                _monitor.Log($"[Behavior] {npc.Name} AllowedTasks: {simpleTasks}", LogLevel.Debug);
+                _monitor.Log($"[Behavior] {npc.Name} AllowedTasks: {simpleTasks}", LogLevel.Trace);
                 return simpleTasks;
             }
 
@@ -349,7 +349,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                     if (item.Type == JTokenType.String)
                     {
                         var tasks = item.ToString();
-                        _monitor.Log($"[Behavior] {npc.Name} matched unconditional AllowedTasks: {tasks}", LogLevel.Debug);
+                        _monitor.Log($"[Behavior] {npc.Name} matched unconditional AllowedTasks: {tasks}", LogLevel.Trace);
                         return tasks;
                     }
 
@@ -371,7 +371,7 @@ namespace TheStardewSquad.Framework.NpcConfig
 
                         if (conditionMet && !string.IsNullOrWhiteSpace(tasks))
                         {
-                            _monitor.Log($"[Behavior] {npc.Name} matched condition '{condition}', AllowedTasks: {tasks}", LogLevel.Debug);
+                            _monitor.Log($"[Behavior] {npc.Name} matched condition '{condition}', AllowedTasks: {tasks}", LogLevel.Trace);
                             return tasks; // First match wins!
                         }
                     }
@@ -380,7 +380,7 @@ namespace TheStardewSquad.Framework.NpcConfig
 
             // Fallback: all tasks allowed
             var fallbackTasks = "Watering, Lumbering, Mining, Attacking, Harvesting, Foraging, Fishing, Petting, Sitting";
-            _monitor.Log($"[Behavior] {npc.Name} no conditions matched, using fallback (all tasks)", LogLevel.Debug);
+            _monitor.Log($"[Behavior] {npc.Name} no conditions matched, using fallback (all tasks)", LogLevel.Trace);
             return fallbackTasks;
         }
 
@@ -409,7 +409,7 @@ namespace TheStardewSquad.Framework.NpcConfig
             // Check if recruitment is explicitly disabled
             if (!recruitment.Enabled)
             {
-                _monitor.Log($"[Behavior] {npc.Name} recruitment is disabled", LogLevel.Debug);
+                _monitor.Log($"[Behavior] {npc.Name} recruitment is disabled", LogLevel.Trace);
                 return false;
             }
 
@@ -426,12 +426,12 @@ namespace TheStardewSquad.Framework.NpcConfig
                 }
 
                 bool conditionMet = _gameStateChecker.CheckConditions(condition, _gameContext.CurrentLocation, _gameContext.Player);
-                _monitor.Log($"[Behavior] {npc.Name} recruitment condition '{condition}' evaluated to: {conditionMet}", LogLevel.Debug);
+                _monitor.Log($"[Behavior] {npc.Name} recruitment condition '{condition}' evaluated to: {conditionMet}", LogLevel.Trace);
                 return conditionMet;
             }
 
             // No condition, recruitment enabled
-            _monitor.Log($"[Behavior] {npc.Name} recruitment is enabled (no condition)", LogLevel.Debug);
+            _monitor.Log($"[Behavior] {npc.Name} recruitment is enabled (no condition)", LogLevel.Trace);
             return true;
         }
 
