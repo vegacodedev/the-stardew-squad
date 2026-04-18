@@ -702,11 +702,13 @@ namespace TheStardewSquad.Patches
             }
             mate.LastTilePoint = currentTile;
 
-            // Check if NPC is on a water tile (Back layer property for oceans/rivers/lakes)
             bool hasWaterProperty = location?.doesTileHaveProperty(currentTile.X, currentTile.Y, "Water", "Back") != null;
 
-            // NPC should swim if on water tile OR in pool (Spa)
-            bool shouldSwim = hasWaterProperty || mate.IsInPool;
+            // Bridges sit on Water tiles but are marked Passable="T" on Buildings — followers should walk, not sink.
+            string bridgePassable = location?.doesTileHaveProperty(currentTile.X, currentTile.Y, "Passable", "Buildings");
+            bool isPassableBridge = bridgePassable != null && bridgePassable.Equals("T", StringComparison.OrdinalIgnoreCase);
+
+            bool shouldSwim = (hasWaterProperty && !isPassableBridge) || mate.IsInPool;
 
             // Track previous swimming state to detect transitions
             bool wasSwimming = __instance.swimming.Value;
