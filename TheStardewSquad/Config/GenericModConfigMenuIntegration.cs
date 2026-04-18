@@ -51,6 +51,14 @@ namespace TheStardewSquad.Config
                 tooltip: () => _helper.Translation.Get("config.useSquadInventory.description")
             );
 
+            configMenu.AddBoolOption(
+                mod: _modEntry.ModManifest,
+                getValue: () => _modEntry.Config.UseVanillaDialogueUI,
+                setValue: value => _modEntry.Config.UseVanillaDialogueUI = value,
+                name: () => _helper.Translation.Get("config.useVanillaDialogueUI.name"),
+                tooltip: () => _helper.Translation.Get("config.useVanillaDialogueUI.description")
+            );
+
             configMenu.AddKeybindList(
                 mod: _modEntry.ModManifest,
                 getValue: () => _modEntry.Config.OpenSquadInventoryKey,

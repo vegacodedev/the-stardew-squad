@@ -5,6 +5,8 @@
   "config.manualTaskKey.description": "Press this key while aiming at an object to command a squad member to interact with it.",
   "config.useSquadInventory.name": "Use Squad Inventory",
   "config.useSquadInventory.description": "When NPCs gather items, they will place it on a special Squad Inventory. If disabled, they will put it directly in the player's inventory if possible.",
+  "config.useVanillaDialogueUI.name": "Use Vanilla Dialogue UI",
+  "config.useVanillaDialogueUI.description": "Replaces the custom squad menu with Stardew Valley's native dialogue UI. Useful if you're having issues with the custom UI.",
   "config.openSquadInventoryKey.name": "Open Squad Inventory Key",
   "config.openSquadInventoryKey.description": "The key used to open the shared squad inventory.",
   "config.tasksToggleKey.name": "Toggle Tasks Key",

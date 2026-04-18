@@ -36,6 +36,8 @@ public sealed class ModConfig
 
     public KeybindList OpenSquadInventoryKey { get; set; } = KeybindList.Parse("LeftAlt+E");
 
+    public bool UseVanillaDialogueUI { get; set; } = false;
+
     public KeybindList TasksToggleKey { get; set; } = KeybindList.Parse("LeftAlt+F");
 
     public bool TasksEnabled { get; set; } = true;

@@ -1,6 +1,4 @@
-using StardewValley;
 using StardewValley.Menus;
-using System;
 
 namespace TheStardewSquad.Abstractions.UI
 {
@@ -24,14 +22,5 @@ namespace TheStardewSquad.Abstractions.UI
 
         /// <summary>Gets a translated string for the given key with token replacements.</summary>
         string GetTranslation(string key, object tokens);
-
-        /// <summary>
-        /// Creates a question dialogue with multiple choice responses.
-        /// Enables testing of dialog interactions without requiring Game1.currentLocation.
-        /// </summary>
-        /// <param name="question">The question text to display</param>
-        /// <param name="responses">Array of response options</param>
-        /// <param name="onResponse">Callback when user selects a response</param>
-        void ShowQuestionDialog(string question, Response[] responses, Action<Farmer, string> onResponse);
     }
 }

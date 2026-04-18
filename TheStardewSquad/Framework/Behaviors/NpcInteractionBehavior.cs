@@ -19,8 +19,10 @@ namespace TheStardewSquad.Framework.Behaviors
         private readonly BehaviorManager _behaviorManager;
         private readonly ISquadMateStateHelper _stateHelper;
         private readonly DialogueManager _dialogueManager;
+        private readonly ModConfig _config;
+        private readonly SquadMemberPrompt _memberPrompt;
 
-        public NpcInteractionBehavior(IModHelper helper, IMonitor monitor, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, BehaviorManager behaviorManager, ISquadMateStateHelper stateHelper, DialogueManager dialogueManager)
+        public NpcInteractionBehavior(IModHelper helper, IMonitor monitor, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, BehaviorManager behaviorManager, ISquadMateStateHelper stateHelper, DialogueManager dialogueManager, ModConfig config, SquadMemberPrompt memberPrompt)
         {
             this._helper = helper;
             this._monitor = monitor;
@@ -30,50 +32,44 @@ namespace TheStardewSquad.Framework.Behaviors
             this._behaviorManager = behaviorManager;
             this._stateHelper = stateHelper;
             this._dialogueManager = dialogueManager;
+            this._config = config;
+            this._memberPrompt = memberPrompt;
         }
 
         public void HandleRecruitment(ISquadMate mate, Farmer player)
         {
             var npc = mate.Npc;
 
-            var menu = new SquadMemberMenu(_helper, mate, false, (action) =>
+            _memberPrompt.PromptForRecruitment(mate, player, () =>
             {
-                if (action == "recruit")
+                // Check recruitment condition using BehaviorManager
+                if (!this._behaviorManager.CanRecruit(npc))
                 {
-                    // Check recruitment condition using BehaviorManager
-                    if (!this._behaviorManager.CanRecruit(npc))
-                    {
-                        // Get custom refusal dialogue key or use default
-                        string refusalKey = this._behaviorManager.GetRecruitmentRefusalDialogueKey(npc);
-                        string dialogue = !string.IsNullOrEmpty(refusalKey)
-                            ? refusalKey
-                            : _dialogueManager.GetDialogue(npc, DialogueKeys.RecruitmentRefusal);
+                    // Get custom refusal dialogue key or use default
+                    string refusalKey = this._behaviorManager.GetRecruitmentRefusalDialogueKey(npc);
+                    string dialogue = !string.IsNullOrEmpty(refusalKey)
+                        ? refusalKey
+                        : _dialogueManager.GetDialogue(npc, DialogueKeys.RecruitmentRefusal);
 
-                        Game1.DrawDialogue(new StardewValley.Dialogue(npc, null, dialogue));
-                        return;
-                    }
+                    Game1.DrawDialogue(new StardewValley.Dialogue(npc, null, dialogue));
+                    return;
+                }
 
-                    // Check friendship requirement
-                    ModConfig config = _helper.ReadConfig<ModConfig>();
-                    if (npc.isMarried() || player.getFriendshipHeartLevelForNPC(npc.Name) >= config.FriendshipRequirement)
-                    {
-                        this._recruitmentManager.Recruit(mate);
-                    }
-                    else
-                    {
-                        mate.Communicate(DialogueKeys.FriendshipTooLow);
-                    }
+                // Check friendship requirement
+                if (npc.isMarried() || player.getFriendshipHeartLevelForNPC(npc.Name) >= _config.FriendshipRequirement)
+                {
+                    this._recruitmentManager.Recruit(mate);
+                }
+                else
+                {
+                    mate.Communicate(DialogueKeys.FriendshipTooLow);
                 }
             });
-
-            Game1.activeClickableMenu = menu;
         }
 
         public void HandleManagement(ISquadMate mate)
         {
-            var npc = mate.Npc;
-
-            var menu = new SquadMemberMenu(_helper, mate, true, (action) =>
+            _memberPrompt.PromptForManagement(mate, action =>
             {
                 if (action == "inventory")
                 {
@@ -95,14 +91,12 @@ namespace TheStardewSquad.Framework.Behaviors
                     this._recruitmentManager.DismissAll(useFade: true);
                 }
             });
-
-            Game1.activeClickableMenu = menu;
         }
 
         public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior)
         {
             var npc = mate.Npc;
-            
+
             Game1.afterFadeFunction onDismiss = () =>
             {
                 _stateHelper.PrepareForDismissal(npc);
