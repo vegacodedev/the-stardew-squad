@@ -122,6 +122,8 @@ namespace TheStardewSquad.Framework.NpcConfig
                 "Harvesting" => dialogueConfig.Harvesting,
                 "Foraging" => dialogueConfig.Foraging,
                 "Petting" => dialogueConfig.Petting,
+                "Shearing" => dialogueConfig.Shearing,
+                "Milking" => dialogueConfig.Milking,
                 "FriendshipTooLow" => dialogueConfig.FriendshipTooLow,
                 "RecruitmentRefusal" => dialogueConfig.RecruitmentRefusal,
                 _ => null

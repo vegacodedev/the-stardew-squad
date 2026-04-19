@@ -94,6 +94,8 @@ namespace TheStardewSquad.Framework.NpcConfig
                 "Idle" => spriteConfig.Idle,
                 "Sitting" => spriteConfig.Sitting,
                 "Petting" => spriteConfig.Petting,
+                "Shearing" => spriteConfig.Shearing,
+                "Milking" => spriteConfig.Milking,
                 _ => null
             };
         }

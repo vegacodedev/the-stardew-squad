@@ -75,6 +75,8 @@ namespace TheStardewSquad.Framework.NpcConfig.Models
         public object Idle { get; set; }
         public object Sitting { get; set; }
         public object Petting { get; set; }
+        public object Shearing { get; set; }
+        public object Milking { get; set; }
     }
 
     /// <summary>

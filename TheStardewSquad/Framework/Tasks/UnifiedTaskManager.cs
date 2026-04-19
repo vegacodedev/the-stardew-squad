@@ -173,6 +173,20 @@ namespace TheStardewSquad.Framework.Tasks
                         return new SquadTask(TaskType.Petting, pettingTarget.Value, pettingInteractionPoint.Value);
                     break;
 
+                case TaskType.Shearing:
+                    var (shearTarget, shearInteractionPoint) = TaskManager.FindShearableAnimal(
+                        locationInfo, npcPosition, npcPosition, searchRadius, claimedTaskTargets);
+                    if (shearTarget.HasValue && shearInteractionPoint.HasValue)
+                        return new SquadTask(TaskType.Shearing, shearTarget.Value, shearInteractionPoint.Value);
+                    break;
+
+                case TaskType.Milking:
+                    var (milkTarget, milkInteractionPoint) = TaskManager.FindMilkableAnimal(
+                        locationInfo, npcPosition, npcPosition, searchRadius, claimedTaskTargets);
+                    if (milkTarget.HasValue && milkInteractionPoint.HasValue)
+                        return new SquadTask(TaskType.Milking, milkTarget.Value, milkInteractionPoint.Value);
+                    break;
+
                 case TaskType.Foraging:
                     var (forageTarget, forageInteractionPoint) = TaskManager.FindForageableTarget(
                         locationInfo, playerPosition, npcPosition, searchRadius, claimedTaskTargets);

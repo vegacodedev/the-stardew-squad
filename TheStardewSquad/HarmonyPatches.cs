@@ -27,6 +27,8 @@ namespace TheStardewSquad.Patches
         private static ModEntry _modEntry;
         private static int _lastPlayerPettingTick = 0;
         private static int _lastPlayerHarvestingTick = 0;
+        private static int _lastPlayerShearingTick = 0;
+        private static int _lastPlayerMilkingTick = 0;
         private static int _ignoreHarvestDepth = 0;
         private static int _ignorePettingDepth = 0;
         private static long? _playerSittingStartTime = null;
@@ -64,6 +66,12 @@ namespace TheStardewSquad.Patches
 
         /// <summary>Ends ignoring petting actions. Always call in finally block.</summary>
         public static void EndIgnorePetting() => _ignorePettingDepth = Math.Max(0, _ignorePettingDepth - 1);
+
+        /// <summary>Gets the last game tick when the player sheared an animal.</summary>
+        public static int GetLastPlayerShearingTick() => _lastPlayerShearingTick;
+
+        /// <summary>Gets the last game tick when the player milked an animal.</summary>
+        public static int GetLastPlayerMilkingTick() => _lastPlayerMilkingTick;
 
         /// <summary>
         /// Updates player sitting state tracking. Call this from FollowerManager.OnUpdateTicked
@@ -236,6 +244,18 @@ namespace TheStardewSquad.Patches
             harmony.Patch(
                 original: AccessTools.Method(typeof(Crop), nameof(Crop.harvest)),
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Crop_Harvest_Postfix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Tools.Shears), nameof(StardewValley.Tools.Shears.DoFunction)),
+                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Shears_DoFunction_Prefix)),
+                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Shears_DoFunction_Postfix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Tools.MilkPail), nameof(StardewValley.Tools.MilkPail.DoFunction)),
+                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(MilkPail_DoFunction_Prefix)),
+                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(MilkPail_DoFunction_Postfix))
             );
 
             harmony.Patch(
@@ -1104,6 +1124,36 @@ namespace TheStardewSquad.Patches
                     _lastPlayerPettingTick = Game1.ticks;
                 }
             }
+        }
+
+        #endregion
+
+        #region Animal Harvesting Patches
+
+        private static void Shears_DoFunction_Prefix(StardewValley.Tools.Shears __instance, out FarmAnimal __state)
+        {
+            __state = __instance.animal;
+        }
+
+        private static void Shears_DoFunction_Postfix(FarmAnimal __state, Farmer who)
+        {
+            if (who != Game1.player || __state == null || __state.currentProduce.Value != null)
+                return;
+
+            _lastPlayerShearingTick = Game1.ticks;
+        }
+
+        private static void MilkPail_DoFunction_Prefix(StardewValley.Tools.MilkPail __instance, out FarmAnimal __state)
+        {
+            __state = __instance.animal;
+        }
+
+        private static void MilkPail_DoFunction_Postfix(FarmAnimal __state, Farmer who)
+        {
+            if (who != Game1.player || __state == null || __state.currentProduce.Value != null)
+                return;
+
+            _lastPlayerMilkingTick = Game1.ticks;
         }
 
         #endregion

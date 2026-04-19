@@ -326,7 +326,7 @@ namespace TheStardewSquad.Framework.NpcConfig
             if (npcConfig.Behavior?.AllowedTasks == null)
             {
                 // Default: all tasks allowed
-                var defaultTasks = "Watering, Lumbering, Mining, Attacking, Harvesting, Foraging, Fishing, Petting, Sitting";
+                var defaultTasks = "Watering, Lumbering, Mining, Attacking, Harvesting, Foraging, Fishing, Petting, Sitting, Shearing, Milking";
                 return defaultTasks;
             }
 
@@ -379,7 +379,7 @@ namespace TheStardewSquad.Framework.NpcConfig
             }
 
             // Fallback: all tasks allowed
-            var fallbackTasks = "Watering, Lumbering, Mining, Attacking, Harvesting, Foraging, Fishing, Petting, Sitting";
+            var fallbackTasks = "Watering, Lumbering, Mining, Attacking, Harvesting, Foraging, Fishing, Petting, Sitting, Shearing, Milking";
             _monitor.Log($"[Behavior] {npc.Name} no conditions matched, using fallback (all tasks)", LogLevel.Trace);
             return fallbackTasks;
         }

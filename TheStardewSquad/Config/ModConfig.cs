@@ -74,6 +74,8 @@ public sealed class ModConfig
     public TaskMode FishingMode { get; set; } = TaskMode.Mimicking;
     public TaskMode PettingMode { get; set; } = TaskMode.Mimicking;
     public TaskMode SittingMode { get; set; } = TaskMode.Mimicking;
+    public TaskMode ShearingMode { get; set; } = TaskMode.Mimicking;
+    public TaskMode MilkingMode { get; set; } = TaskMode.Mimicking;
 
     /// <summary>
     /// Number of tiles around beehouses where flowers are protected from harvesting.

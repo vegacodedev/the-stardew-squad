@@ -147,6 +147,8 @@ namespace TheStardewSquad.Framework
                 TaskType.Lumbering => _taskService.IsPlayerLumbering(),
                 TaskType.Harvesting => _taskService.IsPlayerHarvesting(),
                 TaskType.Petting => _taskService.IsPlayerPetting(),
+                TaskType.Shearing => _taskService.IsPlayerShearing(),
+                TaskType.Milking => _taskService.IsPlayerMilking(),
                 TaskType.Attacking => _taskService.IsPlayerInCombat(),
                 TaskType.Sitting => _taskService.IsPlayerSitting(),
                 _ => false
@@ -179,6 +181,8 @@ namespace TheStardewSquad.Framework
                 TaskType.Mining,
                 TaskType.Harvesting,
                 TaskType.Petting,
+                TaskType.Shearing,
+                TaskType.Milking,
                 TaskType.Attacking,
                 TaskType.Fishing,
                 TaskType.Sitting

@@ -277,6 +277,26 @@ namespace TheStardewSquad.Config
                 allowedValues: Enum.GetNames(typeof(TaskMode)),
                 formatAllowedValue: value => _helper.Translation.Get($"config.taskMode.option.{value}")
             );
+
+            configMenu.AddTextOption(
+                mod: _modEntry.ModManifest,
+                getValue: () => _modEntry.Config.ShearingMode.ToString(),
+                setValue: value => _modEntry.Config.ShearingMode = (TaskMode)Enum.Parse(typeof(TaskMode), value),
+                name: () => _helper.Translation.Get("config.shearingMode.name"),
+                tooltip: () => _helper.Translation.Get("config.shearingMode.description"),
+                allowedValues: Enum.GetNames(typeof(TaskMode)),
+                formatAllowedValue: value => _helper.Translation.Get($"config.taskMode.option.{value}")
+            );
+
+            configMenu.AddTextOption(
+                mod: _modEntry.ModManifest,
+                getValue: () => _modEntry.Config.MilkingMode.ToString(),
+                setValue: value => _modEntry.Config.MilkingMode = (TaskMode)Enum.Parse(typeof(TaskMode), value),
+                name: () => _helper.Translation.Get("config.milkingMode.name"),
+                tooltip: () => _helper.Translation.Get("config.milkingMode.description"),
+                allowedValues: Enum.GetNames(typeof(TaskMode)),
+                formatAllowedValue: value => _helper.Translation.Get($"config.taskMode.option.{value}")
+            );
         }
     }
 }

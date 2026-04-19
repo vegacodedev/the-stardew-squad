@@ -5,6 +5,7 @@ using StardewValley.Locations;
 using StardewValley.Monsters;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
+using StardewValley.Tools;
 using System.Collections.Generic;
 using System.Linq;
 using TheStardewSquad.Abstractions.Location;
@@ -18,6 +19,9 @@ namespace TheStardewSquad.Framework.Wrappers
     /// </summary>
     public class LocationInfoWrapper : ILocationInfo
     {
+        private static readonly Shears _sharedShears = new();
+        private static readonly MilkPail _sharedMilkPail = new();
+
         private readonly GameLocation _location;
         private readonly Character _character;
 
@@ -153,6 +157,51 @@ namespace TheStardewSquad.Framework.Wrappers
                     yield return (animal, animalTile);
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets all farm animals within a radius whose produce can be harvested with the given tool.
+        /// </summary>
+        private IEnumerable<(Character animal, Point tile)> GetHarvestableFarmAnimals(Point searchCenter, int radius, Tool tool)
+        {
+            var centerVec = searchCenter.ToVector2();
+            var farm = Game1.getFarm();
+            if (farm == null)
+                yield break;
+
+            foreach (var animal in farm.getAllFarmAnimals())
+            {
+                if (animal.currentLocation != _location)
+                    continue;
+
+                if (animal.currentProduce.Value == null || !animal.isAdult())
+                    continue;
+
+                if (!animal.CanGetProduceWithTool(tool))
+                    continue;
+
+                var animalTile = animal.TilePoint;
+                if (Vector2.Distance(centerVec, animalTile.ToVector2()) < radius)
+                {
+                    yield return (animal, animalTile);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets all farm animals within a radius that have produce ready to be harvested with shears.
+        /// </summary>
+        public IEnumerable<(Character animal, Point tile)> GetShearableAnimals(Point searchCenter, int radius)
+        {
+            return GetHarvestableFarmAnimals(searchCenter, radius, _sharedShears);
+        }
+
+        /// <summary>
+        /// Gets all farm animals within a radius that have produce ready to be harvested with a milk pail.
+        /// </summary>
+        public IEnumerable<(Character animal, Point tile)> GetMilkableAnimals(Point searchCenter, int radius)
+        {
+            return GetHarvestableFarmAnimals(searchCenter, radius, _sharedMilkPail);
         }
 
         /// <summary>

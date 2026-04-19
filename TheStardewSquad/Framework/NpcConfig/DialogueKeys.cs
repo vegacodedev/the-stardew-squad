@@ -19,5 +19,7 @@ namespace TheStardewSquad.Framework.NpcConfig
         public const string Harvesting = "Harvesting";
         public const string Foraging = "Foraging";
         public const string Petting = "Petting";
+        public const string Shearing = "Shearing";
+        public const string Milking = "Milking";
     }
 }

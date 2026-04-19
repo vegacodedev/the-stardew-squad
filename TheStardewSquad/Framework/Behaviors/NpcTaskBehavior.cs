@@ -44,6 +44,10 @@ namespace TheStardewSquad.Framework.Behaviors
                     return TaskManager.ExecuteFishingTask(mate);
                 case TaskType.Petting:
                     return TaskManager.ExecutePettingTask(mate, mate.Task.Tile);
+                case TaskType.Shearing:
+                    return TaskManager.ExecuteShearingTask(mate, mate.Task.Tile);
+                case TaskType.Milking:
+                    return TaskManager.ExecuteMilkingTask(mate, mate.Task.Tile);
                 case TaskType.Sitting:
                     return TaskManager.ExecuteSittingTask(mate, mate.Task.Tile);
                 default:

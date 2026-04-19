@@ -27,6 +27,12 @@ namespace TheStardewSquad.Abstractions.Tasks
         /// <summary>Checks if the player is currently petting animals.</summary>
         bool IsPlayerPetting();
 
+        /// <summary>Checks if the player is currently shearing animals.</summary>
+        bool IsPlayerShearing();
+
+        /// <summary>Checks if the player is currently milking animals.</summary>
+        bool IsPlayerMilking();
+
         /// <summary>Checks if the player is currently in combat.</summary>
         bool IsPlayerInCombat();
 
