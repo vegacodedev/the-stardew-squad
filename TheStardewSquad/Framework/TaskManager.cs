@@ -1021,9 +1021,8 @@ namespace TheStardewSquad.Framework
                 var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
                 FacePosition(npc, targetWorldPosition);
                 AnimateWatering(npc);
-
                 _spriteManager?.ApplyTaskAnimation(npc, "Watering", 400);
-                npc.shake(400);
+                npc.shake(230);
 
                 mate.ActionCooldown = 48;
 
@@ -1211,8 +1210,9 @@ namespace TheStardewSquad.Framework
                 var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
                 FacePosition(npc, targetWorldPosition);
                 AnimateLumbering(npc);
+                SpawnToolSwipeOverlay(npc);
                 _spriteManager?.ApplyTaskAnimation(npc, "Lumbering", 400);
-                npc.shake(400);
+                npc.shake(230);
                 mate.ActionCooldown = 48;
                 if (Game1.random.Next(10) == 0)
                 {
@@ -1221,6 +1221,73 @@ namespace TheStardewSquad.Framework
             }
 
             return taskCompleted;
+        }
+
+        /// <summary>
+        /// Spawns the vanilla-style tool-swipe overlay timed to land on the NPC's strike frame.
+        /// Mirrors Farmer.showToolSwipeEffect. Called once per task execution (not per-direction).
+        /// </summary>
+        /// <param name="npc">The NPC performing the task.</param>
+        private static void SpawnToolSwipeOverlay(NPC npc)
+        {
+            var location = npc.currentLocation;
+            if (location == null) return;
+
+            int facing = npc.FacingDirection;
+            float layerDepth = (npc.GetBoundingBox().Bottom + 2) / 10000f;
+
+            // Vanilla swipe arcs (TileSheets\animations) — mirrors Farmer.showToolSwipeEffect:
+            //   Right/Left: row 15 -> Rectangle(0, 960, 128, 128)
+            //   Down:       row 19 -> Rectangle(0, 1216, 128, 128)
+            //   Up:         row 18 -> Rectangle(0, 1152, 64, 64)
+            Rectangle sourceRect;
+            Vector2 positionOffset;
+            bool flipped = false;
+            float interval = 40f;
+
+            switch (facing)
+            {
+                case 1: // Right
+                    sourceRect = new Rectangle(0, 960, 128, 128);
+                    positionOffset = new Vector2(20f, -100f);
+                    break;
+                case 3: // Left
+                    sourceRect = new Rectangle(0, 960, 128, 128);
+                    positionOffset = new Vector2(-92f, -100f);
+                    flipped = true;
+                    break;
+                case 0: // Up
+                    sourceRect = new Rectangle(0, 1152, 64, 64);
+                    positionOffset = new Vector2(0f, -100f);
+                    interval = 50f;
+                    layerDepth = (npc.StandingPixel.Y - 9) / 10000f; // render behind NPC
+                    break;
+                case 2: // Down
+                default:
+                    sourceRect = new Rectangle(0, 1216, 128, 128);
+                    positionOffset = new Vector2(-4f, -96f);
+                    break;
+            }
+
+            location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                textureName: Game1.animationsName,
+                sourceRect: sourceRect,
+                animationInterval: interval,
+                animationLength: 4,
+                numberOfLoops: 0,
+                position: npc.Position + positionOffset,
+                flicker: false,
+                flipped: flipped,
+                layerDepth: layerDepth,
+                alphaFade: 0f,
+                color: Color.White,
+                scale: 1f,
+                scaleChange: 0f,
+                rotation: 0f,
+                rotationChange: 0f)
+            {
+                delayBeforeAnimationStart = 75 // aligns with strike frame
+            });
         }
 
         public static void AnimateLumbering(NPC npc)
@@ -1367,8 +1434,9 @@ namespace TheStardewSquad.Framework
                 var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
                 FacePosition(npc, targetWorldPosition);
                 AnimateMining(npc);
+                SpawnToolSwipeOverlay(npc);
                 _spriteManager?.ApplyTaskAnimation(npc, "Mining", 400);
-                npc.shake(400);
+                npc.shake(230);
                 mate.ActionCooldown = 48;
 
                 if (rock.minutesUntilReady.Value <= 0 && location.objects.ContainsKey(tileVector))

@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TheStardewSquad.Framework.NpcConfig.Models
 {
@@ -36,9 +39,13 @@ namespace TheStardewSquad.Framework.NpcConfig.Models
         public Dictionary<string, List<object>> FramesByDirection { get; set; }
 
         /// <summary>
-        /// Duration of each frame in milliseconds.
+        /// Frame duration(s) in milliseconds. Accepts either:
+        /// - A single number applied to every frame (e.g. 400)
+        /// - An array matching the frame count, one entry per frame (e.g. [150, 250])
+        /// If the array length does not match the direction's frame count, the first entry is used for all frames.
         /// </summary>
-        public int FrameDuration { get; set; }
+        [JsonConverter(typeof(FlexibleIntArrayConverter))]
+        public int[] FrameDuration { get; set; }
 
         /// <summary>
         /// Whether the animation loops.
@@ -68,5 +75,31 @@ namespace TheStardewSquad.Framework.NpcConfig.Models
         public object Idle { get; set; }
         public object Sitting { get; set; }
         public object Petting { get; set; }
+    }
+
+    /// <summary>
+    /// Deserializes either a single integer or an integer array into an int[].
+    /// </summary>
+    internal class FlexibleIntArrayConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType) => objectType == typeof(int[]);
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            JToken token = JToken.Load(reader);
+            if (token.Type == JTokenType.Integer)
+                return new[] { token.ToObject<int>() };
+            if (token.Type == JTokenType.Array)
+                return token.ToObject<int[]>();
+            return null;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            if (value is int[] arr && arr.Length == 1)
+                serializer.Serialize(writer, arr[0]);
+            else
+                serializer.Serialize(writer, value);
+        }
     }
 }

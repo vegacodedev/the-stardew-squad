@@ -31,7 +31,7 @@
                 "Up": [9, 8],
                 "Left": [13, 12]
               },
-              "FrameDuration": 400,
+              "FrameDuration": [ 150, 250 ],
               "Loop": false,
               "FallbackFrame": 0
             },
@@ -42,7 +42,7 @@
                 "Up": [9, 8],
                 "Left": [13, 12]
               },
-              "FrameDuration": 400,
+              "FrameDuration": [ 150, 250 ],
               "Loop": false,
               "FallbackFrame": 0
             },
@@ -53,7 +53,7 @@
                 "Up": [9, 8],
                 "Left": [13, 12]
               },
-              "FrameDuration": 400,
+              "FrameDuration": [ 150, 250 ],
               "Loop": false,
               "FallbackFrame": 0
             },

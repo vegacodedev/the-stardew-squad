@@ -5,9 +5,11 @@ This guide explains how to create a Content Patcher mod that customizes NPC beha
 ## Table of Contents
 
 **Getting Started**
+
 - [File Structure](#file-structure) | [content.json Basics](#contentjson-basics)
 
 **Dialogue**
+
 - [Level 1a: Basic Dialogue](#level-1a-basic-dialogue)
 - [Level 1b: Task-Specific Dialogue](#level-1b-task-specific-dialogue)
 - [Level 1c: Combat & Mining Dialogue](#level-1c-combat--mining-dialogue)
@@ -17,29 +19,35 @@ This guide explains how to create a Content Patcher mod that customizes NPC beha
 - [Level 6: Location-Specific Dialogue](#level-6-location-specific-dialogue)
 
 **Idle Animations**
+
 - [Level 2: Idle Animations](#level-2-idle-animations)
 - [Level 3: Idle Animations with Loop Control](#level-3-idle-animations-with-loop-control)
 - [Level 14: Conditional Idle Animations](#level-14-conditional-idle-animations)
 
 **Behavior & Recruitment**
+
 - [Level 7: Restrict Allowed Tasks](#level-7-restrict-allowed-tasks)
 - [Level 8: Conditional Allowed Tasks](#level-8-conditional-allowed-tasks)
 - [Level 9: Recruitment Requirements](#level-9-recruitment-requirements)
 - [Level 10: Disable Recruitment Entirely](#level-10-disable-recruitment-entirely)
 
 **Custom Sprites**
+
 - [Level 11: Custom Sprites (Simple)](#level-11-custom-sprites-simple)
 - [Level 12: Custom Sprites with Extension Sheet](#level-12-custom-sprites-with-extension-sheet)
 - [Level 13: Sprite Flipping](#level-13-sprite-flipping-mirror-left-from-right)
 
 **Pets**
+
 - [Level 15: Pet Configuration (Species-Wide)](#level-15-pet-configuration-species-wide)
 - [Level 16: Pet Configuration (Breed-Specific)](#level-16-pet-configuration-breed-specific)
 
 **Advanced**
+
 - [Level 17: Full Customization](#level-17-full-customization)
 
 **Reference**
+
 - [Registering Custom Animations](#registering-custom-animations)
 - [Key Concepts](#key-concepts)
 
@@ -386,6 +394,29 @@ Use custom frames from the NPC's base sprite sheet. No `ExtensionSheet` = uses v
         "Left": [13, 12]
       },
       "FrameDuration": 300,
+      "Loop": false
+    }
+  }
+}
+```
+
+### Per-Frame Durations (Optional)
+
+`FrameDuration` accepts either a single number (applied to every frame) or an array matching the frame count (one entry per frame) — useful when different frames should hold for different lengths of time, like a short wind-up followed by a longer strike.
+
+When the array length doesn't match the frame count, the first entry is used for every frame.
+
+```json
+"Clint": {
+  "Sprites": {
+    "Mining": {
+      "FramesByDirection": {
+        "Down": [1, 0],
+        "Right": [5, 4],
+        "Up": [9, 8],
+        "Left": [13, 12]
+      },
+      "FrameDuration": [150, 250],
       "Loop": false
     }
   }

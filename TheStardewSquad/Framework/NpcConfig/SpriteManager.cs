@@ -255,19 +255,22 @@ namespace TheStardewSquad.Framework.NpcConfig
                 if (frames != null && frames.Count > 0)
                 {
                     var animationFrames = new List<FarmerSprite.AnimationFrame>();
+                    int[] durations = spriteConfig.FrameDuration ?? new[] { frameDuration };
+                    bool perFrame = durations.Length == frames.Count;
 
                     // Create animation frames from config with flip support
                     for (int i = 0; i < frames.Count; i++)
                     {
                         var (frameIndex, flip) = frames[i];
                         bool isLastFrame = (i == frames.Count - 1);
+                        int thisDuration = perFrame ? durations[i] : durations[0];
 
                         // If this is the last frame and Loop is true, add end function to restart animation
                         if (isLastFrame && spriteConfig.Loop)
                         {
                             animationFrames.Add(new FarmerSprite.AnimationFrame(
                                 frameIndex,
-                                spriteConfig.FrameDuration,
+                                thisDuration,
                                 false, // secondaryArm
                                 flip,
                                 (_) => npc.Sprite.setCurrentAnimation(animationFrames) // end function callback
@@ -277,7 +280,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                         {
                             animationFrames.Add(new FarmerSprite.AnimationFrame(
                                 frameIndex,
-                                spriteConfig.FrameDuration,
+                                thisDuration,
                                 false, // secondaryArm
                                 flip
                             ));
@@ -320,9 +323,29 @@ namespace TheStardewSquad.Framework.NpcConfig
 
             // Calculate which frame we should be on based on time
             int frameCount = frames.Count;
-            int frameDuration = spriteConfig.FrameDuration;
+            int[] durations = spriteConfig.FrameDuration ?? new[] { 400 };
             long elapsedMs = (long)Game1.currentGameTime.TotalGameTime.TotalMilliseconds;
-            int frameIndex = (int)((elapsedMs / frameDuration) % frameCount);
+
+            int frameIndex;
+            if (durations.Length == frameCount)
+            {
+                // Per-frame durations: find which frame we're in within the cycle
+                int cycleMs = 0;
+                for (int i = 0; i < durations.Length; i++) cycleMs += durations[i];
+                long within = elapsedMs % cycleMs;
+                frameIndex = 0;
+                long acc = 0;
+                for (int i = 0; i < durations.Length; i++)
+                {
+                    acc += durations[i];
+                    if (within < acc) { frameIndex = i; break; }
+                }
+            }
+            else
+            {
+                // Single duration applied to all frames
+                frameIndex = (int)((elapsedMs / durations[0]) % frameCount);
+            }
 
             var (targetFrame, flip) = frames[frameIndex];
 
