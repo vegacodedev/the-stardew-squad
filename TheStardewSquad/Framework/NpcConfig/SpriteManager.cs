@@ -53,8 +53,8 @@ namespace TheStardewSquad.Framework.NpcConfig
                 var npcSprite = GetSpriteForTask(npcConfig.Sprites, taskType, npc);
                 if (npcSprite != null)
                 {
-                    // Check if this sprite requires vanilla NPC texture
-                    if (!npcSprite.IsVanilla || _vanillaSpriteDetector.IsVanillaSprite(npc.getTextureName()))
+                    // Check if the sprite texture matches - either fully vanilla or fully retextured
+                    if (npcSprite.IsVanilla == _vanillaSpriteDetector.IsVanillaSprite(npc.getTextureName()))
                     {
                         return npcSprite;
                     }

@@ -21,6 +21,7 @@
   <ItemGroup>
     <None Include="manifest.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="i18n\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="assets\**\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <Target Name="DeployMods" AfterTargets="AfterBuild" Condition="'$(GameModsPath)' != ''">
@@ -30,11 +31,22 @@
     </ItemGroup>
     <Copy SourceFiles="@(MainModFiles)" DestinationFolder="$(GameModsPath)\The Stardew Squad\TheStardewSquad\%(RecursiveDir)" SkipUnchangedFiles="true" />
 
-    <!-- Deploy Content Patcher addon -->
+    <!-- Deploy Content Patcher addon (ships with the main mod) -->
     <ItemGroup>
       <ContentAddonFiles Include="..\[CP] TheStardewSquad.ContentAddons\**\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(ContentAddonFiles)" DestinationFolder="$(GameModsPath)\The Stardew Squad\[CP] TheStardewSquad.ContentAddons\%(RecursiveDir)" SkipUnchangedFiles="true" />
+
+    <!-- Deploy per-NPC CP packs as standalone top-level mods (posted separately). -->
+    <ItemGroup>
+      <HaleyPackFiles Include="..\[CP] TheStardewSquad.Haley\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(HaleyPackFiles)" DestinationFolder="$(GameModsPath)\[CP] TheStardewSquad.Haley\%(RecursiveDir)" SkipUnchangedFiles="true" />
+
+    <ItemGroup>
+      <HarveyPackFiles Include="..\[CP] TheStardewSquad.Harvey\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(HarveyPackFiles)" DestinationFolder="$(GameModsPath)\[CP] TheStardewSquad.Harvey\%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
 
 </Project>

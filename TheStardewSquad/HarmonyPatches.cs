@@ -769,7 +769,7 @@ namespace TheStardewSquad.Patches
 
             bool hasWaterProperty = location?.doesTileHaveProperty(currentTile.X, currentTile.Y, "Water", "Back") != null;
 
-            // Bridges sit on Water tiles but are marked Passable="T" on Buildings — followers should walk, not sink.
+            // Bridges sit on Water tiles but are marked Passable="T" on Buildings
             string bridgePassable = location?.doesTileHaveProperty(currentTile.X, currentTile.Y, "Passable", "Buildings");
             bool isPassableBridge = bridgePassable != null && bridgePassable.Equals("T", StringComparison.OrdinalIgnoreCase);
 
@@ -1380,9 +1380,8 @@ namespace TheStardewSquad.Patches
         }
 
         /// <summary>
-        /// Flag-gated override: drop horse StandingPixel.Y below the rider's during Horse.draw
-        /// so the body sprite's layer depth lands under the player. Shadow/emote positioning
-        /// read Position directly and stay put.
+        /// Drop horse StandingPixel.Y below the rider's during Horse.draw
+        /// so the body sprite's layer depth lands under the player.
         /// </summary>
         public static void Horse_StandingPixel_Postfix(Character __instance, ref Point __result)
         {

@@ -1254,10 +1254,7 @@ namespace TheStardewSquad.Framework
             int facing = npc.FacingDirection;
             float layerDepth = (npc.GetBoundingBox().Bottom + 2) / 10000f;
 
-            // Vanilla swipe arcs (TileSheets\animations) — mirrors Farmer.showToolSwipeEffect:
-            //   Right/Left: row 15 -> Rectangle(0, 960, 128, 128)
-            //   Down:       row 19 -> Rectangle(0, 1216, 128, 128)
-            //   Up:         row 18 -> Rectangle(0, 1152, 64, 64)
+            // Vanilla swipe arcs (TileSheets\animations) mirrors Farmer.showToolSwipeEffect
             Rectangle sourceRect;
             Vector2 positionOffset;
             bool flipped = false;

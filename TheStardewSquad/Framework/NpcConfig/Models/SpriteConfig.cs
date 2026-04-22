@@ -75,7 +75,7 @@ namespace TheStardewSquad.Framework.NpcConfig.Models
         /// the character in the frame.
         /// When null, the anchor defaults to (SpriteWidth/2, SpriteHeight) — i.e. the
         /// bottom-center of the frame — which reproduces the prior behavior for stock 16x32 sprites.
-        /// Only consulted by the Sitting sprite config when the NPC is riding.
+        /// For now only consulted by the Sitting sprite config when the NPC is riding.
         /// </summary>
         public SpritePixelPoint AnchorPixel { get; set; }
     }

@@ -1,0 +1,22 @@
+{
+  "Name": "The Stardew Squad: Haley",
+  "Author": "ThaliaFawnheart",
+  "Version": "1.0.0",
+  "Description": "Adds dialogue content for Haley for The Stardew Squad.",
+  "UniqueID": "ThaliaFawnheart.TheStardewSquad.Haley",
+  "UpdateKeys": ["Nexus:45295"],
+  "ContentPackFor": {
+    "UniqueID": "Pathoschild.ContentPatcher"
+  },
+  "Dependencies": [
+    {
+      "UniqueID": "ThaliaFawnheart.TheStardewSquad",
+      "MinimumVersion": "0.11.0",
+      "IsRequired": true
+    },
+    {
+      "UniqueID": "TheStardewSquad.ContentAddons",
+      "IsRequired": true
+    }
+  ]
+}

@@ -1162,8 +1162,6 @@ namespace TheStardewSquad.Framework
             float anchorX = ridingCfg?.AnchorPixel?.X ?? (spriteWidth / 2f);
             float anchorY = ridingCfg?.AnchorPixel?.Y ?? spriteHeight;
 
-            // The sprite's draw pivot is at sprite pixel (SpriteWidth/2, SpriteHeight*3/4) and renders at
-            // npc.Position + (SpriteWidth*4/2, boundingBox.Height/2) + drawOffset.
             // Solve for drawOffset so AnchorPixel lands at: player.Position + saddleAnchor - (0, wobble).
             float pivotBaseX = spriteWidth * 4f / 2f;
             float pivotBaseY = npc.GetBoundingBox().Height / 2f;
