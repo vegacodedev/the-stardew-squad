@@ -288,7 +288,8 @@ namespace TheStardewSquad.Framework
 
         public void OnUpdateTicked(object? sender, EventArgs e)
         {
-            if (!_gameStateService.IsWorldReady || this._squadManager.Count == 0) return;
+            if (!_gameStateService.IsWorldReady) return;
+            if (this._squadManager.Count == 0 && this._waitingNpcsManager.Count == 0) return;
 
             // If a cutscene just ended, warp the squad to the player's new position.
             if (this._wasInCutscene && !_gameStateService.IsEventUp)
