@@ -38,6 +38,19 @@ namespace TheStardewSquad.Framework
         // Tick interval constants for update loop timing
         private const int SlowTickInterval = 15;
         private const int FastTickInterval = 2;
+
+        /// <summary>
+        /// Per-direction saddle anchor for the Riding task.
+        /// World-pixel position (relative to player.Position) where the NPC sprite's AnchorPixel will land.
+        /// Key = Character.FacingDirection (0=Up, 1=Right, 2=Down, 3=Left).
+        /// </summary>
+        private static readonly Dictionary<int, Vector2> RidingSaddleAnchorByDirection = new()
+        {
+            { 0, new Vector2(50f,  24f) }, // Up
+            { 1, new Vector2(24f, 16f) }, // Right
+            { 2, new Vector2(50f, -4f) }, // Down
+            { 3, new Vector2(88f, 16f) }, // Left
+        };
         private const int MimickingTaskDurationTicks = 40; // 40 slow ticks = 10 seconds (40 * 15 frames / 60 FPS)
 
         private bool _wasInFestival = false;
@@ -1050,8 +1063,8 @@ namespace TheStardewSquad.Framework
 
             if (isPlayerRiding && !_wasPlayerRiding)
             {
-                // Player just mounted — assign the first non-pet squad member to ride
-                var firstMate = _squadManager.Members.FirstOrDefault(m => m.Npc is not Pet);
+                // Player just mounted — assign the first squad member to ride
+                var firstMate = _squadManager.Members.FirstOrDefault();
                 if (firstMate != null)
                 {
                     ClearMateTaskAndReset(firstMate);
@@ -1127,37 +1140,37 @@ namespace TheStardewSquad.Framework
             float depthOffset = 8f;
             npc.Position = new Vector2(player.Position.X, player.Position.Y + depthOffset);
 
-            float xDrawOffset;
-            float yDrawOffset = 0f;
-            switch (player.FacingDirection)
-            {
-                case 0: // Up
-                    xDrawOffset = 18f;
-                    yDrawOffset = -8f;
-                    break;
-                case 2: // Down
-                    xDrawOffset = 18f;
-                    yDrawOffset = -14f;
-                    break;
-                case 1: // Right
-                    xDrawOffset = -8f;
-                    break;
-                case 3: // Left
-                    xDrawOffset = 56f;
-                    break;
-                default:
-                    xDrawOffset = 18f;
-                    break;
-            }
-            npc.drawOffset = new Vector2(xDrawOffset, -32f - depthOffset + yDrawOffset - wobble);
+            // Saddle anchor: world-pixel position (relative to player.Position) where the NPC sprite's AnchorPixel sits.
+            Vector2 saddleAnchor = RidingSaddleAnchorByDirection.TryGetValue(player.FacingDirection, out var a)
+                ? a
+                : RidingSaddleAnchorByDirection[2]; // Down as fallback
 
             npc.faceDirection(player.FacingDirection);
 
+            // Apply the sprite sheet before computing drawOffset so SpriteWidth/SpriteHeight reflect the in-use sheet.
             bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(npc, mate, player.FacingDirection) ?? false;
             if (!usedCustomSprite)
             {
                 _spriteManager?.ForceApplyTaskAnimation(npc, "Sitting");
             }
+
+            // Resolve the sprite pixel that sits on the saddle anchor. Default: bottom-center of the frame.
+            int spriteWidth = npc.Sprite?.SpriteWidth > 0 ? npc.Sprite.SpriteWidth : 16;
+            int spriteHeight = npc.Sprite?.SpriteHeight > 0 ? npc.Sprite.SpriteHeight : 32;
+            var ridingCfg = _spriteManager?.GetTaskSpriteConfig(npc, "Sitting");
+            float anchorX = ridingCfg?.AnchorPixel?.X ?? (spriteWidth / 2f);
+            float anchorY = ridingCfg?.AnchorPixel?.Y ?? spriteHeight;
+
+            // The sprite's draw pivot is at sprite pixel (SpriteWidth/2, SpriteHeight*3/4) and renders at
+            // npc.Position + (SpriteWidth*4/2, boundingBox.Height/2) + drawOffset.
+            // Solve for drawOffset so AnchorPixel lands at: player.Position + saddleAnchor - (0, wobble).
+            float pivotBaseX = spriteWidth * 4f / 2f;
+            float pivotBaseY = npc.GetBoundingBox().Height / 2f;
+
+            npc.drawOffset = new Vector2(
+                saddleAnchor.X - pivotBaseX - (anchorX - spriteWidth / 2f) * 4f,
+                saddleAnchor.Y - depthOffset - wobble - pivotBaseY - (anchorY - spriteHeight * 3f / 4f) * 4f
+            );
         }
 
         #endregion

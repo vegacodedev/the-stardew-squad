@@ -6,6 +6,17 @@ using Newtonsoft.Json.Linq;
 namespace TheStardewSquad.Framework.NpcConfig.Models
 {
     /// <summary>
+    /// A 2D point in sprite-local pixel coordinates (unscaled).
+    /// X = pixels from the left edge of the sprite frame.
+    /// Y = pixels from the top edge of the sprite frame.
+    /// </summary>
+    public class SpritePixelPoint
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+    }
+
+    /// <summary>
     /// Sprite animation frame configuration.
     /// Supports custom sprite animations with optional horizontal flipping.
     /// </summary>
@@ -56,6 +67,17 @@ namespace TheStardewSquad.Framework.NpcConfig.Models
         /// Frame index from original NPC sheet to use if extension sheet fails to load.
         /// </summary>
         public int FallbackFrame { get; set; }
+
+        /// <summary>
+        /// Optional anchor pixel used by the Riding task to align the NPC on the horse saddle.
+        /// The chosen sprite pixel (X, Y) is pinned to the riding target so sprites of any
+        /// height can be placed precisely regardless of how much empty space is above/below
+        /// the character in the frame.
+        /// When null, the anchor defaults to (SpriteWidth/2, SpriteHeight) — i.e. the
+        /// bottom-center of the frame — which reproduces the prior behavior for stock 16x32 sprites.
+        /// Only consulted by the Sitting sprite config when the NPC is riding.
+        /// </summary>
+        public SpritePixelPoint AnchorPixel { get; set; }
     }
 
     /// <summary>
