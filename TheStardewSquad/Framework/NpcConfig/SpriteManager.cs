@@ -267,7 +267,6 @@ namespace TheStardewSquad.Framework.NpcConfig
                         bool isLastFrame = (i == frames.Count - 1);
                         int thisDuration = perFrame ? durations[i] : durations[0];
 
-                        // If this is the last frame and Loop is true, add end function to restart animation
                         if (isLastFrame && spriteConfig.Loop)
                         {
                             animationFrames.Add(new FarmerSprite.AnimationFrame(
@@ -276,6 +275,23 @@ namespace TheStardewSquad.Framework.NpcConfig
                                 false, // secondaryArm
                                 flip,
                                 (_) => npc.Sprite.setCurrentAnimation(animationFrames) // end function callback
+                            ));
+                        }
+                        else if (isLastFrame)
+                        {
+                            // Loop: false — pin the last frame so Stardew's animator doesn't wrap back to frame 0.
+                            int freezeFrame = frameIndex;
+                            animationFrames.Add(new FarmerSprite.AnimationFrame(
+                                frameIndex,
+                                thisDuration,
+                                false, // secondaryArm
+                                flip,
+                                (_) =>
+                                {
+                                    npc.Sprite.StopAnimation();
+                                    npc.Sprite.currentFrame = freezeFrame;
+                                    npc.Sprite.CurrentFrame = freezeFrame;
+                                }
                             ));
                         }
                         else

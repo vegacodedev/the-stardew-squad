@@ -92,13 +92,13 @@
             },
             "Fishing": {
               "FramesByDirection": {
-                "Down": [0, 1],
-                "Right": [4, 5],
-                "Up": [8, 9],
-                "Left": [12, 13]
+                "Down": [0],
+                "Right": [4],
+                "Up": [8],
+                "Left": [12]
               },
               "FrameDuration": 600,
-              "Loop": true,
+              "Loop": false,
               "FallbackFrame": 0
             },
             "Sitting": {
