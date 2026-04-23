@@ -35,6 +35,7 @@ namespace TheStardewSquad.Framework.Squad
         public bool IsInPool { get; set; }
         public Point? LastTilePoint { get; set; }
         public bool WasWearingIslandAttireBeforeSwimming { get; set; }
+        public bool IsRidingWithPlayer { get; set; }
         public string? OriginalTexture { get; set; }
 
         public SquadMate(NPC npc, ITaskBehavior taskBehavior, IInteractionBehavior interactionBehavior, ICommunicationBehavior communicationBehavior)
@@ -91,6 +92,10 @@ namespace TheStardewSquad.Framework.Squad
         public void Halt()
         {
             this.IsAnimating = false;
+            // Clear the int.MaxValue sentinel set by PlayIdleAnimation for looping idles,
+            // otherwise the mate gets wedged on cooldown forever.
+            if (this.ActionCooldown == int.MaxValue)
+                this.ActionCooldown = 0;
             Npc.Halt();
         }
     }

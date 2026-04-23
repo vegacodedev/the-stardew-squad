@@ -2,7 +2,7 @@
   "Name": "Content Addons for The Stardew Squad",
   "Author": "ThaliaFawnheart",
   "Version": "1.0.0",
-  "Description": "Adds content addons for the Stardew Squad",
+  "Description": "Ships baseline sitting sprites and custom animation descriptions for The Stardew Squad.",
   "UniqueID": "TheStardewSquad.ContentAddons",
   "ContentPackFor": {
     "UniqueID": "Pathoschild.ContentPatcher"
@@ -10,7 +10,7 @@
   "Dependencies": [
     {
       "UniqueID": "ThaliaFawnheart.TheStardewSquad",
-      "MinimumVersion": "0.10.0",
+      "MinimumVersion": "0.11.0",
       "IsRequired": true
     }
   ]

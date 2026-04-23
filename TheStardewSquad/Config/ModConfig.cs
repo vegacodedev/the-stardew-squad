@@ -36,6 +36,8 @@ public sealed class ModConfig
 
     public KeybindList OpenSquadInventoryKey { get; set; } = KeybindList.Parse("LeftAlt+E");
 
+    public bool UseVanillaDialogueUI { get; set; } = false;
+
     public KeybindList TasksToggleKey { get; set; } = KeybindList.Parse("LeftAlt+F");
 
     public bool TasksEnabled { get; set; } = true;
@@ -61,6 +63,8 @@ public sealed class ModConfig
 
     public bool EnableSitting { get; set; } = true;
 
+    public bool EnableRiding { get; set; } = true;
+
     public TaskMode WateringMode { get; set; } = TaskMode.Mimicking;
     public TaskMode LumberingMode { get; set; } = TaskMode.Mimicking;
     public TaskMode MiningMode { get; set; } = TaskMode.Mimicking;
@@ -70,6 +74,8 @@ public sealed class ModConfig
     public TaskMode FishingMode { get; set; } = TaskMode.Mimicking;
     public TaskMode PettingMode { get; set; } = TaskMode.Mimicking;
     public TaskMode SittingMode { get; set; } = TaskMode.Mimicking;
+    public TaskMode ShearingMode { get; set; } = TaskMode.Mimicking;
+    public TaskMode MilkingMode { get; set; } = TaskMode.Mimicking;
 
     /// <summary>
     /// Number of tiles around beehouses where flowers are protected from harvesting.

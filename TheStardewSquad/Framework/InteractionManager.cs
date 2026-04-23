@@ -5,6 +5,7 @@ using StardewValley;
 using StardewValley.Characters;
 using StardewValley.Extensions;
 using StardewValley.TerrainFeatures;
+using StardewValley.Tools;
 using TheStardewSquad.Abstractions.Core;
 using TheStardewSquad.Abstractions.UI;
 using TheStardewSquad.Framework.NpcConfig;
@@ -16,6 +17,9 @@ namespace TheStardewSquad.Framework
 {
     public class InteractionManager
     {
+        private static readonly Shears _sharedShears = new();
+        private static readonly MilkPail _sharedMilkPail = new();
+
         private readonly IModHelper _helper;
         private readonly SquadManager _squadManager;
         private readonly BehaviorManager _behaviorManager;
@@ -152,6 +156,12 @@ namespace TheStardewSquad.Framework
                 targetObjectTile = monster.TilePoint;
                 targetCharacter = monster;
             }
+            else if (FindAnimalTaskAt(location, tile) is var animalMatch && animalMatch.taskType.HasValue)
+            {
+                taskType = animalMatch.taskType;
+                targetObjectTile = animalMatch.animalTile;
+                targetCharacter = animalMatch.animal!;
+            }
             else if (location.objects.TryGetValue(tile.ToVector2(), out var obj))
             {
                 if (obj.Name == "Twig")
@@ -249,6 +259,49 @@ namespace TheStardewSquad.Framework
             bestMate.Path.Clear();
             bestMate.ActionCooldown = 0;
             bestMate.CurrentMoveDirection = -1;
+        }
+
+        private static (TaskType? taskType, Point? animalTile, Character? animal) FindAnimalTaskAt(GameLocation location, Point tile)
+        {
+            Rectangle tileBounds = new(tile.X * 64, tile.Y * 64, 64, 64);
+
+            var farm = Game1.getFarm();
+            if (farm != null)
+            {
+                var animal = farm.getAllFarmAnimals()
+                    .FirstOrDefault(a => a.currentLocation == location
+                        && a.GetBoundingBox().Intersects(tileBounds));
+
+                if (animal != null)
+                {
+                    var animalTile = animal.TilePoint;
+
+                    if (animal.isAdult() && animal.currentProduce.Value != null)
+                    {
+                        if (animal.CanGetProduceWithTool(_sharedMilkPail))
+                            return (TaskType.Milking, animalTile, animal);
+                        if (animal.CanGetProduceWithTool(_sharedShears))
+                            return (TaskType.Shearing, animalTile, animal);
+                    }
+
+                    if (!animal.wasPet.Value)
+                        return (TaskType.Petting, animalTile, animal);
+                }
+            }
+
+            var pet = location.characters.OfType<Pet>()
+                .FirstOrDefault(p => p.GetBoundingBox().Intersects(tileBounds));
+
+            if (pet != null)
+            {
+                bool alreadyPettedToday = pet.lastPetDay.TryGetValue(Game1.player.UniqueMultiplayerID, out var lastDay)
+                    && lastDay == Game1.Date.TotalDays;
+
+                if (!alreadyPettedToday)
+                    return (TaskType.Petting, pet.TilePoint, pet);
+            }
+
+            return (null, null, null);
         }
 
         public void ShowSquadInventory()

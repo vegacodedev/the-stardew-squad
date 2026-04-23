@@ -15,13 +15,15 @@ namespace TheStardewSquad.Framework.Tasks
         private static readonly TaskType[] PriorityOrder = new[]
         {
             TaskType.Harvesting,  // Priority #1 - Harvest ready crops first
-            TaskType.Lumbering,   // Priority #2 - Chop trees and clear debris
-            TaskType.Watering,    // Priority #3 - Water crops
-            TaskType.Petting,     // Priority #4 - Pet animals
-            TaskType.Foraging,    // Priority #5 - Gather forage items
-            TaskType.Mining,      // Priority #6 - Break rocks
-            TaskType.Fishing,     // Priority #7 - Fish
-            TaskType.Sitting      // Priority #8 - Sit on furniture (lowest priority)
+            TaskType.Shearing,    // Priority #2 - Shear sheep
+            TaskType.Milking,     // Priority #3 - Milk cows and goats
+            TaskType.Lumbering,   // Priority #4 - Chop trees and clear debris
+            TaskType.Watering,    // Priority #5 - Water crops
+            TaskType.Petting,     // Priority #6 - Pet animals
+            TaskType.Foraging,    // Priority #7 - Gather forage items
+            TaskType.Mining,      // Priority #8 - Break rocks
+            TaskType.Fishing,     // Priority #9 - Fish
+            TaskType.Sitting      // Priority #10 - Sit on furniture (lowest priority)
         };
 
         /// <summary>
@@ -84,6 +86,8 @@ namespace TheStardewSquad.Framework.Tasks
                 TaskType.Lumbering => config.LumberingMode,
                 TaskType.Watering => config.WateringMode,
                 TaskType.Petting => config.PettingMode,
+                TaskType.Shearing => config.ShearingMode,
+                TaskType.Milking => config.MilkingMode,
                 TaskType.Foraging => config.ForagingMode,
                 TaskType.Mining => config.MiningMode,
                 TaskType.Fishing => config.FishingMode,

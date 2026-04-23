@@ -1,0 +1,22 @@
+{
+  "Name": "The Stardew Squad: Harvey",
+  "Author": "ThaliaFawnheart",
+  "Version": "1.0.0",
+  "Description": "Adds dialogue content for Harvey for The Stardew Squad.",
+  "UniqueID": "ThaliaFawnheart.TheStardewSquad.Harvey",
+  "UpdateKeys": ["Nexus:45296"],
+  "ContentPackFor": {
+    "UniqueID": "Pathoschild.ContentPatcher"
+  },
+  "Dependencies": [
+    {
+      "UniqueID": "ThaliaFawnheart.TheStardewSquad",
+      "MinimumVersion": "0.11.0",
+      "IsRequired": true
+    },
+    {
+      "UniqueID": "TheStardewSquad.ContentAddons",
+      "IsRequired": true
+    }
+  ]
+}

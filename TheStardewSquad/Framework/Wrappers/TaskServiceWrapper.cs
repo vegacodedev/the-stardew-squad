@@ -22,6 +22,10 @@ namespace TheStardewSquad.Framework.Wrappers
 
         public bool IsPlayerPetting() => TaskManager.IsPlayerPetting();
 
+        public bool IsPlayerShearing() => TaskManager.IsPlayerShearing();
+
+        public bool IsPlayerMilking() => TaskManager.IsPlayerMilking();
+
         public bool IsPlayerInCombat() => TaskManager.IsPlayerInCombat();
 
         public bool IsPlayerSitting() => TaskManager.IsPlayerSitting();

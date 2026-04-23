@@ -14,7 +14,9 @@ namespace TheStardewSquad.Framework.Squad
         Following,
         Fishing,
         Petting,
-        Sitting
+        Sitting,
+        Shearing,
+        Milking
     }
 
     public class SquadTask

@@ -51,6 +51,14 @@ namespace TheStardewSquad.Config
                 tooltip: () => _helper.Translation.Get("config.useSquadInventory.description")
             );
 
+            configMenu.AddBoolOption(
+                mod: _modEntry.ModManifest,
+                getValue: () => _modEntry.Config.UseVanillaDialogueUI,
+                setValue: value => _modEntry.Config.UseVanillaDialogueUI = value,
+                name: () => _helper.Translation.Get("config.useVanillaDialogueUI.name"),
+                tooltip: () => _helper.Translation.Get("config.useVanillaDialogueUI.description")
+            );
+
             configMenu.AddKeybindList(
                 mod: _modEntry.ModManifest,
                 getValue: () => _modEntry.Config.OpenSquadInventoryKey,
@@ -157,6 +165,14 @@ namespace TheStardewSquad.Config
                 tooltip: () => _helper.Translation.Get("config.enableSitting.description")
             );
 
+            configMenu.AddBoolOption(
+                mod: _modEntry.ModManifest,
+                getValue: () => _modEntry.Config.EnableRiding,
+                setValue: value => _modEntry.Config.EnableRiding = value,
+                name: () => _helper.Translation.Get("config.enableRiding.name"),
+                tooltip: () => _helper.Translation.Get("config.enableRiding.description")
+            );
+
             configMenu.AddTextOption(
                 mod: _modEntry.ModManifest,
                 getValue: () => _modEntry.Config.DisableTrashRummagingReaction.ToString(),
@@ -258,6 +274,26 @@ namespace TheStardewSquad.Config
                 setValue: value => _modEntry.Config.PettingMode = (TaskMode)Enum.Parse(typeof(TaskMode), value),
                 name: () => _helper.Translation.Get("config.pettingMode.name"),
                 tooltip: () => _helper.Translation.Get("config.pettingMode.description"),
+                allowedValues: Enum.GetNames(typeof(TaskMode)),
+                formatAllowedValue: value => _helper.Translation.Get($"config.taskMode.option.{value}")
+            );
+
+            configMenu.AddTextOption(
+                mod: _modEntry.ModManifest,
+                getValue: () => _modEntry.Config.ShearingMode.ToString(),
+                setValue: value => _modEntry.Config.ShearingMode = (TaskMode)Enum.Parse(typeof(TaskMode), value),
+                name: () => _helper.Translation.Get("config.shearingMode.name"),
+                tooltip: () => _helper.Translation.Get("config.shearingMode.description"),
+                allowedValues: Enum.GetNames(typeof(TaskMode)),
+                formatAllowedValue: value => _helper.Translation.Get($"config.taskMode.option.{value}")
+            );
+
+            configMenu.AddTextOption(
+                mod: _modEntry.ModManifest,
+                getValue: () => _modEntry.Config.MilkingMode.ToString(),
+                setValue: value => _modEntry.Config.MilkingMode = (TaskMode)Enum.Parse(typeof(TaskMode), value),
+                name: () => _helper.Translation.Get("config.milkingMode.name"),
+                tooltip: () => _helper.Translation.Get("config.milkingMode.description"),
                 allowedValues: Enum.GetNames(typeof(TaskMode)),
                 formatAllowedValue: value => _helper.Translation.Get($"config.taskMode.option.{value}")
             );

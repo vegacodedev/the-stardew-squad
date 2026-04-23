@@ -74,6 +74,22 @@ namespace TheStardewSquad.Abstractions.Location
         IEnumerable<(StardewValley.Character animal, Point tile)> GetUnpettedFarmAnimals(Point searchCenter, int radius);
 
         /// <summary>
+        /// Gets all farm animals within a radius that have produce ready to be harvested with shears.
+        /// </summary>
+        /// <param name="searchCenter">The center point of the search area.</param>
+        /// <param name="radius">The radius in tiles to search.</param>
+        /// <returns>Enumerable of tuples containing the animal character and its tile position.</returns>
+        IEnumerable<(StardewValley.Character animal, Point tile)> GetShearableAnimals(Point searchCenter, int radius);
+
+        /// <summary>
+        /// Gets all farm animals within a radius that have produce ready to be harvested with a milk pail.
+        /// </summary>
+        /// <param name="searchCenter">The center point of the search area.</param>
+        /// <param name="radius">The radius in tiles to search.</param>
+        /// <returns>Enumerable of tuples containing the animal character and its tile position.</returns>
+        IEnumerable<(StardewValley.Character animal, Point tile)> GetMilkableAnimals(Point searchCenter, int radius);
+
+        /// <summary>
         /// Gets the player's pet (cat/dog) if it's unpetted and within radius of a center point.
         /// Returns null if there's no pet, it's already been petted today, or it's not in this location.
         /// </summary>

@@ -1,10 +1,7 @@
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
-using StardewValley.Menus;
-using System.Collections.Generic;
 using TheStardewSquad.Abstractions.Character;
-using TheStardewSquad.Abstractions.UI;
 using TheStardewSquad.Framework.Squad;
 using TheStardewSquad.Framework.UI;
 
@@ -17,40 +14,33 @@ namespace TheStardewSquad.Framework.Behaviors
         private readonly SquadManager _squadManager;
         private readonly InteractionManager _interactionManager;
         private readonly ISquadMateStateHelper _stateHelper;
-        private readonly IUIService _uiService;
+        private readonly SquadMemberPrompt _memberPrompt;
 
-        public PetInteractionBehavior(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, ISquadMateStateHelper stateHelper, IUIService uiService)
+        public PetInteractionBehavior(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, ISquadMateStateHelper stateHelper, SquadMemberPrompt memberPrompt)
         {
             this._helper = helper;
             this._recruitmentManager = recruitmentManager;
             this._squadManager = squadManager;
             this._interactionManager = interactionManager;
             this._stateHelper = stateHelper;
-            this._uiService = uiService;
+            this._memberPrompt = memberPrompt;
         }
 
         public void HandleRecruitment(ISquadMate mate, Farmer player)
         {
             var npc = mate.Npc;
 
-            var menu = new SquadMemberMenu(_helper, mate, false, (action) =>
+            _memberPrompt.PromptForRecruitment(mate, player, () =>
             {
-                if (action == "recruit")
-                {
-                    this._recruitmentManager.Recruit(mate);
-                    var message = _helper.Translation.Get("recruitment.petRecruited", new { name = npc.Name });
-                    Game1.showGlobalMessage(message);
-                }
+                this._recruitmentManager.Recruit(mate);
+                var message = _helper.Translation.Get("recruitment.petRecruited", new { name = npc.Name });
+                Game1.showGlobalMessage(message);
             });
-
-            Game1.activeClickableMenu = menu;
         }
 
         public void HandleManagement(ISquadMate mate)
         {
-            var npc = mate.Npc;
-
-            var menu = new SquadMemberMenu(_helper, mate, true, (action) =>
+            _memberPrompt.PromptForManagement(mate, action =>
             {
                 if (action == "inventory")
                 {
@@ -72,8 +62,6 @@ namespace TheStardewSquad.Framework.Behaviors
                     this._recruitmentManager.SetWaiting(mate);
                 }
             });
-
-            Game1.activeClickableMenu = menu;
         }
 
         public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior)

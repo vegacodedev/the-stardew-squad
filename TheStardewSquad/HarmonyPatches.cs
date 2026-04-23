@@ -27,10 +27,13 @@ namespace TheStardewSquad.Patches
         private static ModEntry _modEntry;
         private static int _lastPlayerPettingTick = 0;
         private static int _lastPlayerHarvestingTick = 0;
+        private static int _lastPlayerShearingTick = 0;
+        private static int _lastPlayerMilkingTick = 0;
         private static int _ignoreHarvestDepth = 0;
         private static int _ignorePettingDepth = 0;
         private static long? _playerSittingStartTime = null;
         private static bool _wasPlayerSitting = false;
+        private static bool _lowerHorseBodyDepth = false;
 
         #endregion
 
@@ -63,6 +66,12 @@ namespace TheStardewSquad.Patches
 
         /// <summary>Ends ignoring petting actions. Always call in finally block.</summary>
         public static void EndIgnorePetting() => _ignorePettingDepth = Math.Max(0, _ignorePettingDepth - 1);
+
+        /// <summary>Gets the last game tick when the player sheared an animal.</summary>
+        public static int GetLastPlayerShearingTick() => _lastPlayerShearingTick;
+
+        /// <summary>Gets the last game tick when the player milked an animal.</summary>
+        public static int GetLastPlayerMilkingTick() => _lastPlayerMilkingTick;
 
         /// <summary>
         /// Updates player sitting state tracking. Call this from FollowerManager.OnUpdateTicked
@@ -188,8 +197,16 @@ namespace TheStardewSquad.Patches
             );
 
             harmony.Patch(
-                original: AccessTools.Method(typeof(NPC), nameof(NPC.getHitByPlayer)),
+                original: AccessTools.Method(typeof(NPC), nameof(NPC.getHitByPlayer), new Type[] { typeof(Farmer), typeof(GameLocation) }),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(GetHitByPlayer_Prefix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Projectiles.BasicProjectile), "behaviorOnCollisionWithMonster"),
+                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(BasicProjectile_BehaviorOnCollisionWithMonster_Prefix))
+                {
+                    priority = Priority.High  // Should hopefully play nice with SpaceCore - disables the behavior only if the NPC is in the Squad.
+                }
             );
 
             harmony.Patch(
@@ -227,6 +244,18 @@ namespace TheStardewSquad.Patches
             harmony.Patch(
                 original: AccessTools.Method(typeof(Crop), nameof(Crop.harvest)),
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Crop_Harvest_Postfix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Tools.Shears), nameof(StardewValley.Tools.Shears.DoFunction)),
+                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Shears_DoFunction_Prefix)),
+                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Shears_DoFunction_Postfix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Tools.MilkPail), nameof(StardewValley.Tools.MilkPail.DoFunction)),
+                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(MilkPail_DoFunction_Prefix)),
+                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(MilkPail_DoFunction_Postfix))
             );
 
             harmony.Patch(
@@ -312,6 +341,34 @@ namespace TheStardewSquad.Patches
                     original: petDrawMethod,
                     transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(NPC_Draw_LogDepth_Transpiler))
                 );
+            }
+
+            // Lower horse-body depth when riding Down with a recruited mate (body would otherwise show above the player and the NPC for some reason).
+            var horseDrawMethod = AccessTools.Method(typeof(Horse), nameof(Horse.draw), new Type[] { typeof(Microsoft.Xna.Framework.Graphics.SpriteBatch) });
+            if (horseDrawMethod != null)
+            {
+                harmony.Patch(
+                    original: horseDrawMethod,
+                    prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Horse_Draw_Prefix)),
+                    postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Horse_Draw_Postfix))
+                );
+            }
+            else
+            {
+                _modEntry.Monitor.Log("Failed to find Horse.draw() method", StardewModdingAPI.LogLevel.Error);
+            }
+
+            var standingPixelGetter = AccessTools.PropertyGetter(typeof(Character), nameof(Character.StandingPixel));
+            if (standingPixelGetter != null)
+            {
+                harmony.Patch(
+                    original: standingPixelGetter,
+                    postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Horse_StandingPixel_Postfix))
+                );
+            }
+            else
+            {
+                _modEntry.Monitor.Log("Failed to find Character.StandingPixel property getter", StardewModdingAPI.LogLevel.Error);
             }
         }
 
@@ -659,13 +716,21 @@ namespace TheStardewSquad.Patches
         /// <summary>Prevents recruited squad members from reacting negatively to being hit by the player's slingshot.</summary>
         private static bool GetHitByPlayer_Prefix(NPC __instance)
         {
-            // If the NPC is recruited, block the original method (return false).
             if (_squadManager.IsRecruited(__instance))
             {
                 return false;
             }
 
-            // Otherwise, let the original method run for non-squad members.
+            return true;
+        }
+
+        private static bool BasicProjectile_BehaviorOnCollisionWithMonster_Prefix(NPC n)
+        {
+            if (n != null && _squadManager.IsRecruited(n))
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -702,11 +767,13 @@ namespace TheStardewSquad.Patches
             }
             mate.LastTilePoint = currentTile;
 
-            // Check if NPC is on a water tile (Back layer property for oceans/rivers/lakes)
             bool hasWaterProperty = location?.doesTileHaveProperty(currentTile.X, currentTile.Y, "Water", "Back") != null;
 
-            // NPC should swim if on water tile OR in pool (Spa)
-            bool shouldSwim = hasWaterProperty || mate.IsInPool;
+            // Bridges sit on Water tiles but are marked Passable="T" on Buildings
+            string bridgePassable = location?.doesTileHaveProperty(currentTile.X, currentTile.Y, "Passable", "Buildings");
+            bool isPassableBridge = bridgePassable != null && bridgePassable.Equals("T", StringComparison.OrdinalIgnoreCase);
+
+            bool shouldSwim = (hasWaterProperty && !isPassableBridge) || mate.IsInPool;
 
             // Track previous swimming state to detect transitions
             bool wasSwimming = __instance.swimming.Value;
@@ -1061,6 +1128,36 @@ namespace TheStardewSquad.Patches
 
         #endregion
 
+        #region Animal Harvesting Patches
+
+        private static void Shears_DoFunction_Prefix(StardewValley.Tools.Shears __instance, out FarmAnimal __state)
+        {
+            __state = __instance.animal;
+        }
+
+        private static void Shears_DoFunction_Postfix(FarmAnimal __state, Farmer who)
+        {
+            if (who != Game1.player || __state == null || __state.currentProduce.Value != null)
+                return;
+
+            _lastPlayerShearingTick = Game1.ticks;
+        }
+
+        private static void MilkPail_DoFunction_Prefix(StardewValley.Tools.MilkPail __instance, out FarmAnimal __state)
+        {
+            __state = __instance.animal;
+        }
+
+        private static void MilkPail_DoFunction_Postfix(FarmAnimal __state, Farmer who)
+        {
+            if (who != Game1.player || __state == null || __state.currentProduce.Value != null)
+                return;
+
+            _lastPlayerMilkingTick = Game1.ticks;
+        }
+
+        #endregion
+
         #region Crop Harvesting Patches
 
         /// <summary>
@@ -1178,9 +1275,8 @@ namespace TheStardewSquad.Patches
         /// </summary>
         public static float AdjustSittingNpcDepth(float npcDepth, StardewValley.Character character)
         {
-            // Only apply if player is sitting
             var player = Game1.player;
-            if (player == null || (player.sittingFurniture == null && !player.isSitting.Value))
+            if (player == null)
                 return npcDepth;
 
             // Only apply if there's at least one squad member
@@ -1189,6 +1285,23 @@ namespace TheStardewSquad.Patches
 
             // Only apply to NPCs that are squad members
             if (!_squadManager.IsRecruited(character))
+                return npcDepth;
+
+            // Riding Down: slot the mate behind the player. Anchoring off horse
+            // body depth would be unsafe because drawLayerDisambiguator is 0 in single-player.
+            if (character is StardewValley.NPC ridingNpc
+                && player.isRidingHorse()
+                && player.FacingDirection == 2
+                && player.mount != null)
+            {
+                var mate = _squadManager.GetMember(ridingNpc);
+                if (mate != null && mate.IsRidingWithPlayer)
+                {
+                    return MathF.BitDecrement(player.getDrawLayer());
+                }
+            }
+
+            if (player.sittingFurniture == null && !player.isSitting.Value)
                 return npcDepth;
 
             if (character is StardewValley.NPC npc)
@@ -1241,6 +1354,44 @@ namespace TheStardewSquad.Patches
                 }
             }
             return npcDepth; // Return unchanged for non-sitting NPCs
+        }
+
+        private static bool IsHorseCarryingRidingMateFacingDown(Horse horse)
+        {
+            if (horse == null || horse.rider == null) return false;
+            if (horse.rider.FacingDirection != 2) return false;
+            if (_squadManager == null || _squadManager.Count == 0) return false;
+            foreach (var member in _squadManager.Members)
+            {
+                if (member.IsRidingWithPlayer) return true;
+            }
+            return false;
+        }
+
+        public static void Horse_Draw_Prefix(Horse __instance)
+        {
+            if (IsHorseCarryingRidingMateFacingDown(__instance))
+                _lowerHorseBodyDepth = true;
+        }
+
+        public static void Horse_Draw_Postfix()
+        {
+            _lowerHorseBodyDepth = false;
+        }
+
+        /// <summary>
+        /// Drop horse StandingPixel.Y below the rider's during Horse.draw
+        /// so the body sprite's layer depth lands under the player.
+        /// </summary>
+        public static void Horse_StandingPixel_Postfix(Character __instance, ref Point __result)
+        {
+            if (!_lowerHorseBodyDepth) return;
+            if (__instance is not Horse horse) return;
+            if (horse.rider == null) return;
+
+            int riderStandingY = horse.rider.StandingPixel.Y;
+            if (__result.Y >= riderStandingY)
+                __result = new Point(__result.X, riderStandingY - 1);
         }
 
         /// <summary>

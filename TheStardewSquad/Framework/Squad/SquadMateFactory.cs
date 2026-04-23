@@ -2,10 +2,9 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
 using TheStardewSquad.Abstractions.Character;
-using TheStardewSquad.Abstractions.UI;
 using TheStardewSquad.Framework.Behaviors;
 using TheStardewSquad.Framework.NpcConfig;
-using TheStardewSquad.Framework.Wrappers;
+using TheStardewSquad.Framework.UI;
 
 namespace TheStardewSquad.Framework.Squad
 {
@@ -23,18 +22,18 @@ namespace TheStardewSquad.Framework.Squad
 
         public SquadMateFactory(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, ModConfig config, InteractionManager interactionManager, BehaviorManager behaviorManager, ISquadMateStateHelper stateHelper, DialogueManager dialogueManager, IMonitor monitor)
         {
-            // Create UI service for interaction behaviors
-            IUIService uiService = new UIServiceWrapper(helper);
+            // Shared presenter routes between custom menu and vanilla dialogue based on config
+            var memberPrompt = new SquadMemberPrompt(helper, config, squadManager);
 
             // Instantiate NPC behaviors
             this._npcTaskBehavior = new NpcTaskBehavior(behaviorManager);
             this._npcCommunicationBehavior = new NpcCommunicationBehavior(config, dialogueManager, squadManager, monitor);
-            this._npcInteractionBehavior = new NpcInteractionBehavior(helper, monitor, recruitmentManager, squadManager, interactionManager, behaviorManager, stateHelper, dialogueManager);
+            this._npcInteractionBehavior = new NpcInteractionBehavior(helper, monitor, recruitmentManager, squadManager, interactionManager, behaviorManager, stateHelper, dialogueManager, config, memberPrompt);
 
             // Instantiate Pet behaviors
             this._petTaskBehavior = new PetTaskBehavior();
             this._petCommunicationBehavior = new PetCommunicationBehavior(config);
-            this._petInteractionBehavior = new PetInteractionBehavior(helper, recruitmentManager, squadManager, interactionManager, stateHelper, uiService);
+            this._petInteractionBehavior = new PetInteractionBehavior(helper, recruitmentManager, squadManager, interactionManager, stateHelper, memberPrompt);
         }
 
         /// <summary>Creates a new squad mate instance for a given character.</summary>
@@ -45,7 +44,7 @@ namespace TheStardewSquad.Framework.Squad
                 // Create a SquadMate with pet-specific behaviors
                 return new SquadMate(npc, _petTaskBehavior, _petInteractionBehavior, _petCommunicationBehavior);
             }
-            
+
             // Default to creating a SquadMate with standard NPC behaviors
             return new SquadMate(npc, _npcTaskBehavior, _npcInteractionBehavior, _npcCommunicationBehavior);
         }

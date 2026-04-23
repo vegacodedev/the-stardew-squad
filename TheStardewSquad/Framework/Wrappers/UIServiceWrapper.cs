@@ -1,7 +1,6 @@
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
-using System;
 using TheStardewSquad.Abstractions.UI;
 
 namespace TheStardewSquad.Framework.Wrappers
@@ -41,19 +40,6 @@ namespace TheStardewSquad.Framework.Wrappers
         public string GetTranslation(string key, object tokens)
         {
             return _helper.Translation.Get(key, tokens);
-        }
-
-        public void ShowQuestionDialog(string question, Response[] responses, Action<Farmer, string> onResponse)
-        {
-            // Stardew Valley's createQuestionDialogue uses afterQuestion for callbacks
-            // Store the callback and use afterQuestion event
-            Game1.currentLocation.afterQuestion = (Farmer who, string responseKey) =>
-            {
-                Game1.currentLocation.afterQuestion = null; // Clear after use
-                onResponse(who, responseKey);
-            };
-
-            Game1.currentLocation.createQuestionDialogue(question, responses, "petDismissalChoice");
         }
     }
 }

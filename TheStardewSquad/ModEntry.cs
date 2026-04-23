@@ -76,8 +76,12 @@ namespace TheStardewSquad
             // Utility services
             var randomSelector = factory.CreateRandomSelector();
 
+            // Load baseline NPC configuration bundled in the main mod (assets/NpcConfig/).
+            // Guarantees defaults exist before community CP packs layer on top.
+            var baseline = new BaselineContentLoader(helper, this.Monitor).Load();
+
             // Initialize NPC configuration managers (unified system)
-            this.NpcConfigManager = new NpcConfigManager(npcConfigDataProvider, this.Monitor);
+            this.NpcConfigManager = new NpcConfigManager(npcConfigDataProvider, baseline, this.Monitor);
             this.DialogueManager = new DialogueManager(this.NpcConfigManager, randomSelector, gameStateChecker, npcDialogueService, gameContext, this.Monitor);
             this.VanillaSpriteDetector = new VanillaSpriteDetector(this.Monitor);
             this.SpriteManager = new SpriteManager(this.NpcConfigManager, this.Monitor, gameStateChecker, gameContext, this.VanillaSpriteDetector);
@@ -90,6 +94,7 @@ namespace TheStardewSquad
             this.InteractionManager.SquadMateFactory = this.SquadMateFactory;
             this.FollowerManager = new FollowerManager(this.Monitor, this.SquadManager, this.WaitingNpcsManager, this.Config, this.DebrisCollector, this.UnifiedTaskManager, this.FormationManager, this.BehaviorManager, gameStateService, warpService, randomService, taskService, playerService);
             this.RecruitmentManager.SetFollowerManager(this.FollowerManager);
+            this.FollowerManager.SetSpriteManager(this.SpriteManager);
             this.AssetManager = new AssetManager();
             TaskManager.Initialize(this.Config, this.FollowerManager, this.SpriteManager);
             TaskManager.SetMonitor(this.Monitor);

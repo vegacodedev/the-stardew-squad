@@ -24,6 +24,9 @@ namespace TheStardewSquad.Abstractions.Core
         /// <summary>Gets whether the player is currently sitting on furniture or a bench.</summary>
         bool IsSitting { get; }
 
+        /// <summary>Gets whether the player is currently riding a horse.</summary>
+        bool IsRiding { get; }
+
         /// <summary>Gets the player's current tool.</summary>
         Tool CurrentTool { get; }
 

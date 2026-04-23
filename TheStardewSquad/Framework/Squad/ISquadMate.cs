@@ -32,6 +32,7 @@ namespace TheStardewSquad.Framework.Squad
         bool IsInPool { get; set; }
         Point? LastTilePoint { get; set; }
         bool WasWearingIslandAttireBeforeSwimming { get; set; }
+        bool IsRidingWithPlayer { get; set; }
 
         /// <summary>
         /// Stores the original texture asset path before a task sprite sheet was applied.

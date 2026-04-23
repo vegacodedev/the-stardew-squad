@@ -23,6 +23,9 @@ namespace TheStardewSquad.Framework
         private static StardewModdingAPI.IMonitor _monitor;
         private static NpcConfig.SpriteManager _spriteManager;
 
+        private static readonly Shears _sharedShears = new();
+        private static readonly MilkPail _sharedMilkPail = new();
+
         // Track NPCs sitting on furniture/mapseats for rendering purposes
         private static readonly Dictionary<ISittable, List<NPC>> _sittingNpcs = new Dictionary<ISittable, List<NPC>>();
 
@@ -212,8 +215,10 @@ namespace TheStardewSquad.Framework
         }
 
         /// <summary>Tries to add an item to the appropriate inventory based on the UseSquadInventory config setting.</summary>
-        /// <returns>True if the item was successfully added; false otherwise.</returns>
-        private static bool TryAddItemToInventory(Item item)
+        /// <param name="item">The item to add.</param>
+        /// <param name="dropIfFullAt">If provided, falls back to the player's inventory when the squad chest is full, and drops the item as debris at this NPC's position if both are full. Always returns true in that case.</param>
+        /// <returns>True if the item was successfully added (or dropped on the ground when <paramref name="dropIfFullAt"/> is set); false otherwise.</returns>
+        private static bool TryAddItemToInventory(Item item, NPC dropIfFullAt = null)
         {
             if (item == null)
                 return false;
@@ -221,12 +226,25 @@ namespace TheStardewSquad.Framework
             if (_config.UseSquadInventory)
             {
                 var squadChest = GetSquadChest();
-                return squadChest.addItem(item) == null;
+                if (squadChest.addItem(item) == null)
+                    return true;
+
+                if (dropIfFullAt == null)
+                    return false;
+
+                if (Game1.player.addItemToInventoryBool(item))
+                    return true;
             }
-            else
+            else if (Game1.player.addItemToInventoryBool(item))
             {
-                return Game1.player.addItemToInventoryBool(item);
+                return true;
             }
+
+            if (dropIfFullAt == null)
+                return false;
+
+            Game1.createItemDebris(item, dropIfFullAt.Position, -1, dropIfFullAt.currentLocation);
+            return true;
         }
 
         private static (Point target, Point? interactionPoint) CheckForTrellis(GameLocation location, Point target, NPC npc)
@@ -1021,9 +1039,8 @@ namespace TheStardewSquad.Framework
                 var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
                 FacePosition(npc, targetWorldPosition);
                 AnimateWatering(npc);
-
                 _spriteManager?.ApplyTaskAnimation(npc, "Watering", 400);
-                npc.shake(400);
+                npc.shake(230);
 
                 mate.ActionCooldown = 48;
 
@@ -1211,8 +1228,9 @@ namespace TheStardewSquad.Framework
                 var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
                 FacePosition(npc, targetWorldPosition);
                 AnimateLumbering(npc);
+                SpawnToolSwipeOverlay(npc);
                 _spriteManager?.ApplyTaskAnimation(npc, "Lumbering", 400);
-                npc.shake(400);
+                npc.shake(230);
                 mate.ActionCooldown = 48;
                 if (Game1.random.Next(10) == 0)
                 {
@@ -1221,6 +1239,70 @@ namespace TheStardewSquad.Framework
             }
 
             return taskCompleted;
+        }
+
+        /// <summary>
+        /// Spawns the vanilla-style tool-swipe overlay timed to land on the NPC's strike frame.
+        /// Mirrors Farmer.showToolSwipeEffect. Called once per task execution (not per-direction).
+        /// </summary>
+        /// <param name="npc">The NPC performing the task.</param>
+        private static void SpawnToolSwipeOverlay(NPC npc)
+        {
+            var location = npc.currentLocation;
+            if (location == null) return;
+
+            int facing = npc.FacingDirection;
+            float layerDepth = (npc.GetBoundingBox().Bottom + 2) / 10000f;
+
+            // Vanilla swipe arcs (TileSheets\animations) mirrors Farmer.showToolSwipeEffect
+            Rectangle sourceRect;
+            Vector2 positionOffset;
+            bool flipped = false;
+            float interval = 40f;
+
+            switch (facing)
+            {
+                case 1: // Right
+                    sourceRect = new Rectangle(0, 960, 128, 128);
+                    positionOffset = new Vector2(20f, -100f);
+                    break;
+                case 3: // Left
+                    sourceRect = new Rectangle(0, 960, 128, 128);
+                    positionOffset = new Vector2(-92f, -100f);
+                    flipped = true;
+                    break;
+                case 0: // Up
+                    sourceRect = new Rectangle(0, 1152, 64, 64);
+                    positionOffset = new Vector2(0f, -100f);
+                    interval = 50f;
+                    layerDepth = (npc.StandingPixel.Y - 9) / 10000f; // render behind NPC
+                    break;
+                case 2: // Down
+                default:
+                    sourceRect = new Rectangle(0, 1216, 128, 128);
+                    positionOffset = new Vector2(-4f, -96f);
+                    break;
+            }
+
+            location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                textureName: Game1.animationsName,
+                sourceRect: sourceRect,
+                animationInterval: interval,
+                animationLength: 4,
+                numberOfLoops: 0,
+                position: npc.Position + positionOffset,
+                flicker: false,
+                flipped: flipped,
+                layerDepth: layerDepth,
+                alphaFade: 0f,
+                color: Color.White,
+                scale: 1f,
+                scaleChange: 0f,
+                rotation: 0f,
+                rotationChange: 0f)
+            {
+                delayBeforeAnimationStart = 75 // aligns with strike frame
+            });
         }
 
         public static void AnimateLumbering(NPC npc)
@@ -1367,8 +1449,9 @@ namespace TheStardewSquad.Framework
                 var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
                 FacePosition(npc, targetWorldPosition);
                 AnimateMining(npc);
+                SpawnToolSwipeOverlay(npc);
                 _spriteManager?.ApplyTaskAnimation(npc, "Mining", 400);
-                npc.shake(400);
+                npc.shake(230);
                 mate.ActionCooldown = 48;
 
                 if (rock.minutesUntilReady.Value <= 0 && location.objects.ContainsKey(tileVector))
@@ -3086,6 +3169,156 @@ namespace TheStardewSquad.Framework
 
             // Clear the sitting animation flag so it can be reapplied next time
             npc.modData.Remove("TSS.SittingAnimationApplied");
+        }
+        #endregion
+
+        #region Shearing and Milking Tasks
+        /// <summary>Checks if the player has sheared an animal within the last 3 seconds.</summary>
+        public static bool IsPlayerShearing()
+        {
+            var player = Game1.player;
+            if (player == null) return false;
+
+            return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerShearingTick()) < 180;
+        }
+
+        /// <summary>Checks if the player has milked an animal within the last 3 seconds.</summary>
+        public static bool IsPlayerMilking()
+        {
+            var player = Game1.player;
+            if (player == null) return false;
+
+            return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerMilkingTick()) < 180;
+        }
+
+        /// <summary>Finds a nearby farm animal that has produce ready to shear.</summary>
+        public static (Point? target, Point? interactionPoint) FindShearableAnimal(
+            ILocationInfo locationInfo,
+            Point searchCenter,
+            Point npcPosition,
+            int searchRadius,
+            ISet<Point> claimedTaskTargets)
+        {
+            return FindHarvestableAnimal(locationInfo.GetShearableAnimals(searchCenter, searchRadius), locationInfo, npcPosition, claimedTaskTargets);
+        }
+
+        /// <summary>Finds a nearby farm animal that has produce ready to milk.</summary>
+        public static (Point? target, Point? interactionPoint) FindMilkableAnimal(
+            ILocationInfo locationInfo,
+            Point searchCenter,
+            Point npcPosition,
+            int searchRadius,
+            ISet<Point> claimedTaskTargets)
+        {
+            return FindHarvestableAnimal(locationInfo.GetMilkableAnimals(searchCenter, searchRadius), locationInfo, npcPosition, claimedTaskTargets);
+        }
+
+        private static (Point? target, Point? interactionPoint) FindHarvestableAnimal(
+            IEnumerable<(Character animal, Point tile)> animals,
+            ILocationInfo locationInfo,
+            Point npcPosition,
+            ISet<Point> claimedTaskTargets)
+        {
+            var candidates = new List<Point>();
+            foreach (var (animal, tile) in animals)
+            {
+                if (!claimedTaskTargets.Contains(tile))
+                {
+                    candidates.Add(tile);
+                }
+            }
+
+            if (!candidates.Any())
+                return (null, null);
+
+            var sortedCandidates = candidates
+                .OrderBy(tile => Vector2.DistanceSquared(tile.ToVector2(), npcPosition.ToVector2()));
+
+            foreach (var animalTile in sortedCandidates)
+            {
+                Point? interactionSpot = Pathfinding.AStarPathfinder.FindClosestPassableNeighbor(
+                    locationInfo, animalTile, npcPosition);
+
+                if (interactionSpot.HasValue)
+                {
+                    return (animalTile, interactionSpot.Value);
+                }
+            }
+
+            return (null, null);
+        }
+
+        public static bool ExecuteShearingTask(ISquadMate mate, Point tile)
+        {
+            return ExecuteAnimalHarvestTask(mate, tile, isMilking: false);
+        }
+
+        public static bool ExecuteMilkingTask(ISquadMate mate, Point tile)
+        {
+            return ExecuteAnimalHarvestTask(mate, tile, isMilking: true);
+        }
+
+        // Inline replication rather than calling Shears.DoFunction / MilkPail.DoFunction directly:
+        // vanilla hard-wires produce to the player's inventory, drains the passed Farmer's stamina, and hijacks their animation — none of which fits an NPC caller.
+        private static bool ExecuteAnimalHarvestTask(ISquadMate mate, Point tile, bool isMilking)
+        {
+            NPC npc = mate.Npc;
+            var location = npc.currentLocation;
+            var tileVector = tile.ToVector2();
+
+            Tool tool = isMilking ? (Tool)_sharedMilkPail : _sharedShears;
+            string taskName = isMilking ? "Milking" : "Shearing";
+            string soundName = isMilking ? "Milking" : "scissors";
+
+            FarmAnimal? targetAnimal = null;
+            var farm = Game1.getFarm();
+            if (farm != null)
+            {
+                targetAnimal = farm.getAllFarmAnimals()
+                    .FirstOrDefault(a => a.currentLocation == location && a.TilePoint == tile);
+            }
+
+            if (targetAnimal == null)
+                return true;
+
+            if (targetAnimal.currentProduce.Value == null || !targetAnimal.isAdult() || !targetAnimal.CanGetProduceWithTool(tool))
+                return true;
+
+            var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
+            FacePosition(npc, targetWorldPosition);
+
+            StardewValley.Object produce = ItemRegistry.Create<StardewValley.Object>("(O)" + targetAnimal.currentProduce.Value);
+            produce.CanBeSetDown = false;
+            produce.Quality = targetAnimal.produceQuality.Value;
+            if (targetAnimal.hasEatenAnimalCracker.Value)
+                produce.Stack = 2;
+
+            location.playSound(soundName);
+            if (isMilking) targetAnimal.doEmote(20);
+
+            int producedStack = produce.Stack;
+            TryAddItemToInventory(produce, npc);
+
+            targetAnimal.HandleStatsOnProduceCollected(produce, (uint)producedStack);
+            targetAnimal.currentProduce.Value = null;
+            location.playSound("coin");
+            targetAnimal.friendshipTowardFarmer.Value = Math.Min(1000, targetAnimal.friendshipTowardFarmer.Value + 5);
+            targetAnimal.ReloadTextureIfNeeded();
+            Game1.player.gainExperience(0, 5);
+
+            if (isMilking)
+                targetAnimal.pauseTimer = 1500;
+
+            _spriteManager?.ApplyTaskAnimation(npc, taskName, 400);
+            npc.shake(400);
+            mate.ActionCooldown = 120;
+
+            if (Game1.random.Next(7) == 0)
+            {
+                mate.Communicate(taskName);
+            }
+
+            return true;
         }
         #endregion
     }

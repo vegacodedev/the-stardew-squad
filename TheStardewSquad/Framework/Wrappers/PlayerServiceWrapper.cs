@@ -20,6 +20,8 @@ namespace TheStardewSquad.Framework.Wrappers
 
         public bool IsSitting => Game1.player.sittingFurniture != null || Game1.player.isSitting.Value;
 
+        public bool IsRiding => Game1.player.mount != null;
+
         public Tool CurrentTool => Game1.player.CurrentTool;
 
         public float MovementSpeed => Game1.player.getMovementSpeed();

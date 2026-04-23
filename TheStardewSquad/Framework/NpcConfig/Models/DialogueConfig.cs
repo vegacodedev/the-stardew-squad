@@ -38,6 +38,8 @@ namespace TheStardewSquad.Framework.NpcConfig.Models
         public List<object> Harvesting { get; set; }
         public List<object> Foraging { get; set; }
         public List<object> Petting { get; set; }
+        public List<object> Shearing { get; set; }
+        public List<object> Milking { get; set; }
         public List<object> FriendshipTooLow { get; set; }
         public List<object> RecruitmentRefusal { get; set; }
     }
