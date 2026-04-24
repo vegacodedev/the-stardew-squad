@@ -1057,6 +1057,11 @@ namespace TheStardewSquad.Patches
             if (mate == null)
                 return;
 
+            if (mate.IsRidingWithPlayer && _followerManager != null)
+            {
+                __instance.drawOffset = _followerManager.ComputeRidingDrawOffset(mate);
+            }
+
             // Handle fishing line rendering
             if (mate.Task?.Type == TaskType.Fishing)
             {

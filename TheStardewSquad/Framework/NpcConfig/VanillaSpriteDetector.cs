@@ -22,12 +22,14 @@ namespace TheStardewSquad.Framework.NpcConfig
         }
 
         /// <summary>
-        /// Checks if the specified NPC texture is vanilla (unmodified).
+        /// Checks if the NPC's current sprite is vanilla (unmodified). Pet-aware: villagers
+        /// are loaded from "Characters/...", pets from "Animals/..." (breed-dependent).
         /// </summary>
-        /// <param name="npcTextureName">The NPC's texture name (e.g., "Abigail", "Abigail_Beach").</param>
+        /// <param name="npc">The NPC (or Pet) whose sprite should be checked.</param>
         /// <returns>True if the texture is vanilla, false if it has been modified or on error.</returns>
-        public bool IsVanillaSprite(string npcTextureName)
+        public bool IsVanillaSprite(NPC npc)
         {
+            string assetPath = NpcTextureHelper.GetTextureAssetPath(npc);
             try
             {
                 // Create a separate content manager that bypasses SMAPI's content pipeline
@@ -37,8 +39,8 @@ namespace TheStardewSquad.Framework.NpcConfig
                     Game1.content.RootDirectory
                 );
 
-                var vanillaTexture = vanillaContent.Load<Texture2D>($"Characters/{npcTextureName}");
-                var currentTexture = Game1.content.Load<Texture2D>($"Characters/{npcTextureName}");
+                var vanillaTexture = vanillaContent.Load<Texture2D>(assetPath);
+                var currentTexture = Game1.content.Load<Texture2D>(assetPath);
 
                 var vanillaHash = ComputeTextureHash(vanillaTexture);
                 var currentHash = ComputeTextureHash(currentTexture);
@@ -47,7 +49,7 @@ namespace TheStardewSquad.Framework.NpcConfig
             }
             catch (Exception ex)
             {
-                _monitor.Log($"Error checking vanilla sprite for {npcTextureName}: {ex.Message}", LogLevel.Warn);
+                _monitor.Log($"Error checking vanilla sprite for {assetPath}: {ex.Message}", LogLevel.Warn);
                 // Assume retextured on error - safer to use fallback
                 return false;
             }
