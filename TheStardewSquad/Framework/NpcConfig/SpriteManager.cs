@@ -54,7 +54,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                 if (npcSprite != null)
                 {
                     // Check if the sprite texture matches - either fully vanilla or fully retextured
-                    if (npcSprite.IsVanilla == _vanillaSpriteDetector.IsVanillaSprite(npc.getTextureName()))
+                    if (npcSprite.IsVanilla == _vanillaSpriteDetector.IsVanillaSprite(npc))
                     {
                         return npcSprite;
                     }
@@ -485,10 +485,8 @@ namespace TheStardewSquad.Framework.NpcConfig
                 return false;
             }
 
-            // Store the original texture path for restoration
-            string npcTextureName = npc.getTextureName();
-            string currentTexturePath = "Characters/" + npcTextureName;
-            mate.OriginalTexture = currentTexturePath;
+            // Store the original texture path for restoration (pet-aware: pets live under Animals/)
+            mate.OriginalTexture = NpcTextureHelper.GetTextureAssetPath(npc);
 
             // Load the task sprite sheet
             if (npc.TryLoadSprites(assetPath, out string error))
