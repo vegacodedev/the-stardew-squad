@@ -51,6 +51,7 @@ namespace TheStardewSquad.Framework
             { 2, new Vector2(50f, -4f) }, // Down
             { 3, new Vector2(88f, 16f) }, // Left
         };
+
         private const int MimickingTaskDurationTicks = 40; // 40 slow ticks = 10 seconds (40 * 15 frames / 60 FPS)
 
         private bool _wasInFestival = false;
@@ -1121,10 +1122,31 @@ namespace TheStardewSquad.Framework
                 _warpService.WarpCharacter(npc, _playerService.CurrentLocation.Name, _playerService.TilePoint);
             }
 
-            // Wobble: sync to the horse's sprite animation index,
-            // exactly as Farmer.showRiding() sets yOffset.
+            // +Y offset layers the NPC in front of the player for Up/Left/Right.
+            // For Down, HarmonyPatches.AdjustSittingNpcDepth overrides depth to slot the NPC behind the player.
+            npc.Position = new Vector2(player.Position.X, player.Position.Y + 8f);
+
+            npc.faceDirection(player.FacingDirection);
+
+            bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(npc, mate, player.FacingDirection) ?? false;
+            if (!usedCustomSprite)
+            {
+                _spriteManager?.ForceApplyTaskAnimation(npc, "Sitting");
+            }
+        }
+
+        /// <summary>
+        /// Computes the riding draw offset for a squad mate. Invoked once per NPC.draw call.
+        /// </summary>
+        internal Vector2 ComputeRidingDrawOffset(ISquadMate mate)
+        {
+            var npc = mate.Npc;
+            var player = _playerService.Player;
+            if (player?.mount == null) return Vector2.Zero;
+
+            // Wobble: sync to the horse's sprite animation index (same formula as Farmer.showRiding).
             float wobble = 0f;
-            if (player.isMoving() && player.mount != null)
+            if (player.isMoving())
             {
                 wobble = player.mount.Sprite.currentAnimationIndex switch
                 {
@@ -1132,42 +1154,33 @@ namespace TheStardewSquad.Framework
                     2 => -4f,
                     4 => 4f,
                     5 => 4f,
-                    _ => 0f // frames 0 and 3
+                    _ => 0f
                 };
             }
 
-            // +Y offset layers the NPC in front of the player for Up/Left/Right.
-            // For Down, HarmonyPatches.AdjustSittingNpcDepth overrides depth to slot the NPC behind the player.
-            float depthOffset = 8f;
-            npc.Position = new Vector2(player.Position.X, player.Position.Y + depthOffset);
+            const float depthOffset = 8f;
 
-            // Saddle anchor: world-pixel position (relative to player.Position) where the NPC sprite's AnchorPixel sits.
             Vector2 saddleAnchor = RidingSaddleAnchorByDirection.TryGetValue(player.FacingDirection, out var a)
                 ? a
-                : RidingSaddleAnchorByDirection[2]; // Down as fallback
+                : RidingSaddleAnchorByDirection[2];
 
-            npc.faceDirection(player.FacingDirection);
-
-            // Apply the sprite sheet before computing drawOffset so SpriteWidth/SpriteHeight reflect the in-use sheet.
-            bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(npc, mate, player.FacingDirection) ?? false;
-            if (!usedCustomSprite)
-            {
-                _spriteManager?.ForceApplyTaskAnimation(npc, "Sitting");
-            }
-
-            // Resolve the sprite pixel that sits on the saddle anchor. Default: bottom-center of the frame.
             int spriteWidth = npc.Sprite?.SpriteWidth > 0 ? npc.Sprite.SpriteWidth : 16;
             int spriteHeight = npc.Sprite?.SpriteHeight > 0 ? npc.Sprite.SpriteHeight : 32;
             var ridingCfg = _spriteManager?.GetTaskSpriteConfig(npc, "Sitting");
             float anchorX = ridingCfg?.AnchorPixel?.X ?? (spriteWidth / 2f);
             float anchorY = ridingCfg?.AnchorPixel?.Y ?? spriteHeight;
 
-            // Solve for drawOffset so AnchorPixel lands at: player.Position + saddleAnchor - (0, wobble).
             float pivotBaseX = spriteWidth * 4f / 2f;
             float pivotBaseY = npc.GetBoundingBox().Height / 2f;
 
-            npc.drawOffset = new Vector2(
-                saddleAnchor.X - pivotBaseX - (anchorX - spriteWidth / 2f) * 4f,
+            // Compensation for mods that alter the horse's render-centering width
+            // (e.g., Horse Overhaul's ThinHorse)
+            int horseSpriteW = player.mount.Sprite?.SpriteWidth ?? 32;
+            int horseWidth = player.mount.GetSpriteWidthForPositioning();
+            float xDelta = 2 * (horseWidth - horseSpriteW);
+
+            return new Vector2(
+                saddleAnchor.X - pivotBaseX - (anchorX - spriteWidth / 2f) * 4f + xDelta,
                 saddleAnchor.Y - depthOffset - wobble - pivotBaseY - (anchorY - spriteHeight * 3f / 4f) * 4f
             );
         }
