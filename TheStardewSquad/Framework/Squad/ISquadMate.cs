@@ -41,6 +41,14 @@ namespace TheStardewSquad.Framework.Squad
         /// </summary>
         string? OriginalTexture { get; set; }
 
+        /// <summary>
+        /// The asset path of the task sprite sheet currently loaded onto the NPC (e.g. the resolved
+        /// Sitting ExtensionSheet). Null when no task sprite is active. Compared against
+        /// <c>Npc.Sprite.Texture.Name</c> on subsequent ticks to detect when an external mod or
+        /// content invalidation has overwritten the task texture, so it can be re-applied.
+        /// </summary>
+        string? AppliedTaskTexture { get; set; }
+
         // Behavior Methods
         bool CanPerformTask(TaskType type);
         bool ExecuteTask();
