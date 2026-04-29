@@ -44,7 +44,7 @@ namespace TheStardewSquad.Framework.NpcConfig
 
             if (this._npcConfigs.TryGetValue(npc.Name, out var config))
             {
-                this._monitor.Log($"[NpcConfig] Found custom config for '{npc.Name}'", LogLevel.Trace);
+                this._monitor.LogOnce($"[NpcConfig] Found custom config for '{npc.Name}'", LogLevel.Trace);
                 return config;
             }
 
@@ -53,19 +53,19 @@ namespace TheStardewSquad.Framework.NpcConfig
                 string breedKey = $"{pet.petType}_{pet.whichBreed.Value}";
                 if (this._npcConfigs.TryGetValue(breedKey, out var breedConfig))
                 {
-                    this._monitor.Log($"[NpcConfig] Found breed config '{breedKey}' for pet '{npc.Name}'", LogLevel.Trace);
+                    this._monitor.LogOnce($"[NpcConfig] Found breed config '{breedKey}' for pet '{npc.Name}'", LogLevel.Trace);
                     return breedConfig;
                 }
 
                 string speciesKey = $"All_{pet.petType}";
                 if (this._npcConfigs.TryGetValue(speciesKey, out var speciesConfig))
                 {
-                    this._monitor.Log($"[NpcConfig] Found species config '{speciesKey}' for pet '{npc.Name}'", LogLevel.Trace);
+                    this._monitor.LogOnce($"[NpcConfig] Found species config '{speciesKey}' for pet '{npc.Name}'", LogLevel.Trace);
                     return speciesConfig;
                 }
             }
 
-            this._monitor.Log($"[NpcConfig] No custom config for '{npc.Name}', returning empty config", LogLevel.Trace);
+            this._monitor.LogOnce($"[NpcConfig] No custom config for '{npc.Name}', returning empty config", LogLevel.Trace);
             return new NpcConfigData();
         }
 

@@ -61,7 +61,7 @@ namespace TheStardewSquad.Framework.NpcConfig
         /// <returns>Animation specification, or null if no animations available</returns>
         public IdleAnimationSpec GetRandomIdleAnimation(NPC npc)
         {
-            _monitor.Log($"[Behavior] Getting idle animation for {npc.Name}", LogLevel.Trace);
+            _monitor.LogOnce($"[Behavior] Getting idle animation for {npc.Name}", LogLevel.Trace);
 
             var genericConfig = _configManager.GetGenericConfig();
             var npcConfig = _configManager.GetConfig(npc);
@@ -76,16 +76,16 @@ namespace TheStardewSquad.Framework.NpcConfig
             {
                 var npcAnimations = GetMatchingIdleAnimations(npcConfig.Behavior.IdleAnimations, npc);
                 allAnimations.AddRange(npcAnimations);
-                _monitor.Log($"[Behavior] {npc.Name} has {npcAnimations.Count} idle animation(s) available after condition matching", LogLevel.Trace);
+                _monitor.LogOnce($"[Behavior] {npc.Name} has {npcAnimations.Count} idle animation(s) available after condition matching", LogLevel.Trace);
             }
             else
             {
-                _monitor.Log($"[Behavior] {npc.Name} has no idle animations defined", LogLevel.Trace);
+                _monitor.LogOnce($"[Behavior] {npc.Name} has no idle animations defined", LogLevel.Trace);
             }
 
             if (!allAnimations.Any())
             {
-                _monitor.Log($"[Behavior] No idle animations available for {npc.Name}", LogLevel.Trace);
+                _monitor.LogOnce($"[Behavior] No idle animations available for {npc.Name}", LogLevel.Trace);
                 return null;
             }
 
@@ -128,7 +128,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                             if (!string.IsNullOrWhiteSpace(condition) && condition.Contains("{CurrentNpc}"))
                             {
                                 condition = condition.Replace("{CurrentNpc}", npc.Name);
-                                _monitor.Log($"[Behavior] Replaced {{CurrentNpc}} placeholder in idle animation: {condition}", LogLevel.Trace);
+                                _monitor.LogOnce($"[Behavior] Replaced {{CurrentNpc}} placeholder in idle animation: {condition}", LogLevel.Trace);
                             }
 
                             bool conditionMet = string.IsNullOrWhiteSpace(condition) ||
@@ -320,7 +320,7 @@ namespace TheStardewSquad.Framework.NpcConfig
         /// <returns>Comma-separated list of allowed tasks</returns>
         public string GetAllowedTasks(NPC npc)
         {
-            _monitor.Log($"[Behavior] Getting allowed tasks for {npc.Name}", LogLevel.Trace);
+            _monitor.LogOnce($"[Behavior] Getting allowed tasks for {npc.Name}", LogLevel.Trace);
             var npcConfig = _configManager.GetConfig(npc);
 
             if (npcConfig.Behavior?.AllowedTasks == null)
@@ -335,21 +335,21 @@ namespace TheStardewSquad.Framework.NpcConfig
             // Case 1: Simple string (no conditions)
             if (allowedTasksValue is string simpleTasks)
             {
-                _monitor.Log($"[Behavior] {npc.Name} AllowedTasks: {simpleTasks}", LogLevel.Trace);
+                _monitor.LogOnce($"[Behavior] {npc.Name} AllowedTasks: {simpleTasks}", LogLevel.Trace);
                 return simpleTasks;
             }
 
             // Case 2: Priority array (first-match-wins)
             if (allowedTasksValue is JArray tasksArray)
             {
-                _monitor.Log($"[Behavior] {npc.Name} has conditional AllowedTasks (first-match-wins), evaluating...", LogLevel.Trace);
+                _monitor.LogOnce($"[Behavior] {npc.Name} has conditional AllowedTasks (first-match-wins), evaluating...", LogLevel.Trace);
 
                 foreach (var item in tasksArray)
                 {
                     if (item.Type == JTokenType.String)
                     {
                         var tasks = item.ToString();
-                        _monitor.Log($"[Behavior] {npc.Name} matched unconditional AllowedTasks: {tasks}", LogLevel.Trace);
+                        _monitor.LogOnce($"[Behavior] {npc.Name} matched unconditional AllowedTasks: {tasks}", LogLevel.Trace);
                         return tasks;
                     }
 
@@ -362,7 +362,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                         if (!string.IsNullOrWhiteSpace(condition) && condition.Contains("{CurrentNpc}"))
                         {
                             condition = condition.Replace("{CurrentNpc}", npc.Name);
-                            _monitor.Log($"[Behavior] Replaced {{CurrentNpc}} placeholder in allowed tasks: {condition}", LogLevel.Trace);
+                            _monitor.LogOnce($"[Behavior] Replaced {{CurrentNpc}} placeholder in allowed tasks: {condition}", LogLevel.Trace);
                         }
 
                         // No condition = default/fallback (always matches)
@@ -371,7 +371,7 @@ namespace TheStardewSquad.Framework.NpcConfig
 
                         if (conditionMet && !string.IsNullOrWhiteSpace(tasks))
                         {
-                            _monitor.Log($"[Behavior] {npc.Name} matched condition '{condition}', AllowedTasks: {tasks}", LogLevel.Trace);
+                            _monitor.LogOnce($"[Behavior] {npc.Name} matched condition '{condition}', AllowedTasks: {tasks}", LogLevel.Trace);
                             return tasks; // First match wins!
                         }
                     }
@@ -380,7 +380,7 @@ namespace TheStardewSquad.Framework.NpcConfig
 
             // Fallback: all tasks allowed
             var fallbackTasks = "Watering, Lumbering, Mining, Attacking, Harvesting, Foraging, Fishing, Petting, Sitting, Shearing, Milking";
-            _monitor.Log($"[Behavior] {npc.Name} no conditions matched, using fallback (all tasks)", LogLevel.Trace);
+            _monitor.LogOnce($"[Behavior] {npc.Name} no conditions matched, using fallback (all tasks)", LogLevel.Trace);
             return fallbackTasks;
         }
 

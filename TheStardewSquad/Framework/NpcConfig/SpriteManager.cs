@@ -44,7 +44,7 @@ namespace TheStardewSquad.Framework.NpcConfig
         /// <returns>Sprite animation config, or null if not found</returns>
         public SpriteAnimationConfig GetTaskSpriteConfig(NPC npc, string taskType)
         {
-            _monitor.Log($"[Sprite] Getting sprite config for {npc.Name} - {taskType}", LogLevel.Trace);
+            _monitor.LogOnce($"[Sprite] Getting sprite config for {npc.Name} - {taskType}", LogLevel.Trace);
 
             // Try NPC-specific config first
             var npcConfig = _configManager.GetConfig(npc);
@@ -73,7 +73,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                 }
             }
 
-            _monitor.Log($"[Sprite] No sprite config found for {npc.Name} - {taskType}", LogLevel.Trace);
+            _monitor.LogOnce($"[Sprite] No sprite config found for {npc.Name} - {taskType}", LogLevel.Trace);
             return null;
         }
 
@@ -118,7 +118,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                     var config = simpleObj.ToObject<SpriteAnimationConfig>();
                     if (config != null)
                     {
-                        _monitor.Log($"[Sprite] Found simple sprite object for {taskType}", LogLevel.Trace);
+                        _monitor.LogOnce($"[Sprite] Found simple sprite object for {taskType}", LogLevel.Trace);
                         return config;
                     }
                 }
@@ -132,7 +132,7 @@ namespace TheStardewSquad.Framework.NpcConfig
             // Case 2: Priority array (first-match-wins)
             if (taskSpriteData is JArray spriteArray)
             {
-                _monitor.Log($"[Sprite] Evaluating sprite array for {taskType} (first-match-wins)", LogLevel.Trace);
+                _monitor.LogOnce($"[Sprite] Evaluating sprite array for {taskType} (first-match-wins)", LogLevel.Trace);
 
                 foreach (var item in spriteArray)
                 {
@@ -146,7 +146,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                             if (!string.IsNullOrWhiteSpace(condition) && condition.Contains("{CurrentNpc}"))
                             {
                                 condition = condition.Replace("{CurrentNpc}", npc.Name);
-                                _monitor.Log($"[Sprite] Replaced {{CurrentNpc}} placeholder: {condition}", LogLevel.Trace);
+                                _monitor.LogOnce($"[Sprite] Replaced {{CurrentNpc}} placeholder: {condition}", LogLevel.Trace);
                             }
 
                             // No condition = default/fallback (always matches)
@@ -158,7 +158,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                                 var config = jObj.ToObject<SpriteAnimationConfig>();
                                 if (config != null)
                                 {
-                                    _monitor.Log($"[Sprite] Matched sprite config for {taskType} with condition: {condition ?? "(none)"}", LogLevel.Trace);
+                                    _monitor.LogOnce($"[Sprite] Matched sprite config for {taskType} with condition: {condition ?? "(none)"}", LogLevel.Trace);
                                     return config; // First match wins!
                                 }
                             }
@@ -208,7 +208,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                 if (!config.FramesByDirection.TryGetValue("Down", out frameData))
                     return null;
 
-                _monitor.Log($"[Sprite] Direction {directionKey} not found, using Down as fallback", LogLevel.Trace);
+                _monitor.LogOnce($"[Sprite] Direction {directionKey} not found, using Down as fallback", LogLevel.Trace);
             }
 
             var result = new List<(int, bool)>();
@@ -306,7 +306,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                     }
 
                     npc.Sprite.setCurrentAnimation(animationFrames);
-                    _monitor.Log($"[TaskAnimation] Applied custom sprite animation for {npc.Name} - {taskType} ({frames.Count} frames)", LogLevel.Trace);
+                    _monitor.LogOnce($"[TaskAnimation] Applied custom sprite animation for {npc.Name} - {taskType} ({frames.Count} frames)", LogLevel.Trace);
                     return;
                 }
             }
@@ -412,7 +412,7 @@ namespace TheStardewSquad.Framework.NpcConfig
                 string variantPath = baseExtensionSheet + variantSuffix;
                 if (Game1.content.DoesAssetExist<Microsoft.Xna.Framework.Graphics.Texture2D>(variantPath))
                 {
-                    _monitor.Log($"[Sprite] Found variant ExtensionSheet: {variantPath}", LogLevel.Trace);
+                    _monitor.LogOnce($"[Sprite] Found variant ExtensionSheet: {variantPath}", LogLevel.Trace);
                     return variantPath;
                 }
             }
@@ -420,11 +420,11 @@ namespace TheStardewSquad.Framework.NpcConfig
             // Fall back to base ExtensionSheet
             if (Game1.content.DoesAssetExist<Microsoft.Xna.Framework.Graphics.Texture2D>(baseExtensionSheet))
             {
-                _monitor.Log($"[Sprite] Using base ExtensionSheet: {baseExtensionSheet}", LogLevel.Trace);
+                _monitor.LogOnce($"[Sprite] Using base ExtensionSheet: {baseExtensionSheet}", LogLevel.Trace);
                 return baseExtensionSheet;
             }
 
-            _monitor.Log($"[Sprite] ExtensionSheet not found: {baseExtensionSheet}", LogLevel.Trace);
+            _monitor.LogOnce($"[Sprite] ExtensionSheet not found: {baseExtensionSheet}", LogLevel.Trace);
             return null;
         }
 
@@ -462,18 +462,26 @@ namespace TheStardewSquad.Framework.NpcConfig
         /// <returns>True if custom sprite sheet was applied, false otherwise</returns>
         public bool TryApplyTaskSpriteSheet(NPC npc, Squad.ISquadMate mate, string taskType, int facingDirection)
         {
-            // Skip if already using a custom sprite sheet - just update the frame
+            // Already using a custom sprite sheet AND no other mod has replaced
+            // the NPC's texture since we set it:
+            // When the texture has been replaced under us, re-apply once.
             if (!string.IsNullOrEmpty(mate.OriginalTexture))
             {
-                SetTaskFrame(npc, taskType, facingDirection);
-                return true;
+                if (string.IsNullOrEmpty(mate.AppliedTaskTexture)
+                    || string.Equals(npc.Sprite?.Texture?.Name, mate.AppliedTaskTexture, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetTaskFrame(npc, taskType, facingDirection);
+                    return true;
+                }
+                _monitor.Log($"[Sprite] {npc.Name}'s {taskType} sprite was overwritten externally (now '{npc.Sprite?.Texture?.Name}'); re-applying.", LogLevel.Trace);
+                // Keep OriginalTexture so RestoreOriginalTexture still has a target — only the loaded sheet is stale.
             }
 
             // Get sprite config for this task from NpcConfig
             var spriteConfig = GetTaskSpriteConfig(npc, taskType);
             if (spriteConfig == null || !HasExtensionSheet(spriteConfig))
             {
-                _monitor.Log($"[Sprite] No {taskType} sprite config with ExtensionSheet for {npc.Name}", LogLevel.Trace);
+                _monitor.LogOnce($"[Sprite] No {taskType} sprite config with ExtensionSheet for {npc.Name}", LogLevel.Trace);
                 return false;
             }
 
@@ -481,17 +489,22 @@ namespace TheStardewSquad.Framework.NpcConfig
             string? assetPath = ResolveExtensionSheetWithVariant(spriteConfig.ExtensionSheet, npc);
             if (assetPath == null)
             {
-                _monitor.Log($"[Sprite] No {taskType} sprite found for {npc.Name}", LogLevel.Trace);
+                _monitor.LogOnce($"[Sprite] No {taskType} sprite found for {npc.Name}", LogLevel.Trace);
                 return false;
             }
 
-            // Store the original texture path for restoration (pet-aware: pets live under Animals/)
-            mate.OriginalTexture = NpcTextureHelper.GetTextureAssetPath(npc);
+            // Store the original texture path for restoration (pet-aware).
+            // Skip if already set — re-applying after an external replacement must keep the existing restore target.
+            if (string.IsNullOrEmpty(mate.OriginalTexture))
+            {
+                mate.OriginalTexture = NpcTextureHelper.GetTextureAssetPath(npc);
+            }
 
             // Load the task sprite sheet
             if (npc.TryLoadSprites(assetPath, out string error))
             {
                 _monitor.Log($"[Sprite] Applied {taskType} sprite sheet for {npc.Name}: {assetPath}", LogLevel.Trace);
+                mate.AppliedTaskTexture = assetPath;
 
                 // Set the correct frame based on direction using NpcConfig
                 SetTaskFrame(npc, taskType, facingDirection);
@@ -500,7 +513,12 @@ namespace TheStardewSquad.Framework.NpcConfig
             else
             {
                 _monitor.Log($"[Sprite] Failed to load {taskType} sprite for {npc.Name}: {error}", LogLevel.Warn);
-                mate.OriginalTexture = null; // Clear since we failed
+                // Only clear OriginalTexture on a first-time failure. If a prior application succeeded
+                // and we're failing to re-apply after an external texture replacement, keep the restore target intact.
+                if (string.IsNullOrEmpty(mate.AppliedTaskTexture))
+                {
+                    mate.OriginalTexture = null;
+                }
                 return false;
             }
         }
@@ -568,6 +586,7 @@ namespace TheStardewSquad.Framework.NpcConfig
 
             string originalTexture = mate.OriginalTexture;
             mate.OriginalTexture = null; // Clear before restoring
+            mate.AppliedTaskTexture = null;
 
             if (npc.TryLoadSprites(originalTexture, out string error))
             {

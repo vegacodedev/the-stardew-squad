@@ -37,6 +37,7 @@ namespace TheStardewSquad.Framework.Squad
         public bool WasWearingIslandAttireBeforeSwimming { get; set; }
         public bool IsRidingWithPlayer { get; set; }
         public string? OriginalTexture { get; set; }
+        public string? AppliedTaskTexture { get; set; }
 
         public SquadMate(NPC npc, ITaskBehavior taskBehavior, IInteractionBehavior interactionBehavior, ICommunicationBehavior communicationBehavior)
         {
@@ -62,6 +63,7 @@ namespace TheStardewSquad.Framework.Squad
             this.LastTilePoint = null;
             this.WasWearingIslandAttireBeforeSwimming = false;
             this.OriginalTexture = null;
+            this.AppliedTaskTexture = null;
         }
 
         // Delegated Behavior Methods
