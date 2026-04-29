@@ -76,12 +76,10 @@ namespace TheStardewSquad
             // Utility services
             var randomSelector = factory.CreateRandomSelector();
 
-            // Load baseline NPC configuration bundled in the main mod (assets/NpcConfig/).
-            // Guarantees defaults exist before community CP packs layer on top.
-            var baseline = new BaselineContentLoader(helper, this.Monitor).Load();
+            var baselineLoader = new BaselineContentLoader(helper, this.Monitor);
 
             // Initialize NPC configuration managers (unified system)
-            this.NpcConfigManager = new NpcConfigManager(npcConfigDataProvider, baseline, this.Monitor);
+            this.NpcConfigManager = new NpcConfigManager(npcConfigDataProvider, baselineLoader, this.Monitor);
             this.DialogueManager = new DialogueManager(this.NpcConfigManager, randomSelector, gameStateChecker, npcDialogueService, gameContext, this.Monitor);
             this.VanillaSpriteDetector = new VanillaSpriteDetector(this.Monitor);
             this.SpriteManager = new SpriteManager(this.NpcConfigManager, this.Monitor, gameStateChecker, gameContext, this.VanillaSpriteDetector);
