@@ -872,15 +872,29 @@ namespace TheStardewSquad.Patches
         }
 
         /// <summary>
-        /// Modifies Pet sprite SourceRect before drawing to create submerged appearance when swimming.
+        /// Applies riding draw offset and (when swimming) modifies Pet sprite SourceRect for a submerged appearance.
         /// </summary>
         private static void Pet_Draw_Prefix(Pet __instance)
         {
-            // Check if pet is swimming (either naturally or forced during BathHousePool drawing)
-            bool isSwimming = __instance.swimming.Value || _petsForcedSwimming.Contains(__instance);
+            // Only handle recruited pets
+            if (!_squadManager.IsRecruited(__instance))
+                return;
 
-            // Only handle recruited pets that are swimming
-            if (!_squadManager.IsRecruited(__instance) || !isSwimming)
+            var mate = _squadManager.GetMember(__instance);
+            if (mate == null)
+                return;
+
+            // Apply riding draw offset — mirrors NPC_Draw_Prefix.
+            // Necessary because Pet.draw is a custom override that does not call
+            // base.draw, so the NPC.draw prefix never fires for Pet instances.
+            if (mate.IsRidingWithPlayer && _followerManager != null)
+            {
+                __instance.drawOffset = _followerManager.ComputeRidingDrawOffset(mate);
+            }
+
+            // Swimming visuals (only applies when actually swimming)
+            bool isSwimming = __instance.swimming.Value || _petsForcedSwimming.Contains(__instance);
+            if (!isSwimming)
                 return;
 
             // Store original SourceRect
@@ -1046,7 +1060,10 @@ namespace TheStardewSquad.Patches
             _followerManager?.OnPlayerCaughtFish();
         }
 
-        /// <summary>Prefix patch for NPC.draw to draw fishing lines behind NPCs when they face up.</summary>
+        #endregion
+
+        #region NPC.Draw Patches
+
         private static void NPC_Draw_Prefix(NPC __instance, Microsoft.Xna.Framework.Graphics.SpriteBatch b)
         {
             // Only handle recruited NPCs

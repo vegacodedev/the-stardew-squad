@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using StardewModdingAPI;
 using StardewValley;
+using StardewValley.Characters;
 using TheStardewSquad.Abstractions.Core;
 using TheStardewSquad.Framework.NpcConfig.Models;
 
@@ -53,8 +54,10 @@ namespace TheStardewSquad.Framework.NpcConfig
                 var npcSprite = GetSpriteForTask(npcConfig.Sprites, taskType, npc);
                 if (npcSprite != null)
                 {
-                    // Check if the sprite texture matches - either fully vanilla or fully retextured
-                    if (npcSprite.IsVanilla == _vanillaSpriteDetector.IsVanillaSprite(npc))
+                    // Check if the sprite texture matches - either fully vanilla or fully retextured.
+                    // Pets are exempt: retexture mods conventionally preserve the vanilla pet frame
+                    // layout (e.g. sitting at frames 28-29), so the same config works regardless.
+                    if (npc is Pet || npcSprite.IsVanilla == _vanillaSpriteDetector.IsVanillaSprite(npc))
                     {
                         return npcSprite;
                     }
