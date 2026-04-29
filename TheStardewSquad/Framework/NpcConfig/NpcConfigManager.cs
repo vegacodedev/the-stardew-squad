@@ -15,18 +15,19 @@ namespace TheStardewSquad.Framework.NpcConfig
     public class NpcConfigManager
     {
         private readonly INpcConfigDataProvider _dataProvider;
-        private readonly IReadOnlyDictionary<string, NpcConfigData> _baseline;
+        private readonly BaselineContentLoader _baselineLoader;
+        private IReadOnlyDictionary<string, NpcConfigData> _baseline;
         private readonly IMonitor _monitor;
         private Dictionary<string, NpcConfigData> _npcConfigs;
         private bool _configLoadAttempted = false;
 
         public NpcConfigManager(
             INpcConfigDataProvider dataProvider,
-            IReadOnlyDictionary<string, NpcConfigData> baseline,
+            BaselineContentLoader baselineLoader,
             IMonitor monitor)
         {
             this._dataProvider = dataProvider;
-            this._baseline = baseline;
+            this._baselineLoader = baselineLoader;
             this._monitor = monitor;
         }
 
@@ -114,6 +115,9 @@ namespace TheStardewSquad.Framework.NpcConfig
 
             this._configLoadAttempted = true;
             this._monitor.Log("[NpcConfig] Loading NpcConfig data (baseline + community overrides)...", LogLevel.Info);
+
+            // Load baseline now (locale is set by this point; Game1.LoadContent has run).
+            this._baseline = this._baselineLoader.Load();
 
             Dictionary<string, NpcConfigData> community;
             try

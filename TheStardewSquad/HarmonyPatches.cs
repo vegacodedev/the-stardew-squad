@@ -187,6 +187,11 @@ namespace TheStardewSquad.Patches
             );
 
             harmony.Patch(
+                original: AccessTools.Method(typeof(NPC), nameof(NPC.sayHiTo), new Type[] { typeof(Character) }),
+                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(NPC_SayHiTo_Prefix))
+            );
+
+            harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.CheckGarbage)),
                 transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(CheckGarbage_Transpiler))
             );
@@ -642,6 +647,19 @@ namespace TheStardewSquad.Patches
             }
 
             // Otherwise, let the pet warp as normal when not recruited.
+            return true;
+        }
+
+        /// <summary>
+        /// Skips the greeting interaction between NPCs when the target is a recruited pet.
+        /// </summary>
+        private static bool NPC_SayHiTo_Prefix(Character c)
+        {
+            if (c is Pet pet && _squadManager.IsRecruited(pet))
+            {
+                return false;
+            }
+
             return true;
         }
 
