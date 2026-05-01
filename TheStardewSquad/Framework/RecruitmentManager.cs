@@ -7,6 +7,7 @@ using StardewValley.Pathfinding;
 using TheStardewSquad.Framework.Behaviors;
 using System.Linq;
 using StardewValley.Characters;
+using TheStardewSquad.Framework.Multiplayer;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.Squad;
 using TheStardewSquad.Abstractions.Character;
@@ -22,6 +23,7 @@ namespace TheStardewSquad.Framework
         private readonly FormationManager _formationManager;
         private readonly ISquadMateStateHelper _stateHelper;
         private FollowerManager _followerManager;
+        private MessageDispatcher? _dispatcher;
 
         public RecruitmentManager(IModHelper helper, IMonitor monitor, SquadManager squadManager, WaitingNpcsManager waitingNpcsManager, FormationManager formationManager, ISquadMateStateHelper stateHelper)
         {
@@ -38,6 +40,11 @@ namespace TheStardewSquad.Framework
             this._followerManager = followerManager;
         }
 
+        public void AttachDispatcher(MessageDispatcher dispatcher)
+        {
+            this._dispatcher = dispatcher;
+        }
+
         public void OnDayEnding(object? sender, DayEndingEventArgs e)
         {
             this.DismissAll(useFade: false);
@@ -47,6 +54,7 @@ namespace TheStardewSquad.Framework
         /// <summary>Dismisses all waiting NPCs (called at day end).</summary>
         public void DismissAllWaiting()
         {
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
             if (this._waitingNpcsManager.Count == 0)
                 return;
 
@@ -58,22 +66,30 @@ namespace TheStardewSquad.Framework
             }
 
             this._monitor.Log("All waiting NPCs have been dismissed at day end.", LogLevel.Info);
+
+            // Single snapshot at the end so farmhands' local waiting state clears too.
+            this._dispatcher?.BroadcastSnapshot();
         }
 
         /// <summary>Dismisses all squad mates.</summary>
         public void DismissAll(bool useFade = true, DismissalWarpBehavior npcWarp = DismissalWarpBehavior.GoHome, DismissalWarpBehavior petWarp = DismissalWarpBehavior.GoHome)
         {
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
             if (this._squadManager.Count == 0)
                 return;
 
             void perform()
             {
                 // Iterate a snapshot to avoid modifying the collection during enumeration.
+                // Suppress per-mate broadcasts; we'll send one snapshot at the end of the loop.
                 foreach (var mate in this._squadManager.Members.ToList())
                 {
                     var warp = (mate.Npc is Pet) ? petWarp : npcWarp;
-                    this.Dismiss(mate, isSilent: true, warpBehavior: warp);
+                    this.Dismiss(mate, isSilent: true, warpBehavior: warp, broadcast: false);
                 }
+
+                // Single snapshot covering every dismissal in this batch.
+                this._dispatcher?.BroadcastSnapshot();
             }
 
             if (useFade)
@@ -94,10 +110,34 @@ namespace TheStardewSquad.Framework
         /// <summary>Finalizes the recruitment of a squad mate by setting their initial state and adding them to the manager.</summary>
         /// <param name="mate">The squad mate to recruit.</param>
         /// <param name="recruiter">The farmer doing the recruiting; their <see cref="Farmer.UniqueMultiplayerID"/> is stamped onto the NPC's modData so the link survives save/reload and syncs across peers.</param>
-        public void Recruit(ISquadMate mate, Farmer recruiter)
+        /// <param name="isSilent">If true, suppresses the recruit dialogue and the "resumed from waiting"
+        /// global message. Used by R2.8 auto-unpark when a recruiter reconnects.</param>
+        public void Recruit(ISquadMate mate, Farmer recruiter, bool isSilent = false)
         {
+            // MP routing: farmhand forwards to the host for authoritative processing.
+            // Host's broadcast SquadSnapshot will sync local state. Local recruit
+            // dialogue still plays as optimistic UI (unless resuming a waiting mate,
+            // which uses a different message).
+            if (Context.IsMultiplayer && !Context.IsMainPlayer)
+            {
+                if (!isSilent && !this._waitingNpcsManager.IsWaiting(mate.Npc))
+                    mate.Communicate(DialogueKeys.Recruit);
+
+                this._dispatcher?.SendRecruitRequest(
+                    mate.Npc.Name,
+                    mate.Npc.currentLocation?.NameOrUniqueName ?? string.Empty);
+                return;
+            }
+
             var config = this._helper.ReadConfig<ModConfig>();
-            if (this._squadManager.Count >= config.MaxSquadSize)
+            long recruiterId = recruiter?.UniqueMultiplayerID ?? Game1.MasterPlayer?.UniqueMultiplayerID ?? 0L;
+
+            // Per-recruiter squad-size check: each recruiter is capped at MaxSquadSize independently.
+            // The host's config value applies to every recruiter which means
+            // farmhand-local config values aren't honored here, since the host
+            // is authoritative for recruit decisions. In SP this is equivalent to a global cap.
+            int recruiterCount = this._squadManager.Members.Count(m => m.RecruiterUniqueId == recruiterId);
+            if (recruiterCount >= config.MaxSquadSize)
             {
                 return;
             }
@@ -106,8 +146,6 @@ namespace TheStardewSquad.Framework
                 return;
 
             // Stamp recruiter onto the NPC's modData. Auto-syncs to peers and persists in save.
-            // Falls back to MasterPlayer's id if recruiter is somehow null (shouldn't happen in production).
-            long recruiterId = recruiter?.UniqueMultiplayerID ?? Game1.MasterPlayer?.UniqueMultiplayerID ?? 0L;
             mate.Npc.modData[SquadMate.RecruiterIdKey] = recruiterId.ToString();
             mate.Npc.modData[SquadMate.SchemaVersionKey] = SquadMate.CurrentSchemaVersion;
 
@@ -135,9 +173,10 @@ namespace TheStardewSquad.Framework
                 this._waitingNpcsManager.Remove(mate.Npc);
 
                 // Show resume message instead of recruit message
-                Game1.showGlobalMessage(this._helper.Translation.Get("management.resumedFromWaiting", new { name = mate.Name }));
+                if (!isSilent)
+                    Game1.showGlobalMessage(this._helper.Translation.Get("management.resumedFromWaiting", new { name = mate.Name }));
             }
-            else
+            else if (!isSilent)
             {
                 mate.Communicate(DialogueKeys.Recruit);
             }
@@ -148,11 +187,26 @@ namespace TheStardewSquad.Framework
             this._squadManager.Add(mate);
 
             this._monitor.Log($"{mate.Name} has been added to the team.", LogLevel.Info);
+
+            // Sync membership change to all peers (no-op in SP).
+            this._dispatcher?.BroadcastSnapshot();
         }
 
         /// <summary>Initiates the dismissal process for a squad mate.</summary>
-        public virtual void Dismiss(ISquadMate mate, bool isSilent = false, DismissalWarpBehavior warpBehavior = DismissalWarpBehavior.GoHome)
+        /// <param name="broadcast">If true (default), syncs the membership change to peers via
+        /// <see cref="MessageDispatcher.BroadcastSnapshot"/>. Bulk operations like
+        /// <see cref="DismissAll"/> pass false and broadcast once at the end to avoid N
+        /// snapshots in a row.</param>
+        public virtual void Dismiss(ISquadMate mate, bool isSilent = false, DismissalWarpBehavior warpBehavior = DismissalWarpBehavior.GoHome, bool broadcast = true)
         {
+            // MP routing: farmhand forwards to the host. Host's broadcast SquadSnapshot
+            // syncs local state.
+            if (Context.IsMultiplayer && !Context.IsMainPlayer)
+            {
+                this._dispatcher?.SendDismissRequest(mate.Npc.Name);
+                return;
+            }
+
             if (!this._squadManager.IsRecruited(mate.Npc))
                 return;
 
@@ -168,11 +222,18 @@ namespace TheStardewSquad.Framework
             {
                 this._monitor.Log($"{mate.Name} has been removed from the team.", LogLevel.Info);
             }
+
+            // Sync membership change to all peers (no-op in SP). Skipped during bulk ops.
+            if (broadcast)
+                this._dispatcher?.BroadcastSnapshot();
         }
 
         /// <summary>Sets a squad mate to waiting state - removes from squad but keeps control at current location.</summary>
-        public void SetWaiting(ISquadMate mate)
+        /// <param name="isSilent">If true, suppresses the global "X is now waiting" message and the
+        /// pet roam-here notification. Used by R2.8 auto-park when a recruiter goes offline.</param>
+        public void SetWaiting(ISquadMate mate, bool isSilent = false)
         {
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
             if (!this._squadManager.IsRecruited(mate.Npc))
                 return;
 
@@ -180,8 +241,9 @@ namespace TheStardewSquad.Framework
             if (mate.Npc is Pet)
             {
                 this._formationManager.ReleaseSlot(mate);
-                mate.HandleDismissal(isSilent: false, DismissalWarpBehavior.RoamHere);
-                this._monitor.Log($"{mate.Name} is now roaming here.", LogLevel.Info);
+                mate.HandleDismissal(isSilent, DismissalWarpBehavior.RoamHere);
+                if (!isSilent)
+                    this._monitor.Log($"{mate.Name} is now roaming here.", LogLevel.Info);
                 return;
             }
 
@@ -198,9 +260,14 @@ namespace TheStardewSquad.Framework
             this._squadManager.Remove(mate.Npc);
             this._waitingNpcsManager.Add(mate);
 
-            // Show message to player
-            Game1.showGlobalMessage(this._helper.Translation.Get("management.waiting", new { name = mate.Name }));
-            this._monitor.Log($"{mate.Name} is now waiting.", LogLevel.Info);
+            if (!isSilent)
+            {
+                Game1.showGlobalMessage(this._helper.Translation.Get("management.waiting", new { name = mate.Name }));
+                this._monitor.Log($"{mate.Name} is now waiting.", LogLevel.Info);
+            }
+
+            // Sync membership change to all peers (no-op in SP).
+            this._dispatcher?.BroadcastSnapshot();
         }
 
         public (string, Point) GetSpouseDismissalTarget(NPC npc)

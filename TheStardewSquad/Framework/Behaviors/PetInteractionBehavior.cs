@@ -81,7 +81,10 @@ namespace TheStardewSquad.Framework.Behaviors
                         bool sendToHouse = Game1.isRaining || Game1.isLightning || Game1.timeOfDay >= 2000;
                         if (sendToHouse)
                         {
-                            pet.warpToFarmHouse(Game1.player);
+                            // Route to the pet's actual owner (resolved via Pet.homeLocationName)
+                            // so a farmhand-owned pet warps to their cabin, not the local screen's
+                            // farmhouse.
+                            pet.warpToFarmHouse(PetOwnerResolver.ResolveOwner(pet));
                         }
                         else
                         {

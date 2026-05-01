@@ -82,4 +82,17 @@ public sealed class ModConfig
     /// Set to 0 to disable protection.
     /// </summary>
     public int ProtectBeehouseFlowers { get; set; } = 5;
+
+    /// <summary>
+    /// In multiplayer, when a recruiter disconnects: if true, their squad mates are dismissed home immediately;
+    /// if false (default), mates are parked in waiting state until the recruiter reconnects (or
+    /// <see cref="ParkTimeoutMinutes"/> elapses).
+    /// </summary>
+    public bool WarpHomeOnDisconnect { get; set; } = false;
+
+    /// <summary>
+    /// Minutes a parked mate will wait for its recruiter to reconnect before being auto-dismissed home.
+    /// Set to 0 to disable auto-dismiss (mates wait indefinitely). Default 5.
+    /// </summary>
+    public int ParkTimeoutMinutes { get; set; } = 5;
 }

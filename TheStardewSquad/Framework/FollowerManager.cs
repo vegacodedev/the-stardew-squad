@@ -3,8 +3,10 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Monsters;
+using StardewModdingAPI.Utilities;
 using TheStardewSquad.Framework.Squad;
 using StardewValley.Characters;
+using TheStardewSquad.Framework.Multiplayer;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.Behaviors;
 using TheStardewSquad.Framework.Gathering;
@@ -54,7 +56,11 @@ namespace TheStardewSquad.Framework
         private const int MimickingTaskDurationTicks = 40; // 40 slow ticks = 10 seconds (40 * 15 frames / 60 FPS)
 
         private bool _wasInFestival = false;
-        private bool _wasInCutscene = false;
+        // Per-screen cutscene detection so each peer (and each split-screen player) tracks its
+        // own cutscene state. The host warps its own mates directly when its local cutscene ends;
+        // a farmhand fires a CutsceneEnded notify message which the host receives and re-warps
+        // the farmhand's mates only.
+        private readonly PerScreen<bool> _wasInCutscene = new(() => false);
         private bool _wasPlayerFishing = false;
         // Per-farmer riding state. In MP each online farmer can mount independently and
         // their own recruited mate rides with them.
@@ -95,6 +101,32 @@ namespace TheStardewSquad.Framework
         {
             this._spriteManager = spriteManager;
         }
+
+        private MessageDispatcher? _dispatcher;
+
+        public void AttachDispatcher(MessageDispatcher dispatcher)
+        {
+            this._dispatcher = dispatcher;
+        }
+
+        private RecruitmentManager? _recruitment;
+
+        public void SetRecruitmentManager(RecruitmentManager recruitment)
+        {
+            this._recruitment = recruitment;
+        }
+
+        // Wall-clock timestamp per auto-parked recruiter id.
+        private readonly Dictionary<long, DateTime> _autoParkedAt = new();
+
+        // Per-screen smoothed riding anchor per recruiter. In MP the NPC's Position netfield
+        // can lag the rider's Position by 1-2 ticks on remote screens, producing a visible gap
+        // between the riding NPC and the horse. We compensate by computing the draw offset
+        // against the recruiter's CURRENT position (rather than the lagged npc.Position) and
+        // exponentially smoothing across frames to absorb any per-frame jitter.
+        // Keyed by recruiter UniqueMultiplayerID so multiple riders smooth independently.
+        private readonly PerScreen<Dictionary<long, Vector2>> _smoothedRiderAnchor =
+            new(() => new Dictionary<long, Vector2>());
 
         /// <summary>
         /// Resolves the recruiter for a mate, falling back to <see cref="Game1.MasterPlayer"/>
@@ -154,6 +186,85 @@ namespace TheStardewSquad.Framework
             mate.Npc.flip = false;
         }
 
+        /// <summary>
+        /// Auto-parks mates whose recruiter just disconnected, auto-resumes mates whose
+        /// recruiter just reconnected, and auto-dismisses mates whose recruiter has been
+        /// offline longer than <see cref="ModConfig.ParkTimeoutMinutes"/>. Reuses the existing
+        /// Waiting feature: <see cref="RecruitmentManager.SetWaiting"/> handles parking and
+        /// <see cref="RecruitmentManager.Recruit"/>'s waiting-resume branch handles unparking.
+        /// </summary>
+        private void HandleOfflineRecruiters()
+        {
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
+            if (!Context.IsMultiplayer) return; // SP: nobody can be offline.
+            if (this._recruitment == null) return; // Safety: not yet wired (shouldn't happen post-Entry).
+
+            // Pass A: park mates whose recruiter is currently offline.
+            foreach (var mate in this._squadManager.Members.ToList())
+            {
+                if (mate.TryGetRecruiter(out _)) continue; // recruiter online — skip
+
+                if (this._config.WarpHomeOnDisconnect)
+                {
+                    this._recruitment.Dismiss(mate, isSilent: true, DismissalWarpBehavior.GoHome);
+                    continue;
+                }
+
+                long rid = mate.RecruiterUniqueId;
+                if (!this._autoParkedAt.ContainsKey(rid))
+                    this._autoParkedAt[rid] = DateTime.UtcNow;
+                this._recruitment.SetWaiting(mate, isSilent: true);
+            }
+
+            // Pass B: resume mates whose recruiter just came back online.
+            foreach (var mate in this._waitingNpcsManager.WaitingMembers.ToList())
+            {
+                if (!this._autoParkedAt.ContainsKey(mate.RecruiterUniqueId)) continue; // not auto-parked
+                if (!mate.TryGetRecruiter(out var rec)) continue; // still offline
+
+                this._recruitment.Recruit(mate, rec, isSilent: true);
+                this._autoParkedAt.Remove(mate.RecruiterUniqueId);
+            }
+
+            // Pass C: auto-dismiss mates whose recruiter has been offline beyond the timeout.
+            if (this._config.ParkTimeoutMinutes <= 0) return;
+            var now = DateTime.UtcNow;
+            foreach (var (rid, parkedAt) in this._autoParkedAt.ToList())
+            {
+                if ((now - parkedAt).TotalMinutes < this._config.ParkTimeoutMinutes) continue;
+
+                foreach (var mate in this._waitingNpcsManager.WaitingMembers
+                    .Where(m => m.RecruiterUniqueId == rid).ToList())
+                {
+                    this._recruitment.Dismiss(mate, isSilent: true, DismissalWarpBehavior.GoHome);
+                }
+                this._autoParkedAt.Remove(rid);
+            }
+        }
+
+        /// <summary>
+        /// Authoritative entry point for "a farmer just performed a mimickable task".
+        /// Sets the mimicking timer on the farmer's own squad mates that are co-located
+        /// with them. Runs on the host only — farmhand-side callers must route through
+        /// <see cref="MessageDispatcher.SendMimickingRequest"/> instead.
+        /// </summary>
+        public void OnFarmerAction(Farmer who, TaskType type)
+        {
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
+            if (!_config.TasksEnabled) return;
+            if (!IsMimickingTask(type)) return;
+            if (who == null) return;
+
+            foreach (var mate in _squadManager.Members)
+            {
+                if (mate.RecruiterUniqueId != who.UniqueMultiplayerID) continue;
+                if (mate.Npc.currentLocation != who.currentLocation) continue;
+
+                mate.MimickingTaskTimer = MimickingTaskDurationTicks;
+                mate.MimickingTaskType = type;
+            }
+        }
+
         /// <summary>Checks if a task type is configured in Mimicking mode.</summary>
         private bool IsMimickingTask(TaskType taskType)
         {
@@ -197,8 +308,12 @@ namespace TheStardewSquad.Framework
                 return;
             }
 
-            // Check all task types that could be in Mimicking mode
-            // Note: Fishing is excluded - it has special handling via _wasPlayerFishing
+            // Check all task types that could be in Mimicking mode.
+            // Polling reads local-screen state (Game1.player), so in MP only the host's tool
+            // actions are detected here - farmhand tool/state actions don't reach the host's
+            // polling. Event-based tasks (Petting/Harvesting/Shearing/Milking) ARE fully
+            // MP-aware via Harmony postfixes calling OnFarmerAction directly. TODO: Make it fully
+            // MP-compatible in the next pass, right now I can't do this cleanly
             TaskType[] mimickableTaskTypes = new[]
             {
                 TaskType.Watering,
@@ -213,18 +328,14 @@ namespace TheStardewSquad.Framework
                 TaskType.Sitting
             };
 
-            // Check if player is performing any mimicking task and reset timer
             foreach (var taskType in mimickableTaskTypes)
             {
                 if (IsMimickingTask(taskType) && IsPlayerPerformingTask(taskType))
                 {
-                    // Player is performing a mimicking task - reset timer and update task type
-                    // The ignore flags prevent NPC actions from triggering this, so it's safe to reset continuously
-                    foreach (var mate in _squadManager.Members)
-                    {
-                        mate.MimickingTaskTimer = MimickingTaskDurationTicks;
-                        mate.MimickingTaskType = taskType;
-                    }
+                    // Route through OnFarmerAction so timers are scoped to the local player's
+                    // mates only (recruiter-filtered). Without this, all mates regardless of
+                    // recruiter would mimic when ANY farmer triggers polling.
+                    OnFarmerAction(Game1.player, taskType);
                     break; // Only process one task type per update
                 }
             }
@@ -313,12 +424,28 @@ namespace TheStardewSquad.Framework
             if (!_gameStateService.IsWorldReady) return;
             if (this._squadManager.Count == 0 && this._waitingNpcsManager.Count == 0) return;
 
-            // If a cutscene just ended, warp the squad to the player's new position.
-            if (this._wasInCutscene && !_gameStateService.IsEventUp)
+            // Per-screen cutscene-end detection. Runs above the host-only guard so farmhand
+            // peers can also detect when their own local cutscene ended; they notify the host
+            // via CutsceneEnded so the host can re-warp their mates. Each split-screen player
+            // tracks its own state via PerScreen<bool>.
+            bool isInCutsceneNow = _gameStateService.IsEventUp;
+            bool wasInCutscene = this._wasInCutscene.Value;
+            if (wasInCutscene && !isInCutsceneNow)
             {
-                WarpSquadToPlayer();
+                var localPlayer = Game1.player;
+                if (Context.IsMainPlayer)
+                {
+                    WarpSquadToFarmer(localPlayer);
+                }
+                else
+                {
+                    this._dispatcher?.SendCutsceneEnded(localPlayer.UniqueMultiplayerID);
+                }
             }
-            this._wasInCutscene = _gameStateService.IsEventUp;
+            this._wasInCutscene.Value = isInCutsceneNow;
+
+            // Host-only authority: in MP, only the main player runs squad AI mutations.
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
 
             this._debrisCollector.Update(this._squadManager.Members);
 
@@ -351,6 +478,10 @@ namespace TheStardewSquad.Framework
             {
                 // Track player sitting state on slow ticks (timer is set when player sits down)
                 Patches.HarmonyPatches.UpdatePlayerSittingState();
+
+                // Park mates whose recruiter disconnected, resume on reconnect, auto-dismiss
+                // after ParkTimeoutMinutes. Does nothing in SP.
+                HandleOfflineRecruiters();
 
                 UpdateMimickingTimers();
 
@@ -434,13 +565,24 @@ namespace TheStardewSquad.Framework
             }
         }
 
-        private void WarpSquadToPlayer()
+        /// <summary>
+        /// Re-warps the given recruiter's mates to their location after a cutscene/event ends.
+        /// Called locally on the host when the host's cutscene ends, and by the dispatcher's
+        /// <see cref="MessageDispatcher.OnCutsceneEnded"/> handler when a farmhand reports its
+        /// own cutscene end via <see cref="CutsceneEnded"/>. Host-only; farmhands route via
+        /// the notify message.
+        /// </summary>
+        public void WarpSquadToFarmer(Farmer recruiter)
         {
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
+            if (recruiter == null) return;
+
             foreach (var mate in this._squadManager.Members)
             {
-                var rec = ResolveRecruiterOrFallback(mate);
+                if (mate.RecruiterUniqueId != recruiter.UniqueMultiplayerID) continue;
+
                 var npc = mate.Npc;
-                _warpService.WarpCharacter(npc, rec.currentLocation.NameOrUniqueName, rec.TilePoint);
+                _warpService.WarpCharacter(npc, recruiter.currentLocation.NameOrUniqueName, recruiter.TilePoint);
                 mate.Path.Clear();
                 ClearMateTask(mate);
                 mate.IsCatchingUp = false;
@@ -1235,10 +1377,27 @@ namespace TheStardewSquad.Framework
             int horseWidth = player.mount.GetSpriteWidthForPositioning();
             float xDelta = 2 * (horseWidth - horseSpriteW);
 
-            return new Vector2(
+            Vector2 baseOffset = new Vector2(
                 saddleAnchor.X - pivotBaseX - (anchorX - spriteWidth / 2f) * 4f + xDelta,
                 saddleAnchor.Y - depthOffset - wobble - pivotBaseY - (anchorY - spriteHeight * 3f / 4f) * 4f
             );
+
+            // MP smoothing: on remote screens npc.Position can trail the rider's Position by
+            // 1-2 ticks, leaving the NPC visibly behind the horse. Compute the offset against
+            // the rider's *current* anchor and exponentially smooth (Lerp 0.5 ≈ ~2-frame
+            // half-life) per screen, per recruiter. On the host this collapses to a no-op
+            // because npc.Position == rider.mount.Position + (0,8) already.
+            Vector2 currentRiderAnchor = (player.mount?.Position ?? player.Position) + new Vector2(0f, 8f);
+            var perScreenDict = _smoothedRiderAnchor.Value;
+            Vector2 lastAnchor = perScreenDict.TryGetValue(player.UniqueMultiplayerID, out var lp)
+                ? lp
+                : currentRiderAnchor;
+            Vector2 smoothedAnchor = Vector2.Lerp(lastAnchor, currentRiderAnchor, 0.5f);
+            perScreenDict[player.UniqueMultiplayerID] = smoothedAnchor;
+
+            Vector2 lagCorrection = smoothedAnchor - npc.Position;
+
+            return baseOffset + lagCorrection;
         }
 
         #endregion

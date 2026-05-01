@@ -297,6 +297,29 @@ namespace TheStardewSquad.Config
                 allowedValues: Enum.GetNames(typeof(TaskMode)),
                 formatAllowedValue: value => _helper.Translation.Get($"config.taskMode.option.{value}")
             );
+
+            configMenu.AddSectionTitle(
+                mod: _modEntry.ModManifest,
+                text: () => _helper.Translation.Get("config.multiplayer.name")
+            );
+
+            configMenu.AddBoolOption(
+                mod: _modEntry.ModManifest,
+                getValue: () => _modEntry.Config.WarpHomeOnDisconnect,
+                setValue: value => _modEntry.Config.WarpHomeOnDisconnect = value,
+                name: () => _helper.Translation.Get("config.warpHomeOnDisconnect.name"),
+                tooltip: () => _helper.Translation.Get("config.warpHomeOnDisconnect.description")
+            );
+
+            configMenu.AddNumberOption(
+                mod: _modEntry.ModManifest,
+                getValue: () => _modEntry.Config.ParkTimeoutMinutes,
+                setValue: value => _modEntry.Config.ParkTimeoutMinutes = value,
+                name: () => _helper.Translation.Get("config.parkTimeoutMinutes.name"),
+                tooltip: () => _helper.Translation.Get("config.parkTimeoutMinutes.description"),
+                min: 0,
+                max: 60
+            );
         }
     }
 }

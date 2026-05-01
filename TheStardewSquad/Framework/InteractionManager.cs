@@ -9,6 +9,7 @@ using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
 using TheStardewSquad.Abstractions.Core;
 using TheStardewSquad.Abstractions.UI;
+using TheStardewSquad.Framework.Multiplayer;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.Squad;
 using TheStardewSquad.Framework.UI;
@@ -38,6 +39,8 @@ namespace TheStardewSquad.Framework
         }
         public SquadMateFactory SquadMateFactory { get; internal set; }
 
+        private MessageDispatcher? _dispatcher;
+
         public InteractionManager(IModHelper helper, SquadManager squadManager, SquadMateFactory squadMateFactory, BehaviorManager behaviorManager, IGameContext gameContext, IUIService uiService, ModConfig config)
         {
             this._helper = helper;
@@ -47,6 +50,11 @@ namespace TheStardewSquad.Framework
             this._gameContext = gameContext;
             this._uiService = uiService;
             this._config = config;
+        }
+
+        public void AttachDispatcher(MessageDispatcher dispatcher)
+        {
+            this._dispatcher = dispatcher;
         }
 
         public void OnButtonPressed(object? sender, ButtonPressedEventArgs e)
@@ -106,7 +114,11 @@ namespace TheStardewSquad.Framework
 
             if (_config.ManualTaskKey.JustPressed())
             {
-                if (this._squadManager.Count == 0)
+                // In MP, only the local player's own squad can be commanded — check per-recruiter
+                // count rather than the global count so farmhands don't accidentally see a "no
+                // followers" message when only the host has mates (and vice versa).
+                int myMateCount = this._squadManager.Members.Count(m => m.RecruiterUniqueId == player.UniqueMultiplayerID);
+                if (myMateCount == 0)
                 {
                     _uiService.ShowErrorMessage(_uiService.GetTranslation("commands.noFollower"));
                     return;
@@ -144,13 +156,29 @@ namespace TheStardewSquad.Framework
 
         private void HandleManualCommand(Point tile)
         {
-            if (this._squadManager.Count == 0)
+            // MP routing: farmhand forwards to the host with tile + location only;
+            // the host re-runs detection in its own world view, scoped to the requester's mates.
+            if (Context.IsMultiplayer && !Context.IsMainPlayer)
             {
-                _uiService.ShowErrorMessage(_uiService.GetTranslation("commands.noFollower"));
+                _dispatcher?.SendTaskAssignRequest(
+                    tile.ToVector2(),
+                    _gameContext.CurrentLocation?.NameOrUniqueName ?? string.Empty);
                 return;
             }
 
-            var location = _gameContext.CurrentLocation;
+            AssignManualTaskFor(_gameContext.Player, tile);
+        }
+
+        /// <summary>
+        /// Authoritative manual-task assignment. Detects the task at the given tile in the
+        /// requester's location and assigns the closest capable mate that the requester
+        /// recruited. Called locally on the host/SP, and via <see cref="MessageDispatcher"/>
+        /// when a farmhand sends a <see cref="TaskAssignRequest"/>.
+        /// </summary>
+        public void AssignManualTaskFor(Farmer requester, Point tile)
+        {
+            var location = requester?.currentLocation;
+            if (location == null) return;
 
             // 1. First, determine what the command is.
             Point? targetObjectTile = null;
@@ -218,11 +246,14 @@ namespace TheStardewSquad.Framework
             // If no valid task was identified, do nothing.
             if (taskType == null || !targetObjectTile.HasValue) return;
 
-            // 2. Now that we know the task, find WHO is the best follower for it.
+            // 2. Now find the best follower, restricted to the requester's own mates in
+            //    the requester's location.
             ISquadMate bestMate = this._squadManager.Members
-                .Where(m => m.CanPerformTask(taskType.Value)) // A: Filter by who can do the task.
-                .OrderBy(m => Vector2.DistanceSquared(m.Npc.Tile, tile.ToVector2())) // B: then sort the capable ones by distance.
-                .FirstOrDefault(); // C: Get the best one.
+                .Where(m => m.RecruiterUniqueId == requester.UniqueMultiplayerID)
+                .Where(m => m.Npc.currentLocation == location)
+                .Where(m => m.CanPerformTask(taskType.Value))
+                .OrderBy(m => Vector2.DistanceSquared(m.Npc.Tile, tile.ToVector2()))
+                .FirstOrDefault();
 
             // If no one in the squad can perform this task, do nothing.
             if (bestMate == null) return;

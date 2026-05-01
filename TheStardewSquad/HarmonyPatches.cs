@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Characters;
@@ -79,6 +80,29 @@ namespace TheStardewSquad.Patches
 
         /// <summary>Gets the last game tick when the local player milked an animal.</summary>
         public static int GetLastPlayerMilkingTick() => _lastPlayerMilkingTick.Value;
+
+        /// <summary>
+        /// Routes a "farmer just performed a mimickable task" event. On the host this
+        /// updates squad mate timers directly via <see cref="FollowerManager.OnFarmerAction"/>;
+        /// on a farmhand it sends a <c>MimickingRequest</c> to the host so the host's mates
+        /// owned by this farmhand can react.
+        /// </summary>
+        private static void DispatchMimicking(Farmer who, TaskType type)
+        {
+            if (who == null) return;
+
+            if (Context.IsMainPlayer)
+            {
+                _followerManager?.OnFarmerAction(who, type);
+            }
+            else if (Context.IsMultiplayer)
+            {
+                _modEntry?.MessageDispatcher?.SendMimickingRequest(
+                    who.UniqueMultiplayerID,
+                    type,
+                    who.currentLocation?.NameOrUniqueName ?? string.Empty);
+            }
+        }
 
         /// <summary>
         /// Updates player sitting state tracking. Call this from FollowerManager.OnUpdateTicked
@@ -1152,6 +1176,7 @@ namespace TheStardewSquad.Patches
             if (who.IsLocalPlayer && !is_auto_pet)
             {
                 _lastPlayerPettingTick.Value = Game1.ticks;
+                DispatchMimicking(who, TaskType.Petting);
             }
         }
 
@@ -1175,6 +1200,7 @@ namespace TheStardewSquad.Patches
                 if (wasPetted)
                 {
                     _lastPlayerPettingTick.Value = Game1.ticks;
+                    DispatchMimicking(who, TaskType.Petting);
                 }
             }
         }
@@ -1195,6 +1221,7 @@ namespace TheStardewSquad.Patches
                 return;
 
             _lastPlayerShearingTick.Value = Game1.ticks;
+            DispatchMimicking(who, TaskType.Shearing);
         }
 
         private static void MilkPail_DoFunction_Prefix(StardewValley.Tools.MilkPail __instance, out FarmAnimal __state)
@@ -1208,6 +1235,7 @@ namespace TheStardewSquad.Patches
                 return;
 
             _lastPlayerMilkingTick.Value = Game1.ticks;
+            DispatchMimicking(who, TaskType.Milking);
         }
 
         #endregion
@@ -1238,6 +1266,9 @@ namespace TheStardewSquad.Patches
             if (isSuccessfulHarvest)
             {
                 _lastPlayerHarvestingTick.Value = Game1.ticks;
+                // Crop.harvest doesn't receive a Farmer parameter; the local screen's
+                // player is whoever triggered the harvest (their tool ran the call).
+                DispatchMimicking(Game1.player, TaskType.Harvesting);
             }
         }
 

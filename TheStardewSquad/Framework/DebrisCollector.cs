@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
 using TheStardewSquad.Framework.Squad;
@@ -27,6 +28,9 @@ namespace TheStardewSquad.Framework.Gathering
         public void Update(IEnumerable<ISquadMate> squadMembers)
         {
             this._updateCounter++;
+
+            // Host-only authority: in MP, only the main player runs debris pickup.
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
 
             if (!_config.EnableGathering) return;
 

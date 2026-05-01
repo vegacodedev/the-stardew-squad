@@ -1855,8 +1855,9 @@ namespace TheStardewSquad.Framework
                 TryAddItemToInventory(itemToAdd.getOne(), recruiter: who);
             }
 
-            // Grant foraging experience.
-            Game1.player.gainExperience(2, 7); // 2 = Foraging, 7 = XP amount per item
+            // Grant foraging XP to the recruiter (matches vanilla MP semantics where the
+            // actor of the action is credited).
+            who.gainExperience(2, 7); // 2 = Foraging, 7 = XP amount per item
 
             return true;
         }
@@ -1885,11 +1886,11 @@ namespace TheStardewSquad.Framework
 
             if (isInsideCoopOrBarn)
             {
-                Game1.player.gainExperience(0, 5); // 0 = Farming
+                who.gainExperience(0, 5); // 0 = Farming, credited to recruiter
             }
             else
             {
-                Game1.player.gainExperience(2, 5); // 2 = Foraging
+                who.gainExperience(2, 5); // 2 = Foraging, credited to recruiter
             }
 
             return true;
@@ -3323,6 +3324,8 @@ namespace TheStardewSquad.Framework
             NPC npc = mate.Npc;
             var location = npc.currentLocation;
             var tileVector = tile.ToVector2();
+            // Resolve the recruiter for XP credit; fall back to MasterPlayer if offline.
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
 
             Tool tool = isMilking ? (Tool)_sharedMilkPail : _sharedShears;
             string taskName = isMilking ? "Milking" : "Shearing";
@@ -3362,7 +3365,7 @@ namespace TheStardewSquad.Framework
             location.playSound("coin");
             targetAnimal.friendshipTowardFarmer.Value = Math.Min(1000, targetAnimal.friendshipTowardFarmer.Value + 5);
             targetAnimal.ReloadTextureIfNeeded();
-            Game1.player.gainExperience(0, 5);
+            who.gainExperience(0, 5); // 0 = Farming, credited to recruiter
 
             if (isMilking)
                 targetAnimal.pauseTimer = 1500;
