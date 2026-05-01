@@ -92,7 +92,9 @@ namespace TheStardewSquad.Framework
         }
 
         /// <summary>Finalizes the recruitment of a squad mate by setting their initial state and adding them to the manager.</summary>
-        public void Recruit(ISquadMate mate)
+        /// <param name="mate">The squad mate to recruit.</param>
+        /// <param name="recruiter">The farmer doing the recruiting; their <see cref="Farmer.UniqueMultiplayerID"/> is stamped onto the NPC's modData so the link survives save/reload and syncs across peers.</param>
+        public void Recruit(ISquadMate mate, Farmer recruiter)
         {
             var config = this._helper.ReadConfig<ModConfig>();
             if (this._squadManager.Count >= config.MaxSquadSize)
@@ -103,6 +105,12 @@ namespace TheStardewSquad.Framework
             if (this._squadManager.IsRecruited(mate.Npc))
                 return;
 
+            // Stamp recruiter onto the NPC's modData. Auto-syncs to peers and persists in save.
+            // Falls back to MasterPlayer's id if recruiter is somehow null (shouldn't happen in production).
+            long recruiterId = recruiter?.UniqueMultiplayerID ?? Game1.MasterPlayer?.UniqueMultiplayerID ?? 0L;
+            mate.Npc.modData[SquadMate.RecruiterIdKey] = recruiterId.ToString();
+            mate.Npc.modData[SquadMate.SchemaVersionKey] = SquadMate.CurrentSchemaVersion;
+
             // Check if NPC is currently waiting - if so, resume them from waiting state
             // Use the existing ISquadMate from waiting list to preserve state (e.g., IsInPool)
             if (this._waitingNpcsManager.IsWaiting(mate.Npc))
@@ -112,6 +120,9 @@ namespace TheStardewSquad.Framework
                 if (waitingMate != null)
                 {
                     mate = waitingMate; // Use the existing instance with preserved state
+                    // Re-stamp recruiter on the resumed mate's NPC (in case it differs from waiting-time recruiter)
+                    mate.Npc.modData[SquadMate.RecruiterIdKey] = recruiterId.ToString();
+                    mate.Npc.modData[SquadMate.SchemaVersionKey] = SquadMate.CurrentSchemaVersion;
                 }
 
                 // Clear waiting task

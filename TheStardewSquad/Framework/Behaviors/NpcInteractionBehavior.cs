@@ -58,7 +58,7 @@ namespace TheStardewSquad.Framework.Behaviors
                 // Check friendship requirement
                 if (npc.isMarried() || player.getFriendshipHeartLevelForNPC(npc.Name) >= _config.FriendshipRequirement)
                 {
-                    this._recruitmentManager.Recruit(mate);
+                    this._recruitmentManager.Recruit(mate, player);
                 }
                 else
                 {

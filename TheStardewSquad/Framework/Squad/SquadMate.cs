@@ -7,6 +7,11 @@ namespace TheStardewSquad.Framework.Squad
     /// <summary>Encapsulates a character who has been recruited into the squad, along with all their states and behaviors.</summary>
     public class SquadMate : ISquadMate
     {
+        // ModData keys for cross-peer recruiter persistence (auto-syncs via vanilla NPC.modData)
+        public const string RecruiterIdKey = "TheStardewSquad/RecruiterId";
+        public const string SchemaVersionKey = "TheStardewSquad/SchemaVersion";
+        public const string CurrentSchemaVersion = "1";
+
         // Injected behaviors
         private readonly ITaskBehavior _taskBehavior;
         private readonly IInteractionBehavior _interactionBehavior;
@@ -15,6 +20,35 @@ namespace TheStardewSquad.Framework.Squad
         // ISquadMate Properties
         public NPC Npc { get; }
         public string Name => this.Npc.displayName;
+
+        public long RecruiterUniqueId
+        {
+            get
+            {
+                if (this.Npc.modData != null
+                    && this.Npc.modData.TryGetValue(RecruiterIdKey, out var s)
+                    && long.TryParse(s, out var id))
+                {
+                    return id;
+                }
+                return Game1.MasterPlayer?.UniqueMultiplayerID ?? 0L;
+            }
+        }
+
+        public bool TryGetRecruiter(out Farmer recruiter)
+        {
+            long id = this.RecruiterUniqueId;
+            foreach (var f in Game1.getOnlineFarmers())
+            {
+                if (f.UniqueMultiplayerID == id)
+                {
+                    recruiter = f;
+                    return true;
+                }
+            }
+            recruiter = null!;
+            return false;
+        }
 
         public bool IsAnimating { get; set; }
         public SquadTask Task { get; set; }

@@ -55,7 +55,6 @@ namespace TheStardewSquad
             var gameContext = factory.CreateGameContext();
             var gameStateService = factory.CreateGameStateService();
             var gameStateChecker = factory.CreateGameStateChecker();
-            var playerService = factory.CreatePlayerService();
             var randomService = factory.CreateRandomService();
 
             // Character services
@@ -90,7 +89,7 @@ namespace TheStardewSquad
             this.InteractionManager = new InteractionManager(helper, this.SquadManager, null, this.BehaviorManager, gameContext, uiService, this.Config);
             this.SquadMateFactory = new SquadMateFactory(helper, this.RecruitmentManager, this.SquadManager, this.Config, this.InteractionManager, this.BehaviorManager, stateHelper, this.DialogueManager, this.Monitor);
             this.InteractionManager.SquadMateFactory = this.SquadMateFactory;
-            this.FollowerManager = new FollowerManager(this.Monitor, this.SquadManager, this.WaitingNpcsManager, this.Config, this.DebrisCollector, this.UnifiedTaskManager, this.FormationManager, this.BehaviorManager, gameStateService, warpService, randomService, taskService, playerService);
+            this.FollowerManager = new FollowerManager(this.Monitor, this.SquadManager, this.WaitingNpcsManager, this.Config, this.DebrisCollector, this.UnifiedTaskManager, this.FormationManager, this.BehaviorManager, gameStateService, warpService, randomService, taskService);
             this.RecruitmentManager.SetFollowerManager(this.FollowerManager);
             this.FollowerManager.SetSpriteManager(this.SpriteManager);
             this.AssetManager = new AssetManager();

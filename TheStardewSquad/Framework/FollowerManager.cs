@@ -30,7 +30,6 @@ namespace TheStardewSquad.Framework
         private readonly IWarpService _warpService;
         private readonly IRandomService _randomService;
         private readonly ITaskService _taskService;
-        private readonly IPlayerService _playerService;
         private SpriteManager? _spriteManager;
         private readonly HashSet<Vector2> _claimedInteractionSpots = new();
         private readonly HashSet<Point> _claimedTaskTargets = new();
@@ -57,7 +56,9 @@ namespace TheStardewSquad.Framework
         private bool _wasInFestival = false;
         private bool _wasInCutscene = false;
         private bool _wasPlayerFishing = false;
-        private bool _wasPlayerRiding = false;
+        // Per-farmer riding state. In MP each online farmer can mount independently and
+        // their own recruited mate rides with them.
+        private readonly Dictionary<long, bool> _wasFarmerRiding = new();
         private int _updateCounter = 0;
         private int _lastFriendshipGainHour = -1;
 
@@ -73,8 +74,7 @@ namespace TheStardewSquad.Framework
             IGameStateService gameStateService,
             IWarpService warpService,
             IRandomService randomService,
-            ITaskService taskService,
-            IPlayerService playerService)
+            ITaskService taskService)
         {
             this._monitor = monitor;
             this._squadManager = squadManager;
@@ -88,13 +88,24 @@ namespace TheStardewSquad.Framework
             this._warpService = warpService;
             this._randomService = randomService;
             this._taskService = taskService;
-            this._playerService = playerService;
         }
 
         /// <summary>Sets the SpriteManager dependency (called after construction due to initialization order).</summary>
         public void SetSpriteManager(SpriteManager spriteManager)
         {
             this._spriteManager = spriteManager;
+        }
+
+        /// <summary>
+        /// Resolves the recruiter for a mate, falling back to <see cref="Game1.MasterPlayer"/>
+        /// (or local <see cref="Game1.player"/> if even that's null in tests) when the recruiter
+        /// is offline.
+        /// </summary>
+        private static Farmer ResolveRecruiterOrFallback(ISquadMate mate)
+        {
+            if (mate.TryGetRecruiter(out var rec))
+                return rec;
+            return Game1.MasterPlayer ?? Game1.player;
         }
 
         public void ResetStateForNewSession()
@@ -112,7 +123,7 @@ namespace TheStardewSquad.Framework
             }
             this._formationManager.Reset();
             this._lastFriendshipGainHour = -1;
-            this._wasPlayerRiding = false;
+            this._wasFarmerRiding.Clear();
         }
 
         private void ClearMateTask(ISquadMate mate)
@@ -245,29 +256,39 @@ namespace TheStardewSquad.Framework
             }
         }
 
-        /// <summary>Called by Harmony patch when the player catches a fish.</summary>
-        public void OnPlayerCaughtFish()
+        /// <summary>Called by Harmony patch when a farmer catches a fish.</summary>
+        /// <param name="who">The farmer who caught the fish (may be a remote farmhand in MP).</param>
+        public void OnPlayerCaughtFish(Farmer who)
         {
-            if (_playerService.CurrentTool is not StardewValley.Tools.FishingRod)
+            if (who.CurrentTool is not StardewValley.Tools.FishingRod)
                 return;
 
-            // Give nearby squad members a chance to catch fish too (matches fishing spot search radius)
+            // Give nearby squad members of THIS recruiter a chance to catch fish too
+            // (matches fishing spot search radius). In MP another farmhand's fish catch
+            // doesn't reward this recruiter's mates.
             int squadSize = _squadManager.Count;
             foreach (var mate in _squadManager.Members)
             {
+                if (mate.RecruiterUniqueId != who.UniqueMultiplayerID)
+                    continue;
+
                 // Only reward NPCs who have fishing tasks and are nearby
                 if (mate.Task?.Type == TaskType.Fishing &&
-                    Vector2.Distance(mate.Npc.Tile, _playerService.Tile) < 15f &&
+                    Vector2.Distance(mate.Npc.Tile, who.Tile) < 15f &&
                     !mate.IsOnCooldown())
                 {
                     _taskService.TryNpcCatchFish(mate, squadSize);
                 }
             }
 
-            // After rewards, clear ALL fishing tasks (even for NPCs who didn't get rewards)
-            // This ensures fishing stops when player catches
+            // After rewards, clear ALL fishing tasks for this recruiter's mates
+            // (even for NPCs who didn't get rewards). This ensures fishing stops when
+            // the recruiter catches.
             foreach (var mate in _squadManager.Members)
             {
+                if (mate.RecruiterUniqueId != who.UniqueMultiplayerID)
+                    continue;
+
                 if (mate.Task?.Type == TaskType.Fishing)
                 {
                     ClearMateTaskAndReset(mate);
@@ -367,7 +388,7 @@ namespace TheStardewSquad.Framework
                 }
                 else
                 {
-                    UpdateSquadMember(mate, _playerService.Player, isFastTick, isSlowTick);
+                    UpdateSquadMember(mate, ResolveRecruiterOrFallback(mate), isFastTick, isSlowTick);
                 }
             }
 
@@ -417,8 +438,9 @@ namespace TheStardewSquad.Framework
         {
             foreach (var mate in this._squadManager.Members)
             {
+                var rec = ResolveRecruiterOrFallback(mate);
                 var npc = mate.Npc;
-                _warpService.WarpCharacter(npc, _playerService.CurrentLocation.Name, _playerService.TilePoint);
+                _warpService.WarpCharacter(npc, rec.currentLocation.NameOrUniqueName, rec.TilePoint);
                 mate.Path.Clear();
                 ClearMateTask(mate);
                 mate.IsCatchingUp = false;
@@ -508,7 +530,7 @@ namespace TheStardewSquad.Framework
 
             if (mate.IsCatchingUp)
             {
-                GenerateAndFollowPath(mate, player.TilePoint, isSlowTick);
+                GenerateAndFollowPath(mate, player.TilePoint, isSlowTick, player);
                 return;
             }
 
@@ -518,7 +540,7 @@ namespace TheStardewSquad.Framework
                 if (_config.TasksEnabled)
                 {
                     var locationInfo = new LocationInfoWrapper(npc.currentLocation, npc);
-                    var attackingTask = _unifiedTaskManager.FindAttackingTask(mate, locationInfo, _playerService.TilePoint, npc.TilePoint, this._claimedInteractionSpots);
+                    var attackingTask = _unifiedTaskManager.FindAttackingTask(mate, locationInfo, player.TilePoint, npc.TilePoint, this._claimedInteractionSpots);
                     if (attackingTask != null)
                     {
                         // Only assign if not already attacking the same monster
@@ -571,7 +593,7 @@ namespace TheStardewSquad.Framework
                     if (_config.TasksEnabled)
                     {
                         var locationInfo = new LocationInfoWrapper(npc.currentLocation, npc);
-                        SquadTask newTask = _unifiedTaskManager.FindUnifiedTask(mate, locationInfo, _playerService.TilePoint, npc.TilePoint, this._claimedTaskTargets, this._claimedInteractionSpots);
+                        SquadTask newTask = _unifiedTaskManager.FindUnifiedTask(mate, locationInfo, player.TilePoint, npc.TilePoint, this._claimedTaskTargets, this._claimedInteractionSpots);
                         if (newTask != null)
                         {
                             AssignTaskToMate(mate, newTask);
@@ -582,7 +604,7 @@ namespace TheStardewSquad.Framework
 
             if (mate.HasTask())
             {
-                HandleTaskExecution(mate, isSlowTick);
+                HandleTaskExecution(mate, isSlowTick, player);
             }
             else
             {
@@ -656,7 +678,7 @@ namespace TheStardewSquad.Framework
             // based on player actions, not when assigning tasks
         }
 
-        private void HandleTaskExecution(ISquadMate mate, bool isSlowTick)
+        private void HandleTaskExecution(ISquadMate mate, bool isSlowTick, Farmer player)
         {
             Point npcTile = mate.Npc.TilePoint;
             Point targetInteractionTile;
@@ -755,7 +777,7 @@ namespace TheStardewSquad.Framework
             }
             else
             {
-                GenerateAndFollowPath(mate, targetInteractionTile, isSlowTick);
+                GenerateAndFollowPath(mate, targetInteractionTile, isSlowTick, player);
             }
         }
 
@@ -797,21 +819,21 @@ namespace TheStardewSquad.Framework
                     mate.CurrentMoveDirection = -1;
                     mate.Halt();
 
-                    // Only face the player if we haven't just cleared a task (prevents brief turn glitch)
+                    // Only face the recruiter if we haven't just cleared a task (prevents brief turn glitch)
                     if (mate.FramesSinceTaskCleared > 15)
                     {
-                        _taskService.FacePosition(mate.Npc, _playerService.StandingPosition);
+                        _taskService.FacePosition(mate.Npc, player.getStandingPosition());
                     }
                 }
             }
             else
             {
                 // If we are far from our spot, generate a path to it.
-                GenerateAndFollowPath(mate, idealTile, isSlowTick);
+                GenerateAndFollowPath(mate, idealTile, isSlowTick, player);
             }
         }
 
-        private void GenerateAndFollowPath(ISquadMate mate, Point targetTile, bool isSlowTick)
+        private void GenerateAndFollowPath(ISquadMate mate, Point targetTile, bool isSlowTick, Farmer player)
         {
             var npc = mate.Npc;
             Point pathableTarget = targetTile;
@@ -826,8 +848,8 @@ namespace TheStardewSquad.Framework
                     else
                     {
                         // If the target tile and all its neighbors are impassable (e.g., tight corridor),
-                        // fall back to pathing directly to the player to collapse the formation.
-                        pathableTarget = _playerService.TilePoint;
+                        // fall back to pathing directly to the recruiter to collapse the formation.
+                        pathableTarget = player.TilePoint;
                     }
                 }
 
@@ -845,7 +867,7 @@ namespace TheStardewSquad.Framework
                         path.Pop();
                     }
                 }
-                
+
                 if (path != null && path.Count > 0)
                 {
                     mate.Path = path;
@@ -860,7 +882,7 @@ namespace TheStardewSquad.Framework
 
             if (mate.StuckCounter > 20)
             {
-                _warpService.WarpCharacter(npc, npc.currentLocation.Name, _playerService.TilePoint);
+                _warpService.WarpCharacter(npc, npc.currentLocation.NameOrUniqueName, player.TilePoint);
                 mate.Path.Clear();
                 ClearMateTask(mate);
                 mate.StuckCounter = 0;
@@ -950,9 +972,9 @@ namespace TheStardewSquad.Framework
         {
             var npc = mate.Npc;
 
-            if (npc.currentLocation != _playerService.CurrentLocation)
+            if (npc.currentLocation != player.currentLocation)
             {
-                _warpService.WarpCharacter(npc, _playerService.CurrentLocation.Name, _playerService.TilePoint);
+                _warpService.WarpCharacter(npc, player.currentLocation.NameOrUniqueName, player.TilePoint);
                 mate.Path.Clear();
                 ClearMateTask(mate);
                 mate.StuckCounter = 0;
@@ -964,13 +986,13 @@ namespace TheStardewSquad.Framework
 
             if (mate.HasTask() || mate.IsCatchingUp)
             {
-                int taskSpeed = (int)_playerService.MovementSpeed + 1;
+                int taskSpeed = (int)player.getMovementSpeed() + 1;
                 npc.speed = Math.Max(2, taskSpeed);
             }
             else
             {
-                float distanceToTarget = Vector2.Distance(npc.Tile, _playerService.Tile);
-                float targetSpeed = _playerService.MovementSpeed;
+                float distanceToTarget = Vector2.Distance(npc.Tile, player.Tile);
+                float targetSpeed = player.getMovementSpeed();
                 int baseNpcSpeed = Math.Max(1, (int)targetSpeed);
 
                 if (distanceToTarget > 5f)
@@ -1040,13 +1062,16 @@ namespace TheStardewSquad.Framework
 
             foreach (var mate in this._squadManager.Members)
             {
+                // Friendship gain credits the recruiter so a farmhand's mate raises that
+                // farmhand's friendship.
+                var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
                 if (mate.Npc is Pet pet)
                 {
                     pet.friendshipTowardFarmer.Value = Math.Min(1000, pet.friendshipTowardFarmer.Value + pointsToAdd);
                 }
                 else if (mate.Npc.isVillager())
                 {
-                    _playerService.ChangeFriendship(pointsToAdd, mate.Npc);
+                    who.changeFriendship(pointsToAdd, mate.Npc);
                 }
             }
             
@@ -1056,52 +1081,73 @@ namespace TheStardewSquad.Framework
         #region Horse Riding
 
         /// <summary>
-        /// Updates riding state transitions (mount/dismount) and identifies the riding squad member.
-        /// Returns the squad member currently riding with the player, or null if no one is riding.
+        /// Updates riding state transitions (mount/dismount) for each online farmer and
+        /// identifies the squad member riding behind a farmer (if any). In MP each online
+        /// farmer can independently mount; the first eligible mate of THAT farmer rides
+        /// with them.
         /// </summary>
+        /// <returns>
+        /// The squad member currently riding with the LOCAL screen's player, or null. The
+        /// local-screen filter ensures the per-screen riding-update path stays compatible
+        /// with the existing single-rider drawing/animation logic; remote farmers' riding
+        /// mates are still updated server-side via the foreach below.
+        /// </returns>
         private ISquadMate? UpdateRidingState()
         {
-            bool isPlayerRiding = _config.EnableRiding && _playerService.IsRiding;
+            if (!_config.EnableRiding)
+                return null;
 
-            if (isPlayerRiding && !_wasPlayerRiding)
+            // Walk every online farmer. In SP this loops once over Game1.player. In MP each
+            // farmer's mount state is independently tracked so two farmhands can each ride
+            // with their own recruited mate at the same time.
+            foreach (var farmer in Game1.getOnlineFarmers())
             {
-                // Player just mounted — assign the first squad member to ride
-                var firstMate = _squadManager.Members.FirstOrDefault();
-                if (firstMate != null)
-                {
-                    ClearMateTaskAndReset(firstMate);
-                    firstMate.IsRidingWithPlayer = true;
-                    firstMate.Npc.HideShadow = true;
+                long farmerId = farmer.UniqueMultiplayerID;
+                bool isFarmerRiding = farmer.mount != null;
+                _wasFarmerRiding.TryGetValue(farmerId, out bool wasFarmerRiding);
 
-                    // Apply sitting sprite (same as Sitting feature)
-                    _spriteManager?.TryApplySittingSpriteSheet(firstMate.Npc, firstMate, firstMate.Npc.FacingDirection);
-                }
-            }
-            else if (!isPlayerRiding && _wasPlayerRiding)
-            {
-                // Player just dismounted — release the riding member and restore sprites
-                foreach (var mate in _squadManager.Members)
+                if (isFarmerRiding && !wasFarmerRiding)
                 {
-                    if (mate.IsRidingWithPlayer)
+                    // This farmer just mounted — assign their first available recruited mate to ride.
+                    var rideMate = _squadManager.Members
+                        .FirstOrDefault(m => m.RecruiterUniqueId == farmerId && !m.IsRidingWithPlayer);
+                    if (rideMate != null)
                     {
-                        mate.IsRidingWithPlayer = false;
-                        mate.Npc.drawOffset = Vector2.Zero;
-                        mate.Npc.HideShadow = false;
-                        _spriteManager?.RestoreOriginalTexture(mate.Npc, mate);
-                        mate.Npc.Sprite.StopAnimation();
-                        mate.Npc.flip = false;
-                        mate.Halt();
+                        ClearMateTaskAndReset(rideMate);
+                        rideMate.IsRidingWithPlayer = true;
+                        rideMate.Npc.HideShadow = true;
+
+                        // Apply sitting sprite (same as Sitting feature)
+                        _spriteManager?.TryApplySittingSpriteSheet(rideMate.Npc, rideMate, rideMate.Npc.FacingDirection);
                     }
                 }
+                else if (!isFarmerRiding && wasFarmerRiding)
+                {
+                    // This farmer just dismounted — release any of their riding mates.
+                    foreach (var mate in _squadManager.Members)
+                    {
+                        if (mate.RecruiterUniqueId == farmerId && mate.IsRidingWithPlayer)
+                        {
+                            mate.IsRidingWithPlayer = false;
+                            mate.Npc.drawOffset = Vector2.Zero;
+                            mate.Npc.HideShadow = false;
+                            _spriteManager?.RestoreOriginalTexture(mate.Npc, mate);
+                            mate.Npc.Sprite.StopAnimation();
+                            mate.Npc.flip = false;
+                            mate.Halt();
+                        }
+                    }
+                }
+
+                _wasFarmerRiding[farmerId] = isFarmerRiding;
             }
 
-            _wasPlayerRiding = isPlayerRiding;
-
-            if (isPlayerRiding)
-            {
-                return _squadManager.Members.FirstOrDefault(m => m.IsRidingWithPlayer);
-            }
-            return null;
+            // Return only the LOCAL-screen player's riding mate so the existing per-tick
+            // riding update path drives at most one mate per screen. Remote farmers' riding
+            // mates have their position synced via the netfields once the host writes Position.
+            var localId = Game1.player?.UniqueMultiplayerID ?? 0L;
+            return _squadManager.Members.FirstOrDefault(m =>
+                m.IsRidingWithPlayer && m.RecruiterUniqueId == localId);
         }
 
         /// <summary>
@@ -1112,23 +1158,31 @@ namespace TheStardewSquad.Framework
         private void UpdateRidingMember(ISquadMate mate)
         {
             var npc = mate.Npc;
-            var player = _playerService.Player;
+            // Anchor to the recruiter (the farmer this NPC is riding behind), not the local
+            // screen's player. In MP a farmhand's recruited mate rides behind the farmhand;
+            // their mount.Position is the most current position via netfield sync.
+            if (!mate.TryGetRecruiter(out var rider))
+                return;
 
             SquadMateStateHelper.MaintainControl(npc);
 
-            // Ensure the NPC is in the same location as the player
-            if (npc.currentLocation != _playerService.CurrentLocation)
+            // Ensure the NPC is in the same location as the rider
+            if (npc.currentLocation != rider.currentLocation)
             {
-                _warpService.WarpCharacter(npc, _playerService.CurrentLocation.Name, _playerService.TilePoint);
+                _warpService.WarpCharacter(npc, rider.currentLocation.NameOrUniqueName, rider.TilePoint);
             }
 
-            // +Y offset layers the NPC in front of the player for Up/Left/Right.
-            // For Down, HarmonyPatches.AdjustSittingNpcDepth overrides depth to slot the NPC behind the player.
-            npc.Position = new Vector2(player.Position.X, player.Position.Y + 8f);
+            // +Y offset layers the NPC in front of the rider for Up/Left/Right.
+            // For Down, HarmonyPatches.AdjustSittingNpcDepth overrides depth to slot the NPC behind the rider.
+            // Use mount.Position when available — Horse.SyncPositionToRider keeps it current
+            // and the netfield replication is more reliable than reading rider.Position directly
+            // for remote farmhands.
+            var anchorPos = rider.mount?.Position ?? rider.Position;
+            npc.Position = new Vector2(anchorPos.X, anchorPos.Y + 8f);
 
-            npc.faceDirection(player.FacingDirection);
+            npc.faceDirection(rider.FacingDirection);
 
-            bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(npc, mate, player.FacingDirection) ?? false;
+            bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(npc, mate, rider.FacingDirection) ?? false;
             if (!usedCustomSprite)
             {
                 _spriteManager?.ForceApplyTaskAnimation(npc, "Sitting");
@@ -1141,7 +1195,9 @@ namespace TheStardewSquad.Framework
         internal Vector2 ComputeRidingDrawOffset(ISquadMate mate)
         {
             var npc = mate.Npc;
-            var player = _playerService.Player;
+            // Resolve the rider this mate is riding behind. Falls through to the local
+            // player only if the recruiter is offline (rare for an actively-riding mate).
+            var player = mate.TryGetRecruiter(out var rec) ? rec : Game1.player;
             if (player?.mount == null) return Vector2.Zero;
 
             // Wobble: sync to the horse's sprite animation index (same formula as Farmer.showRiding).

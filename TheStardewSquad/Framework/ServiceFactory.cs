@@ -27,7 +27,6 @@ namespace TheStardewSquad.Framework
         public IGameContext CreateGameContext() => new GameContextWrapper();
         public IGameStateService CreateGameStateService() => new GameStateServiceWrapper();
         public IGameStateChecker CreateGameStateChecker() => new GameStateCheckerWrapper();
-        public IPlayerService CreatePlayerService() => new PlayerServiceWrapper();
         public IRandomService CreateRandomService() => new RandomServiceWrapper();
 
         // Character Services

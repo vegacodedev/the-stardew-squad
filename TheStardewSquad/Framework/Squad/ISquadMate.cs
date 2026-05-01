@@ -8,9 +8,24 @@ namespace TheStardewSquad.Framework.Squad
     {
         /// <summary>The underlying game character (e.g., NPC, Pet).</summary>
         NPC Npc { get; }
-        
+
         /// <summary>The unique name of the character, used for internal tracking.</summary>
         string Name { get; }
+
+        /// <summary>
+        /// The <see cref="Farmer.UniqueMultiplayerID"/> of the farmhand who recruited this NPC.
+        /// Read from <c>NPC.modData["TheStardewSquad/RecruiterId"]</c>; falls back to
+        /// <see cref="Game1.MasterPlayer"/>'s id if unset.
+        /// </summary>
+        long RecruiterUniqueId { get; }
+
+        /// <summary>
+        /// Attempts to resolve the recruiter to a live <see cref="Farmer"/> via
+        /// <see cref="Game1.getOnlineFarmers"/>. Returns false if the recruiter is offline
+        /// (disconnected / not yet joined). Never memoize the returned reference — peers
+        /// join/leave mid-session.
+        /// </summary>
+        bool TryGetRecruiter(out Farmer recruiter);
 
         // State
         bool IsAnimating { get; set; }

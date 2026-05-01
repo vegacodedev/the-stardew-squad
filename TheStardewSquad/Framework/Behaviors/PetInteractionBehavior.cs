@@ -32,7 +32,7 @@ namespace TheStardewSquad.Framework.Behaviors
 
             _memberPrompt.PromptForRecruitment(mate, player, () =>
             {
-                this._recruitmentManager.Recruit(mate);
+                this._recruitmentManager.Recruit(mate, player);
                 var message = _helper.Translation.Get("recruitment.petRecruited", new { name = npc.Name });
                 Game1.showGlobalMessage(message);
             });

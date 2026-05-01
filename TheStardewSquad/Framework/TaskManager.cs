@@ -123,20 +123,32 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Common Helpers
-        /// <summary>Creates a chest instance connected to the squad's global inventory.</summary>
-        private static StardewValley.Objects.Chest GetSquadChest()
+        /// <summary>
+        /// Returns the per-recruiter squad inventory id. Each recruiter gets their own squad chest
+        /// so in MP each farmhand's recruited mates deposit to that farmhand's squad chest, not
+        /// a single team-wide pool. In SP this is just the local player's id.
+        /// </summary>
+        public static string GetSquadInventoryId(Farmer recruiter)
         {
+            return $"TheStardewSquad_SquadInventory_{recruiter.UniqueMultiplayerID}";
+        }
+
+        /// <summary>Creates a chest instance connected to the recruiter's squad inventory.</summary>
+        private static StardewValley.Objects.Chest GetSquadChest(Farmer? recruiter = null)
+        {
+            var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
             return new StardewValley.Objects.Chest(playerChest: true)
             {
-                GlobalInventoryId = "TheStardewSquad_SquadInventory"
+                GlobalInventoryId = GetSquadInventoryId(who)
             };
         }
 
         #endregion
 
-        private static int GetAxeUpgradeLevel()
+        private static int GetAxeUpgradeLevel(Farmer? recruiter = null)
         {
-            switch (Game1.player.ForagingLevel)
+            var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            switch (who.ForagingLevel)
             {
                 case >= 10: return 4; // Iridium
                 case >= 8: return 3;  // Gold
@@ -146,9 +158,10 @@ namespace TheStardewSquad.Framework
             }
         }
 
-        private static int GetPickaxeUpgradeLevel()
+        private static int GetPickaxeUpgradeLevel(Farmer? recruiter = null)
         {
-            switch (Game1.player.MiningLevel)
+            var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            switch (who.MiningLevel)
             {
                 case >= 10: return 4; // Iridium
                 case >= 8: return 3;  // Gold
@@ -171,12 +184,13 @@ namespace TheStardewSquad.Framework
             }
         }
 
-        public static bool CanSquadInventoryAcceptItem(Item item)
+        public static bool CanSquadInventoryAcceptItem(Item item, Farmer? recruiter = null)
         {
             if (item == null)
                 return false;
 
-            var squadInventory = Game1.player.team.GetOrCreateGlobalInventory("TheStardewSquad_SquadInventory");
+            var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            var squadInventory = Game1.player.team.GetOrCreateGlobalInventory(GetSquadInventoryId(who));
 
             // Check if any existing item in the inventory can stack with the new item.
             foreach (Item slot in squadInventory)
@@ -199,43 +213,48 @@ namespace TheStardewSquad.Framework
         }
 
         /// <summary>Checks if an item can be accepted based on the UseSquadInventory config setting.</summary>
-        public static bool CanAcceptItem(Item item)
+        /// <param name="recruiter">The recruiter whose inventory will be checked when squad-inventory mode is off. Defaults to MasterPlayer for non-MP-aware callers.</param>
+        public static bool CanAcceptItem(Item item, Farmer? recruiter = null)
         {
             if (item == null)
                 return false;
 
             if (_config.UseSquadInventory)
             {
-                return CanSquadInventoryAcceptItem(item);
+                return CanSquadInventoryAcceptItem(item, recruiter);
             }
             else
             {
-                return Game1.player.couldInventoryAcceptThisItem(item);
+                var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+                return who.couldInventoryAcceptThisItem(item);
             }
         }
 
         /// <summary>Tries to add an item to the appropriate inventory based on the UseSquadInventory config setting.</summary>
         /// <param name="item">The item to add.</param>
-        /// <param name="dropIfFullAt">If provided, falls back to the player's inventory when the squad chest is full, and drops the item as debris at this NPC's position if both are full. Always returns true in that case.</param>
+        /// <param name="dropIfFullAt">If provided, falls back to the recruiter's inventory when the squad chest is full, and drops the item as debris at this NPC's position if both are full. Always returns true in that case.</param>
+        /// <param name="recruiter">The recruiter whose inventory receives the item when squad-inventory mode is off. Defaults to MasterPlayer for non-MP-aware callers.</param>
         /// <returns>True if the item was successfully added (or dropped on the ground when <paramref name="dropIfFullAt"/> is set); false otherwise.</returns>
-        private static bool TryAddItemToInventory(Item item, NPC dropIfFullAt = null)
+        private static bool TryAddItemToInventory(Item item, NPC? dropIfFullAt = null, Farmer? recruiter = null)
         {
             if (item == null)
                 return false;
 
+            var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+
             if (_config.UseSquadInventory)
             {
-                var squadChest = GetSquadChest();
+                var squadChest = GetSquadChest(who);
                 if (squadChest.addItem(item) == null)
                     return true;
 
                 if (dropIfFullAt == null)
                     return false;
 
-                if (Game1.player.addItemToInventoryBool(item))
+                if (who.addItemToInventoryBool(item))
                     return true;
             }
-            else if (Game1.player.addItemToInventoryBool(item))
+            else if (who.addItemToInventoryBool(item))
             {
                 return true;
             }
@@ -379,11 +398,13 @@ namespace TheStardewSquad.Framework
             return distanceX <= 1 && distanceY <= 1;
         }
 
-        public static Monster FindHostileMonster(NPC npc, IMonitor monitor)
+        public static Monster FindHostileMonster(NPC npc, IMonitor monitor, Farmer? recruiter = null)
         {
-            // Backward-compatible wrapper that uses the testable version
+            // Wrapper for non-MP-aware callers. In MP, prefer the parameterized overload
+            // and pass the recruiter's TilePoint directly.
             var location = npc.currentLocation;
-            var playerTile = Game1.player.Tile.ToPoint();
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            var playerTile = anchor.Tile.ToPoint();
             int searchRadius = 8;
 
             return FindHostileMonster(
@@ -494,11 +515,14 @@ namespace TheStardewSquad.Framework
                 return false; // Not adjacent - continue task, NPC will path closer
             }
 
-            var (minDamage, maxDamage) = CalculateAttackDamage(Game1.player);
+            // Damage and crit math are derived from the recruiter's stats so per-mate
+            // attacks reflect the recruiting farmer's combat profile (and credit them).
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+            var (minDamage, maxDamage) = CalculateAttackDamage(who);
 
             // Calculate critical hit parameters using vanilla weapon mechanics
-            float critChance = CalculateCritChance(Game1.player);
-            float critMultiplier = CalculateCritMultiplier(Game1.player);
+            float critChance = CalculateCritChance(who);
+            float critMultiplier = CalculateCritMultiplier(who);
 
             // Use extended damageMonster overload with critical hit support
             npc.currentLocation.damageMonster(
@@ -508,10 +532,10 @@ namespace TheStardewSquad.Framework
                 false,                  // isBomb
                 1.0f,                   // knockBackModifier
                 0,                      // addedPrecision
-                critChance,             // critChance (2% base + player buffs)
-                critMultiplier,         // critMultiplier (3x base + player buffs)
+                critChance,             // critChance (2% base + recruiter buffs)
+                critMultiplier,         // critMultiplier (3x base + recruiter buffs)
                 true,                   // triggerMonsterInvincibleTimer
-                Game1.player,           // who
+                who,                    // who (gets kill credit / XP)
                 true                    // isProjectile (true to always hit)
             );
             npc.currentLocation.playSound("swordswipe");
@@ -880,12 +904,14 @@ namespace TheStardewSquad.Framework
                 return false; // Not adjacent - continue task, NPC will path closer
             }
 
-            var (minDamage, maxDamage) = CalculateAttackDamage(Game1.player);
+            // Damage / crit derived from recruiter so the pet's owner gets the kill credit.
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+            var (minDamage, maxDamage) = CalculateAttackDamage(who);
 
             // Calculate critical hit parameters using vanilla weapon mechanics
             // Pets now use the same crit calculations as humanoid NPCs
-            float critChance = CalculateCritChance(Game1.player);
-            float critMultiplier = CalculateCritMultiplier(Game1.player);
+            float critChance = CalculateCritChance(who);
+            float critMultiplier = CalculateCritMultiplier(who);
 
             // Use extended damageMonster overload with critical hit support
             npc.currentLocation.damageMonster(
@@ -895,10 +921,10 @@ namespace TheStardewSquad.Framework
                 false,                  // isBomb
                 1.0f,                   // knockBackModifier
                 0,                      // addedPrecision
-                critChance,             // critChance (1.5% base + player buffs)
-                critMultiplier,         // critMultiplier (3x base + player buffs)
+                critChance,             // critChance (1.5% base + recruiter buffs)
+                critMultiplier,         // critMultiplier (3x base + recruiter buffs)
                 true,                   // triggerMonsterInvincibleTimer
-                Game1.player,           // who
+                who,                    // who (gets kill credit / XP)
                 true                    // isProjectile (true to always hit)
             );
             npc.currentLocation.playSound("daggerswipe");
@@ -1179,11 +1205,12 @@ namespace TheStardewSquad.Framework
             return (null, null); // No suitable target found
         }
 
-        /// <summary>Finds a lumbering target (damaged tree or twig). (Backward-compatible overload)</summary>
-        public static (Point? target, Point? interactionPoint) FindLumberingTarget(NPC npc, IMonitor monitor, ISet<Vector2> claimedInteractionSpots, ISet<Point> claimedTaskTargets)
+        /// <summary>Finds a lumbering target (damaged tree or twig). Convenience wrapper for non-MP-aware callers.</summary>
+        public static (Point? target, Point? interactionPoint) FindLumberingTarget(NPC npc, IMonitor monitor, ISet<Vector2> claimedInteractionSpots, ISet<Point> claimedTaskTargets, Farmer? recruiter = null)
         {
             var locationInfo = new LocationInfoWrapper(npc.currentLocation, npc);
-            return FindLumberingTarget(locationInfo, Game1.player.TilePoint, npc.TilePoint, 10, claimedTaskTargets, claimedInteractionSpots, monitor);
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            return FindLumberingTarget(locationInfo, anchor.TilePoint, npc.TilePoint, 10, claimedTaskTargets, claimedInteractionSpots, monitor);
         }
 
         public static bool ExecuteLumberingTask(ISquadMate mate, Point tile)
@@ -1192,7 +1219,10 @@ namespace TheStardewSquad.Framework
 
             var location = npc.currentLocation;
             var tileVector = tile.ToVector2();
-            var tempAxe = new Axe { lastUser = Game1.player, UpgradeLevel = GetAxeUpgradeLevel() };
+            // Use recruiter for tool ownership and upgrade level so wood goes to the
+            // right farmer's inventory and tool-tier rules respect their ForagingLevel.
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+            var tempAxe = new Axe { lastUser = who, UpgradeLevel = GetAxeUpgradeLevel(who) };
             bool taskCompleted = true; // Assume done if target vanishes.
             bool targetFound = false;
 
@@ -1427,11 +1457,12 @@ namespace TheStardewSquad.Framework
             return (null, null);
         }
 
-        /// <summary>Finds a minable rock within search radius (backward-compatible overload).</summary>
-        public static (Point? target, Point? interactionPoint) FindMinableRock(NPC npc, IMonitor monitor, ISet<Vector2> claimedInteractionSpots)
+        /// <summary>Finds a minable rock within search radius. Convenience wrapper for non-MP-aware callers.</summary>
+        public static (Point? target, Point? interactionPoint) FindMinableRock(NPC npc, IMonitor monitor, ISet<Vector2> claimedInteractionSpots, Farmer? recruiter = null)
         {
             var locationInfo = new LocationInfoWrapper(npc.currentLocation, npc);
-            return FindMinableRock(locationInfo, Game1.player.TilePoint, npc.TilePoint, 15, claimedInteractionSpots, monitor);
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            return FindMinableRock(locationInfo, anchor.TilePoint, npc.TilePoint, 15, claimedInteractionSpots, monitor);
         }
 
         public static bool ExecuteMiningTask(ISquadMate mate, Point tile)
@@ -1443,7 +1474,10 @@ namespace TheStardewSquad.Framework
 
             if (location.objects.TryGetValue(tileVector, out var rock))
             {
-                var tempPickaxe = new Pickaxe { lastUser = Game1.player, UpgradeLevel = GetPickaxeUpgradeLevel() };
+                // Use recruiter for tool ownership / upgrade level and OnStoneDestroyed credit
+                // so the recruiting farmer gets mining XP and the right pickaxe tier rules apply.
+                var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+                var tempPickaxe = new Pickaxe { lastUser = who, UpgradeLevel = GetPickaxeUpgradeLevel(who) };
                 rock.performToolAction(tempPickaxe);
 
                 var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
@@ -1456,7 +1490,7 @@ namespace TheStardewSquad.Framework
 
                 if (rock.minutesUntilReady.Value <= 0 && location.objects.ContainsKey(tileVector))
                 {
-                    location.OnStoneDestroyed(rock.ItemId, tile.X, tile.Y, Game1.player);
+                    location.OnStoneDestroyed(rock.ItemId, tile.X, tile.Y, who);
                     rock.performRemoveAction();
                     location.Objects.Remove(tileVector);
                     location.playSound("stoneCrack", tileVector);
@@ -1537,11 +1571,12 @@ namespace TheStardewSquad.Framework
             return beehouses.Any();
         }
 
-        public static (Point? target, Point? interactionPoint) FindHarvestableCrop(NPC npc, ISet<Point> claimedTaskTargets)
+        public static (Point? target, Point? interactionPoint) FindHarvestableCrop(NPC npc, ISet<Point> claimedTaskTargets, Farmer? recruiter = null)
         {
             GameLocation location = npc.currentLocation;
             var searchRadius = 10;
-            var playerTile = Game1.player.TilePoint;
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            var playerTile = anchor.TilePoint;
 
             return FindHarvestableCrop(
                 new LocationInfoWrapper(location, npc),
@@ -1788,35 +1823,39 @@ namespace TheStardewSquad.Framework
             return true;
         }
 
-        /// <summary>Handles picking up a loose forage item, applying player professions, and adding it to the appropriate inventory.</summary>
+        /// <summary>Handles picking up a loose forage item, applying recruiter professions, and adding it to the appropriate inventory.</summary>
         /// <returns>True if the item was successfully picked up; false otherwise.</returns>
         private static bool ExecuteForagePickup(ISquadMate mate, Item item)
         {
-            if (item == null || !CanAcceptItem(item))
+            // Profession bonuses (Botanist iridium-quality, Gatherer double-pick) come from
+            // the recruiter so a farmhand's mate uses the farmhand's profession choices.
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+
+            if (item == null || !CanAcceptItem(item, who))
                 return false;
 
             Item itemToAdd = item.getOne();
 
             // Apply Botanist profession (iridium quality on forage)
-            if (Game1.player.professions.Contains(Farmer.botanist))
+            if (who.professions.Contains(Farmer.botanist))
             {
                 itemToAdd.Quality = 4;
             }
 
             // Add the primary item. If it fails, something is wrong, so abort.
-            if (!TryAddItemToInventory(itemToAdd))
+            if (!TryAddItemToInventory(itemToAdd, recruiter: who))
             {
                 return false;
             }
 
             // Apply Gatherer profession (20% chance for double forage)
-            if (Game1.player.professions.Contains(Farmer.gatherer) && Game1.random.NextDouble() < 0.20)
+            if (who.professions.Contains(Farmer.gatherer) && Game1.random.NextDouble() < 0.20)
             {
                 // Try to add a second item. We don't care if this one fails.
-                TryAddItemToInventory(itemToAdd.getOne());
+                TryAddItemToInventory(itemToAdd.getOne(), recruiter: who);
             }
 
-            // Grant the player foraging experience
+            // Grant foraging experience.
             Game1.player.gainExperience(2, 7); // 2 = Foraging, 7 = XP amount per item
 
             return true;
@@ -1826,13 +1865,15 @@ namespace TheStardewSquad.Framework
         /// <returns>True if the item was successfully picked up; false otherwise.</returns>
         private static bool ExecuteAnimalProductPickup(ISquadMate mate, Item item, GameLocation location)
         {
-            if (item == null || !CanAcceptItem(item))
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+
+            if (item == null || !CanAcceptItem(item, who))
                 return false;
 
             Item itemToAdd = item.getOne();
 
             // Add the item. If it fails, something is wrong, so abort.
-            if (!TryAddItemToInventory(itemToAdd))
+            if (!TryAddItemToInventory(itemToAdd, recruiter: who))
             {
                 return false;
             }
@@ -1883,12 +1924,13 @@ namespace TheStardewSquad.Framework
             return false;
         }
 
-        /// <summary>Creates a fishing task for an NPC when the player is fishing. Returns null if no valid fishing spot is found.</summary>
-        public static SquadTask? CreateFishingTask(NPC npc, ISet<Vector2> claimedInteractionSpots, ISet<Point> claimedTaskTargets, IMonitor monitor)
+        /// <summary>Creates a fishing task for an NPC when the recruiter is fishing. Returns null if no valid fishing spot is found.</summary>
+        public static SquadTask? CreateFishingTask(NPC npc, ISet<Vector2> claimedInteractionSpots, ISet<Point> claimedTaskTargets, IMonitor monitor, Farmer? recruiter = null)
         {
             var location = npc.currentLocation;
             var locationInfo = new LocationInfoWrapper(location, npc);
-            return CreateFishingTask(locationInfo, Game1.player.TilePoint, npc.TilePoint, claimedInteractionSpots, claimedTaskTargets, monitor);
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            return CreateFishingTask(locationInfo, anchor.TilePoint, npc.TilePoint, claimedInteractionSpots, claimedTaskTargets, monitor);
         }
 
         /// <summary>Creates a fishing task for an NPC (testable overload).</summary>
@@ -2033,11 +2075,12 @@ namespace TheStardewSquad.Framework
             return null;
         }
 
-        /// <summary>Finds a valid fishing spot adjacent to or near a water tile. (Backward-compatible overload)</summary>
-        private static Point? FindFishingSpot(GameLocation location, Point waterTile, NPC npc, ISet<Vector2> claimedInteractionSpots, IMonitor monitor)
+        /// <summary>Finds a valid fishing spot adjacent to or near a water tile. Convenience wrapper for non-MP-aware callers.</summary>
+        private static Point? FindFishingSpot(GameLocation location, Point waterTile, NPC npc, ISet<Vector2> claimedInteractionSpots, IMonitor monitor, Farmer? recruiter = null)
         {
             var locationInfo = new LocationInfoWrapper(location, npc);
-            return FindFishingSpot(locationInfo, waterTile, Game1.player.TilePoint, npc.TilePoint, claimedInteractionSpots, monitor);
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            return FindFishingSpot(locationInfo, waterTile, anchor.TilePoint, npc.TilePoint, claimedInteractionSpots, monitor);
         }
 
         /// <summary>Checks if an NPC can pathfind away from a fishing spot (to avoid getting trapped).</summary>
@@ -2076,11 +2119,12 @@ namespace TheStardewSquad.Framework
             return false;
         }
 
-        /// <summary>Checks if an NPC can pathfind away from a fishing spot. (Backward-compatible overload)</summary>
-        private static bool IsSpotEscapable(GameLocation location, Point spot, NPC npc, IMonitor monitor)
+        /// <summary>Checks if an NPC can pathfind away from a fishing spot. Convenience wrapper for non-MP-aware callers.</summary>
+        private static bool IsSpotEscapable(GameLocation location, Point spot, NPC npc, IMonitor monitor, Farmer? recruiter = null)
         {
             var locationInfo = new LocationInfoWrapper(location, npc);
-            return IsSpotEscapable(locationInfo, spot, Game1.player.TilePoint, npc.TilePoint, monitor);
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            return IsSpotEscapable(locationInfo, spot, anchor.TilePoint, npc.TilePoint, monitor);
         }
 
         /// <summary>Checks if a water tile is valid for fishing (no objects, not blocked by buildings).</summary>
@@ -2141,11 +2185,12 @@ namespace TheStardewSquad.Framework
             return true;
         }
 
-        /// <summary>Checks if a tile is a valid fishing spot. (Backward-compatible overload)</summary>
-        private static bool IsValidFishingSpot(GameLocation location, Point tile, ISet<Vector2> claimedInteractionSpots, NPC npc)
+        /// <summary>Checks if a tile is a valid fishing spot. Convenience wrapper for non-MP-aware callers.</summary>
+        private static bool IsValidFishingSpot(GameLocation location, Point tile, ISet<Vector2> claimedInteractionSpots, NPC npc, Farmer? recruiter = null)
         {
             var locationInfo = new LocationInfoWrapper(location, npc);
-            return IsValidFishingSpot(locationInfo, tile, Game1.player.TilePoint, claimedInteractionSpots, npc.TilePoint);
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            return IsValidFishingSpot(locationInfo, tile, anchor.TilePoint, claimedInteractionSpots, npc.TilePoint);
         }
 
         /// <summary>Executes the fishing task - handles animation.</summary>
@@ -2688,16 +2733,17 @@ namespace TheStardewSquad.Framework
             return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerPettingTick()) < 180;
         }
 
-        /// <summary>Finds an unpetted animal (farm animal or player's pet) for an NPC to pet.</summary>
+        /// <summary>Finds an unpetted animal (farm animal or pet) for an NPC to pet. Convenience wrapper for non-MP-aware callers.</summary>
         public static (Point? target, Point? interactionPoint) FindPettableAnimal(
             NPC npc,
             IMonitor monitor,
             ISet<Vector2> claimedInteractionSpots,
-            ISet<Point> claimedTaskTargets)
+            ISet<Point> claimedTaskTargets,
+            Farmer? recruiter = null)
         {
-            // Backward-compatible wrapper that uses the testable version
             var location = npc.currentLocation;
-            var playerTile = Game1.player.Tile.ToPoint();
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            var playerTile = anchor.Tile.ToPoint();
             int searchRadius = 15;
 
             return FindPettableAnimal(
@@ -2778,14 +2824,26 @@ namespace TheStardewSquad.Framework
                     .FirstOrDefault(a => a.TilePoint == tile);
             }
 
-            // Check player's pet if not found
+            // Find any pet at this tile in the current location, regardless of owner.
+            // Old code restricted to Game1.player's home, which in MP misses other farmhands'
+            // pets that are roaming on the farm or visiting the cabin.
             if (targetAnimal == null)
             {
-                var home = Utility.getHomeOfFarmer(Game1.player);
-                if (home != null)
+                targetAnimal = location.characters.OfType<StardewValley.Characters.Pet>()
+                    .FirstOrDefault(p => p.TilePoint == tile);
+
+                // Fallback: if not at this exact location, walk all farmer homes (handles
+                // pets that are inside their farmhouse / cabin while the petting NPC is also there).
+                if (targetAnimal == null)
                 {
-                    targetAnimal = home.characters.OfType<StardewValley.Characters.Pet>()
-                        .FirstOrDefault(p => p.TilePoint == tile);
+                    foreach (var farmer in Game1.getAllFarmers())
+                    {
+                        var home = Utility.getHomeOfFarmer(farmer);
+                        if (home == null) continue;
+                        var pet = home.characters.OfType<StardewValley.Characters.Pet>()
+                            .FirstOrDefault(p => p.TilePoint == tile);
+                        if (pet != null) { targetAnimal = pet; break; }
+                    }
                 }
             }
 

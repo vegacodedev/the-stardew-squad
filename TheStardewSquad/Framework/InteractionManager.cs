@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Characters;
 using StardewValley.Extensions;
@@ -27,7 +28,14 @@ namespace TheStardewSquad.Framework
         private readonly IUIService _uiService;
         private readonly ModConfig _config;
 
-        public bool PlayerIsAttemptingToUseTool { get; set; } = false;
+        // Tool-attempt flag is per-screen: each split-screen player has their own pending
+        // tool action. Reads/writes go through the property surface unchanged.
+        private readonly PerScreen<bool> _playerIsAttemptingToUseTool = new(() => false);
+        public bool PlayerIsAttemptingToUseTool
+        {
+            get => _playerIsAttemptingToUseTool.Value;
+            set => _playerIsAttemptingToUseTool.Value = value;
+        }
         public SquadMateFactory SquadMateFactory { get; internal set; }
 
         public InteractionManager(IModHelper helper, SquadManager squadManager, SquadMateFactory squadMateFactory, BehaviorManager behaviorManager, IGameContext gameContext, IUIService uiService, ModConfig config)
