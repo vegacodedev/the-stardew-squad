@@ -37,12 +37,16 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
             Mock<INpcDialogueService> mockNpcDialogueService
         ) CreateTestContext()
         {
+            var mockMonitor = new Mock<IMonitor>();
+            var mockHelper = new Mock<IModHelper>();
+            mockHelper.Setup(h => h.DirectoryPath).Returns(System.IO.Path.GetTempPath());
+            var baselineLoader = new BaselineContentLoader(mockHelper.Object, mockMonitor.Object);
             var mockConfigManager = new Mock<NpcConfigManager>(
                 Mock.Of<INpcConfigDataProvider>(),
+                baselineLoader,
                 Mock.Of<IMonitor>()
             );
             var mockDataProvider = new Mock<INpcConfigDataProvider>();
-            var mockMonitor = new Mock<IMonitor>();
             var mockRandomSelector = new Mock<IRandomSelector>();
             var mockGameStateChecker = new Mock<IGameStateChecker>();
             var mockGameContext = new Mock<IGameContext>();

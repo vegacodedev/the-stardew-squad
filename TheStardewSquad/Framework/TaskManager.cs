@@ -383,24 +383,7 @@ namespace TheStardewSquad.Framework
             return distanceX <= 1 && distanceY <= 1;
         }
 
-        public static Monster FindHostileMonster(NPC npc, IMonitor monitor, Farmer? recruiter = null)
-        {
-            // Wrapper for non-MP-aware callers. In MP, prefer the parameterized overload
-            // and pass the recruiter's TilePoint directly.
-            var location = npc.currentLocation;
-            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
-            var playerTile = anchor.Tile.ToPoint();
-            int searchRadius = 8;
-
-            return FindHostileMonster(
-                new LocationInfoWrapper(location, npc),
-                playerTile,
-                npc.TilePoint,
-                searchRadius);
-        }
-
         /// <summary>
-        /// Testable version of FindHostileMonster that uses ILocationInfo abstraction.
         /// Finds a hostile monster that is targetable and reachable by the NPC.
         /// </summary>
         public static Monster FindHostileMonster(
@@ -962,21 +945,8 @@ namespace TheStardewSquad.Framework
 
         #region Watering Task
 
-        public static (Point? target, Point? interactionPoint) FindWaterableTile(NPC npc, ISet<Point> claimedTaskTargets)
-        {
-            GameLocation location = npc.currentLocation;
-            var searchRadius = 5;
-
-            return FindWaterableTile(
-                new LocationInfoWrapper(location, npc),
-                npc.TilePoint,
-                searchRadius,
-                claimedTaskTargets
-            );
-        }
-
         /// <summary>
-        /// Testable version: Finds the nearest dry HoeDirt tile that needs watering within a search radius around the NPC.
+        /// Finds the nearest dry HoeDirt tile that needs watering within a search radius around the NPC.
         /// </summary>
         /// <param name="locationInfo">Location information provider.</param>
         /// <param name="npcPosition">The NPC's current position (center of search area).</param>
@@ -1162,14 +1132,6 @@ namespace TheStardewSquad.Framework
             }
 
             return (null, null); // No suitable target found
-        }
-
-        /// <summary>Finds a lumbering target (damaged tree or twig). Convenience wrapper for non-MP-aware callers.</summary>
-        public static (Point? target, Point? interactionPoint) FindLumberingTarget(NPC npc, IMonitor monitor, ISet<Vector2> claimedInteractionSpots, ISet<Point> claimedTaskTargets, Farmer? recruiter = null)
-        {
-            var locationInfo = new LocationInfoWrapper(npc.currentLocation, npc);
-            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
-            return FindLumberingTarget(locationInfo, anchor.TilePoint, npc.TilePoint, 10, claimedTaskTargets, claimedInteractionSpots, monitor);
         }
 
         public static bool ExecuteLumberingTask(ISquadMate mate, Point tile)
@@ -1504,25 +1466,8 @@ namespace TheStardewSquad.Framework
             return beehouses.Any();
         }
 
-        public static (Point? target, Point? interactionPoint) FindHarvestableCrop(NPC npc, ISet<Point> claimedTaskTargets, Farmer? recruiter = null)
-        {
-            GameLocation location = npc.currentLocation;
-            var searchRadius = 10;
-            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
-            var playerTile = anchor.TilePoint;
-
-            return FindHarvestableCrop(
-                new LocationInfoWrapper(location, npc),
-                playerTile,
-                npc.TilePoint,
-                searchRadius,
-                claimedTaskTargets,
-                _config?.ProtectBeehouseFlowers
-            );
-        }
-
         /// <summary>
-        /// Testable version: Finds the nearest harvestable crop within a search radius.
+        /// Finds the nearest harvestable crop within a search radius.
         /// </summary>
         /// <param name="locationInfo">Location information provider.</param>
         /// <param name="searchCenter">The center point of the search area (typically player position).</param>
@@ -1843,16 +1788,7 @@ namespace TheStardewSquad.Framework
             return rod.isFishing || rod.hit || rod.pullingOutOfWater;
         }
 
-        /// <summary>Creates a fishing task for an NPC when the recruiter is fishing. Returns null if no valid fishing spot is found.</summary>
-        public static SquadTask? CreateFishingTask(NPC npc, ISet<Vector2> claimedInteractionSpots, ISet<Point> claimedTaskTargets, IMonitor monitor, Farmer? recruiter = null)
-        {
-            var location = npc.currentLocation;
-            var locationInfo = new LocationInfoWrapper(location, npc);
-            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
-            return CreateFishingTask(locationInfo, anchor.TilePoint, npc.TilePoint, claimedInteractionSpots, claimedTaskTargets, monitor);
-        }
-
-        /// <summary>Creates a fishing task for an NPC (testable overload).</summary>
+        /// <summary>Creates a fishing task for an NPC. Returns null if no valid fishing spot is found.</summary>
         public static SquadTask? CreateFishingTask(
             ILocationInfo locationInfo,
             Point playerPosition,

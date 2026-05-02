@@ -28,9 +28,13 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
         {
             var mockDataProvider = new Mock<INpcConfigDataProvider>();
             var mockMonitor = new Mock<IMonitor>();
+            var mockHelper = new Mock<IModHelper>();
+            mockHelper.Setup(h => h.DirectoryPath).Returns(System.IO.Path.GetTempPath());
+            var baselineLoader = new BaselineContentLoader(mockHelper.Object, mockMonitor.Object);
 
             var manager = new NpcConfigManager(
                 mockDataProvider.Object,
+                baselineLoader,
                 mockMonitor.Object
             );
 
