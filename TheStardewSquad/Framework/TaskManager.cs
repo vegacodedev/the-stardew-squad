@@ -291,21 +291,6 @@ namespace TheStardewSquad.Framework
         }
 
         #region Attacking Task
-        /// <summary>Checks if the player is in combat (has weapon equipped and is using it).</summary>
-        public static bool IsPlayerInCombat()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has a weapon equipped
-            if (player.CurrentTool is not StardewValley.Tools.MeleeWeapon &&
-                player.CurrentTool is not StardewValley.Tools.Slingshot)
-                return false;
-
-            // Check if weapon is being used
-            return player.UsingTool;
-        }
-
         /// <summary>
         /// Calculates attack damage for humanoid squad members based on player combat level and professions.
         /// Level 1: 5 min / 21 max | Level 10: 50 min / 120 max
@@ -976,19 +961,6 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Watering Task
-        /// <summary>Checks if the player is currently watering with a watering can.</summary>
-        public static bool IsPlayerWatering()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has a watering can equipped
-            if (player.CurrentTool is not StardewValley.Tools.WateringCan)
-                return false;
-
-            // Check if watering can is being used
-            return player.UsingTool;
-        }
 
         public static (Point? target, Point? interactionPoint) FindWaterableTile(NPC npc, ISet<Point> claimedTaskTargets)
         {
@@ -1130,19 +1102,6 @@ namespace TheStardewSquad.Framework
             Both
         }
 
-        /// <summary>Checks if the player is currently lumbering with an axe.</summary>
-        public static bool IsPlayerLumbering()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has an axe equipped
-            if (player.CurrentTool is not StardewValley.Tools.Axe)
-                return false;
-
-            // Check if axe is being used
-            return player.UsingTool;
-        }
 
         public static (Point? target, Point? interactionPoint) FindLumberingTarget(
             ILocationInfo locationInfo,
@@ -1384,19 +1343,6 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Mining Task
-        /// <summary>Checks if the player is currently mining with a pickaxe.</summary>
-        public static bool IsPlayerMining()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has a pickaxe equipped and is using it
-            if (player.CurrentTool is not StardewValley.Tools.Pickaxe)
-                return false;
-
-            return player.UsingTool;
-        }
-
         /// <summary>Finds a minable rock within search radius (testable version accepting ILocationInfo).</summary>
         public static (Point? target, Point? interactionPoint) FindMinableRock(
             ILocationInfo locationInfo,
@@ -1550,19 +1496,6 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Harvesting Task
-        /// <summary>Checks if the player is currently harvesting crops.</summary>
-        public static bool IsPlayerHarvesting()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if a crop has been harvested within the last 3 seconds (180 ticks at 60 FPS)
-            // This works with MimickingTaskTimer (10 seconds) to provide smooth task management:
-            // - IsPlayerHarvesting() returns true for 3 seconds after harvesting
-            // - MimickingTaskTimer gives NPCs 10 seconds grace period to complete their tasks
-            return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerHarvestingTick()) < 180;
-        }
-
         /// <summary>Checks if a crop tile is within the specified radius of any beehouse.</summary>
         private static bool IsNearBeehouse(Point cropTile, Abstractions.Location.ILocationInfo locationInfo, int radius)
         {
@@ -1898,31 +1831,16 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Fishing Task
-        /// <summary>Checks if the player is currently fishing (includes mini-game AND reeling animation).</summary>
-        public static bool IsPlayerFishing()
+        /// <summary>
+        /// Checks if the given farmer is currently fishing. Used for per-farmer detection in MP —
+        /// the host can read every online farmer's rod state (CurrentTool + FishingRod netfields)
+        /// directly. Omits the BobberBar check because that's local-screen UI not visible across peers.
+        /// </summary>
+        public static bool IsFarmerFishing(Farmer who)
         {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has a fishing rod equipped
-            if (player.CurrentTool is not StardewValley.Tools.FishingRod rod)
-                return false;
-
-            // Player is fishing if line is cast or fish is hooked
-            if (rod.isFishing || rod.hit)
-                return true;
-
-            // Also check if the fishing mini-game (BobberBar) is active
-            // This covers the case where the mini-game is open but rod.isFishing might be false
-            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu.GetType().Name == "BobberBar")
-                return true;
-
-            // Check if player is reeling in a fish (animation after mini-game)
-            // This keeps fishing tasks alive until after OnPlayerCaughtFish() is called
-            if (rod.pullingOutOfWater)
-                return true;
-
-            return false;
+            if (who == null) return false;
+            if (who.CurrentTool is not StardewValley.Tools.FishingRod rod) return false;
+            return rod.isFishing || rod.hit || rod.pullingOutOfWater;
         }
 
         /// <summary>Creates a fishing task for an NPC when the recruiter is fishing. Returns null if no valid fishing spot is found.</summary>
@@ -2721,18 +2639,6 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Petting Task
-        /// <summary>Checks if the player is currently petting animals.</summary>
-        public static bool IsPlayerPetting()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has petted an animal within the last 3 seconds (180 ticks at 60 FPS)
-            // This works with MimickingTaskTimer (10 seconds) to provide smooth task management:
-            // - IsPlayerPetting() returns true for 3 seconds after petting
-            // - MimickingTaskTimer gives NPCs 10 seconds grace period to complete their tasks
-            return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerPettingTick()) < 180;
-        }
 
         /// <summary>Finds an unpetted animal (farm animal or pet) for an NPC to pet. Convenience wrapper for non-MP-aware callers.</summary>
         public static (Point? target, Point? interactionPoint) FindPettableAnimal(
@@ -2941,14 +2847,12 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Sitting Task
-        /// <summary>Checks if the player is currently sitting on furniture or a bench.</summary>
-        public static bool IsPlayerSitting()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
 
-            // Player is sitting if they are on furniture or the isSitting flag is set
-            return player.sittingFurniture != null || player.isSitting.Value;
+        /// <summary>Checks if the given farmer is currently sitting on furniture or a bench.</summary>
+        public static bool IsFarmerSitting(Farmer who)
+        {
+            if (who == null) return false;
+            return who.sittingFurniture != null || who.isSitting.Value;
         }
 
         /// <summary>
@@ -3091,8 +2995,11 @@ namespace TheStardewSquad.Framework
             // Fall back to InteractionTile.ToVector2() if SeatPosition is not set (backwards compatibility)
             Vector2 seatPosition = mate.Task.SeatPosition ?? mate.Task.InteractionTile.ToVector2();
 
-            // Check if player is still sitting - if not, stop sitting and complete task
-            if (!IsPlayerSitting())
+            // Check if the recruiter is still sitting - if not, stop sitting and complete task.
+            // In MP, the recruiter may be a farmhand; reading Game1.player here would always
+            // see the host and prematurely clear the task.
+            var recruiter = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+            if (!IsFarmerSitting(recruiter))
             {
                 // Only call StopSitting if the task is still a Sitting task
                 if (mate.Task != null && mate.Task.Type == TaskType.Sitting)
@@ -3232,24 +3139,6 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Shearing and Milking Tasks
-        /// <summary>Checks if the player has sheared an animal within the last 3 seconds.</summary>
-        public static bool IsPlayerShearing()
-        {
-            var player = Game1.player;
-            if (player == null) return false;
-
-            return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerShearingTick()) < 180;
-        }
-
-        /// <summary>Checks if the player has milked an animal within the last 3 seconds.</summary>
-        public static bool IsPlayerMilking()
-        {
-            var player = Game1.player;
-            if (player == null) return false;
-
-            return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerMilkingTick()) < 180;
-        }
-
         /// <summary>Finds a nearby farm animal that has produce ready to shear.</summary>
         public static (Point? target, Point? interactionPoint) FindShearableAnimal(
             ILocationInfo locationInfo,

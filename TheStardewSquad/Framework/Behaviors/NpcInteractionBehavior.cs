@@ -93,7 +93,7 @@ namespace TheStardewSquad.Framework.Behaviors
             });
         }
 
-        public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior)
+        public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior, bool suppressVisual = false)
         {
             var npc = mate.Npc;
 
@@ -119,14 +119,14 @@ namespace TheStardewSquad.Framework.Behaviors
                     Game1.warpCharacter(npc, defaultMap, defaultTile);
                 }
 
-                if (!isSilent)
+                if (!isSilent && !suppressVisual)
                 {
                     mate.Communicate(DialogueKeys.Dismiss);
                     Game1.globalFadeToClear();
                 }
             };
 
-            if (isSilent)
+            if (isSilent || suppressVisual)
             {
                 onDismiss();
             }

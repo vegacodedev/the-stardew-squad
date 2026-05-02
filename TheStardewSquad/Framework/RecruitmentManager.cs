@@ -18,6 +18,7 @@ namespace TheStardewSquad.Framework
     {
         private readonly IModHelper _helper;
         private readonly IMonitor _monitor;
+        private readonly ModConfig _config;
         private readonly SquadManager _squadManager;
         private readonly WaitingNpcsManager _waitingNpcsManager;
         private readonly FormationManager _formationManager;
@@ -25,10 +26,11 @@ namespace TheStardewSquad.Framework
         private FollowerManager _followerManager;
         private MessageDispatcher? _dispatcher;
 
-        public RecruitmentManager(IModHelper helper, IMonitor monitor, SquadManager squadManager, WaitingNpcsManager waitingNpcsManager, FormationManager formationManager, ISquadMateStateHelper stateHelper)
+        public RecruitmentManager(IModHelper helper, IMonitor monitor, ModConfig config, SquadManager squadManager, WaitingNpcsManager waitingNpcsManager, FormationManager formationManager, ISquadMateStateHelper stateHelper)
         {
             this._helper = helper;
             this._monitor = monitor;
+            this._config = config;
             this._squadManager = squadManager;
             this._waitingNpcsManager = waitingNpcsManager;
             this._formationManager = formationManager;
@@ -115,30 +117,45 @@ namespace TheStardewSquad.Framework
         public void Recruit(ISquadMate mate, Farmer recruiter, bool isSilent = false)
         {
             // MP routing: farmhand forwards to the host for authoritative processing.
-            // Host's broadcast SquadSnapshot will sync local state. Local recruit
-            // dialogue still plays as optimistic UI (unless resuming a waiting mate,
-            // which uses a different message).
+            // Host's broadcast SquadSnapshot will sync local state, and the recruit
+            // dialogue plays on the farmhand's screen when the host's RecruitResult
+            // arrives with success (see MessageDispatcher.HandleRecruitResult). The
+            // farmhand-local cap pre-check below ensures the squadFull error fires
+            // immediately on the farmhand's screen and that the farmhand's local
+            // MaxSquadSize is what governs their cap (passed in the request).
             if (Context.IsMultiplayer && !Context.IsMainPlayer)
             {
-                if (!isSilent && !this._waitingNpcsManager.IsWaiting(mate.Npc))
-                    mate.Communicate(DialogueKeys.Recruit);
+                long localId = Game1.player.UniqueMultiplayerID;
+                int localCount = this._squadManager.Members.Count(m => m.RecruiterUniqueId == localId);
+                if (localCount >= this._config.MaxSquadSize && !this._waitingNpcsManager.IsWaiting(mate.Npc))
+                {
+                    if (!isSilent)
+                    {
+                        Game1.addHUDMessage(new HUDMessage(
+                            this._helper.Translation.Get("recruitment.squadFull"),
+                            HUDMessage.error_type));
+                    }
+                    return;
+                }
 
                 this._dispatcher?.SendRecruitRequest(
                     mate.Npc.Name,
-                    mate.Npc.currentLocation?.NameOrUniqueName ?? string.Empty);
+                    mate.Npc.currentLocation?.NameOrUniqueName ?? string.Empty,
+                    this._config.MaxSquadSize);
                 return;
             }
 
-            var config = this._helper.ReadConfig<ModConfig>();
             long recruiterId = recruiter?.UniqueMultiplayerID ?? Game1.MasterPlayer?.UniqueMultiplayerID ?? 0L;
 
-            // Per-recruiter squad-size check: each recruiter is capped at MaxSquadSize independently.
-            // The host's config value applies to every recruiter which means
-            // farmhand-local config values aren't honored here, since the host
-            // is authoritative for recruit decisions. In SP this is equivalent to a global cap.
+            // Per-recruiter cap check using the LOCAL config (host-self recruit path only).
+            // Farmhand recruits route via MessageDispatcher.OnRecruitRequest, which uses the
+            // farmhand's MaxSquadSize from the message (per-farmer caps).
             int recruiterCount = this._squadManager.Members.Count(m => m.RecruiterUniqueId == recruiterId);
-            if (recruiterCount >= config.MaxSquadSize)
+            if (recruiterCount >= this._config.MaxSquadSize)
             {
+                Game1.addHUDMessage(new HUDMessage(
+                    this._helper.Translation.Get("recruitment.squadFull"),
+                    HUDMessage.error_type));
                 return;
             }
 
@@ -176,7 +193,7 @@ namespace TheStardewSquad.Framework
                 if (!isSilent)
                     Game1.showGlobalMessage(this._helper.Translation.Get("management.resumedFromWaiting", new { name = mate.Name }));
             }
-            else if (!isSilent)
+            else if (!isSilent && recruiter?.UniqueMultiplayerID == Game1.player.UniqueMultiplayerID)
             {
                 mate.Communicate(DialogueKeys.Recruit);
             }
@@ -197,12 +214,22 @@ namespace TheStardewSquad.Framework
         /// <see cref="MessageDispatcher.BroadcastSnapshot"/>. Bulk operations like
         /// <see cref="DismissAll"/> pass false and broadcast once at the end to avoid N
         /// snapshots in a row.</param>
-        public virtual void Dismiss(ISquadMate mate, bool isSilent = false, DismissalWarpBehavior warpBehavior = DismissalWarpBehavior.GoHome, bool broadcast = true)
+        public virtual void Dismiss(ISquadMate mate, bool isSilent = false, DismissalWarpBehavior warpBehavior = DismissalWarpBehavior.GoHome, bool broadcast = true, long? requesterId = null)
         {
             // MP routing: farmhand forwards to the host. Host's broadcast SquadSnapshot
-            // syncs local state.
+            // syncs local state. Fire optimistic visual locally so the dismissing farmhand
+            // sees the fade + dialogue on their own screen (mirrors the recruit-side pattern);
+            // the host suppresses the visual when proxying via the suppressVisual flag below.
             if (Context.IsMultiplayer && !Context.IsMainPlayer)
             {
+                if (!isSilent)
+                {
+                    Game1.globalFadeToBlack(() =>
+                    {
+                        mate.Communicate(DialogueKeys.Dismiss);
+                        Game1.globalFadeToClear();
+                    });
+                }
                 this._dispatcher?.SendDismissRequest(mate.Npc.Name);
                 return;
             }
@@ -212,7 +239,10 @@ namespace TheStardewSquad.Framework
 
             this._formationManager.ReleaseSlot(mate);
 
-            mate.HandleDismissal(isSilent, warpBehavior);
+            // When the host is proxying a farmhand's DismissRequest, run cleanup synchronously
+            // without the fade/dialogue (those play on the farmhand's screen optimistically).
+            bool suppressVisual = requesterId.HasValue && requesterId.Value != Game1.player.UniqueMultiplayerID;
+            mate.HandleDismissal(isSilent, warpBehavior, suppressVisual);
 
             if (isSilent)
             {

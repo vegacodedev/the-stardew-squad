@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Characters;
 using TheStardewSquad.Abstractions.Character;
+using TheStardewSquad.Framework.Squad;
 
 namespace TheStardewSquad.Framework.Wrappers
 {
@@ -72,6 +73,10 @@ namespace TheStardewSquad.Framework.Wrappers
             npc.Sprite.StopAnimation();
             npc.farmerPassesThrough = false;
             npc.controller = null;
+            // Clear persistent modData so ModEntry.OnSaveLoaded doesn't rehydrate this
+            // dismissed NPC back into the squad on the next day load.
+            npc.modData.Remove(SquadMate.RecruiterIdKey);
+            npc.modData.Remove(SquadMate.SchemaVersionKey);
         }
 
         /// <summary>Continuously ensures the mod retains control over the squad mate during updates.</summary>

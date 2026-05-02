@@ -68,7 +68,7 @@ namespace TheStardewSquad.Framework.Squad
         bool CanPerformTask(TaskType type);
         bool ExecuteTask();
         void HandleRecruitment(Farmer interactor);
-        void HandleDismissal(bool isSilent, DismissalWarpBehavior dismissalWarpBehavior);
+        void HandleDismissal(bool isSilent, DismissalWarpBehavior dismissalWarpBehavior, bool suppressVisual = false);
         void HandleManagement();
         void Communicate(string dialogueKey);
 

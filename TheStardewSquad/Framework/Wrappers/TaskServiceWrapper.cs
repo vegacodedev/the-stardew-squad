@@ -10,25 +10,9 @@ namespace TheStardewSquad.Framework.Wrappers
     /// </summary>
     public class TaskServiceWrapper : ITaskService
     {
-        public bool IsPlayerFishing() => TaskManager.IsPlayerFishing();
+        public bool IsFarmerFishing(Farmer who) => TaskManager.IsFarmerFishing(who);
 
-        public bool IsPlayerWatering() => TaskManager.IsPlayerWatering();
-
-        public bool IsPlayerMining() => TaskManager.IsPlayerMining();
-
-        public bool IsPlayerLumbering() => TaskManager.IsPlayerLumbering();
-
-        public bool IsPlayerHarvesting() => TaskManager.IsPlayerHarvesting();
-
-        public bool IsPlayerPetting() => TaskManager.IsPlayerPetting();
-
-        public bool IsPlayerShearing() => TaskManager.IsPlayerShearing();
-
-        public bool IsPlayerMilking() => TaskManager.IsPlayerMilking();
-
-        public bool IsPlayerInCombat() => TaskManager.IsPlayerInCombat();
-
-        public bool IsPlayerSitting() => TaskManager.IsPlayerSitting();
+        public bool IsFarmerSitting(Farmer who) => TaskManager.IsFarmerSitting(who);
 
         public void AnimateFishing(NPC npc, Point targetTile)
         {

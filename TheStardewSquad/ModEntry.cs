@@ -87,7 +87,7 @@ namespace TheStardewSquad
             this.BehaviorManager = new BehaviorManager(this.NpcConfigManager, npcConfigDataProvider, this.Monitor, randomSelector, gameStateChecker, gameContext, npcSpriteService, npcDialogueService);
 
             // Initialize other managers with dependencies
-            this.RecruitmentManager = new RecruitmentManager(helper, this.Monitor, this.SquadManager, this.WaitingNpcsManager, this.FormationManager, stateHelper);
+            this.RecruitmentManager = new RecruitmentManager(helper, this.Monitor, this.Config, this.SquadManager, this.WaitingNpcsManager, this.FormationManager, stateHelper);
             this.InteractionManager = new InteractionManager(helper, this.SquadManager, null, this.BehaviorManager, gameContext, uiService, this.Config);
             this.SquadMateFactory = new SquadMateFactory(helper, this.RecruitmentManager, this.SquadManager, this.Config, this.InteractionManager, this.BehaviorManager, stateHelper, this.DialogueManager, this.Monitor);
             this.InteractionManager.SquadMateFactory = this.SquadMateFactory;
@@ -103,10 +103,12 @@ namespace TheStardewSquad
                 this.SquadManager, this.WaitingNpcsManager,
                 this.RecruitmentManager, this.FollowerManager,
                 this.InteractionManager, this.SquadMateFactory,
+                stateHelper,
                 this.ModManifest.UniqueID);
             this.RecruitmentManager.AttachDispatcher(this.MessageDispatcher);
             this.InteractionManager.AttachDispatcher(this.MessageDispatcher);
             this.FollowerManager.AttachDispatcher(this.MessageDispatcher);
+            this.SquadMateFactory.AttachDispatcher(this.MessageDispatcher);
 
             this.AssetManager = new AssetManager();
             TaskManager.Initialize(this.Config, this.FollowerManager, this.SpriteManager);

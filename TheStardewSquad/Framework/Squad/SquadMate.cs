@@ -104,7 +104,7 @@ namespace TheStardewSquad.Framework.Squad
         public bool CanPerformTask(TaskType type) => _taskBehavior.CanPerformTask(this, type);
         public bool ExecuteTask() => _taskBehavior.ExecuteTask(this);
         public void HandleRecruitment(Farmer interactor) => _interactionBehavior.HandleRecruitment(this, interactor);
-        public void HandleDismissal(bool isSilent, DismissalWarpBehavior dismissalWarpBehavior) => _interactionBehavior.HandleDismissal(this, isSilent, dismissalWarpBehavior);
+        public void HandleDismissal(bool isSilent, DismissalWarpBehavior dismissalWarpBehavior, bool suppressVisual = false) => _interactionBehavior.HandleDismissal(this, isSilent, dismissalWarpBehavior, suppressVisual);
         public void HandleManagement() => _interactionBehavior.HandleManagement(this);
         public void Communicate(string dialogueKey) => _communicationBehavior.Communicate(this, dialogueKey);
         

@@ -14,7 +14,7 @@ namespace TheStardewSquad.Framework.Multiplayer
     /// <c>SaveLoaded</c>, and on <c>PeerConnected</c>; farmhands rehydrate their local
     /// <see cref="SquadManager"/> from it.
     /// </remarks>
-    public record RecruitRequest(int Version, long RequesterId, string NpcName, string LocationName);
+    public record RecruitRequest(int Version, long RequesterId, string NpcName, string LocationName, int MaxSquadSize);
 
     public record RecruitResult(int Version, long RequesterId, string NpcName, bool Success, string ReasonKey);
 
@@ -44,6 +44,14 @@ namespace TheStardewSquad.Framework.Multiplayer
     /// </summary>
     public record CutsceneEnded(int Version, long FarmerId);
 
+    /// <summary>
+    /// Cosmetic-only broadcast: tells all peers to show a speech bubble above the named
+    /// NPC. Vanilla SDV's <c>NPC.showTextAboveHead</c> writes only local protected fields
+    /// (no NetField), so the host's call doesn't propagate. Sent host→peers when the
+    /// host fires a bubble (e.g., Idle, Fishing_Waiting). No result reply.
+    /// </summary>
+    public record ShowBubble(int Version, string NpcName, string LocationName, string Text);
+
     /// <summary>One mate's serialized state inside a <see cref="SquadSnapshot"/>.</summary>
     public record SquadEntry(string NpcName, long RecruiterId, string LocationName, TaskType? CurrentTask);
 
@@ -56,6 +64,6 @@ namespace TheStardewSquad.Framework.Multiplayer
     /// <summary>Shared message-versioning + type-name constants.</summary>
     public static class MessageVersion
     {
-        public const int Current = 1;
+        public const int Current = 2;
     }
 }

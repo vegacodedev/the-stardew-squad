@@ -61,7 +61,10 @@ namespace TheStardewSquad.Framework
         // a farmhand fires a CutsceneEnded notify message which the host receives and re-warps
         // the farmhand's mates only.
         private readonly PerScreen<bool> _wasInCutscene = new(() => false);
-        private bool _wasPlayerFishing = false;
+        // Per-farmer fishing state, keyed by UniqueMultiplayerID. The host iterates online
+        // farmers each slow tick to detect fishing transitions per peer — needed because in MP
+        // a farmhand reeling in must clear that recruiter's mates' fishing tasks.
+        private readonly Dictionary<long, bool> _wasFarmerFishing = new();
         // Per-farmer riding state. In MP each online farmer can mount independently and
         // their own recruited mate rides with them.
         private readonly Dictionary<long, bool> _wasFarmerRiding = new();
@@ -272,28 +275,12 @@ namespace TheStardewSquad.Framework
             return mode == TaskMode.Mimicking;
         }
 
-        /// <summary>Checks if the player is currently performing a specific task.</summary>
-        private bool IsPlayerPerformingTask(TaskType taskType)
-        {
-            return taskType switch
-            {
-                TaskType.Fishing => _taskService.IsPlayerFishing(),
-                TaskType.Watering => _taskService.IsPlayerWatering(),
-                TaskType.Mining => _taskService.IsPlayerMining(),
-                TaskType.Lumbering => _taskService.IsPlayerLumbering(),
-                TaskType.Harvesting => _taskService.IsPlayerHarvesting(),
-                TaskType.Petting => _taskService.IsPlayerPetting(),
-                TaskType.Shearing => _taskService.IsPlayerShearing(),
-                TaskType.Milking => _taskService.IsPlayerMilking(),
-                TaskType.Attacking => _taskService.IsPlayerInCombat(),
-                TaskType.Sitting => _taskService.IsPlayerSitting(),
-                _ => false
-            };
-        }
-
         /// <summary>
-        /// Manages the entire mimicking timer system for all squad members.
-        /// Called on slow ticks to detect player actions and manage timer lifecycle.
+        /// Decays mimicking timers and clears expired mimicking tasks. Detection itself happens
+        /// upstream — Harmony postfixes call <see cref="OnFarmerAction"/> for event-based tasks
+        /// (Pet/FarmAnimal/Crop/Shears/MilkPail), and <see cref="UpdateFarmerActionTrackers"/>
+        /// re-asserts per-farmer state-based tasks (Watering/Mining/Lumbering/Attacking/Fishing/Sitting)
+        /// each slow tick. This method is the pure decay half.
         /// </summary>
         private void UpdateMimickingTimers()
         {
@@ -308,58 +295,21 @@ namespace TheStardewSquad.Framework
                 return;
             }
 
-            // Check all task types that could be in Mimicking mode.
-            // Polling reads local-screen state (Game1.player), so in MP only the host's tool
-            // actions are detected here - farmhand tool/state actions don't reach the host's
-            // polling. Event-based tasks (Petting/Harvesting/Shearing/Milking) ARE fully
-            // MP-aware via Harmony postfixes calling OnFarmerAction directly. TODO: Make it fully
-            // MP-compatible in the next pass, right now I can't do this cleanly
-            TaskType[] mimickableTaskTypes = new[]
-            {
-                TaskType.Watering,
-                TaskType.Lumbering,
-                TaskType.Mining,
-                TaskType.Harvesting,
-                TaskType.Petting,
-                TaskType.Shearing,
-                TaskType.Milking,
-                TaskType.Attacking,
-                TaskType.Fishing,
-                TaskType.Sitting
-            };
-
-            foreach (var taskType in mimickableTaskTypes)
-            {
-                if (IsMimickingTask(taskType) && IsPlayerPerformingTask(taskType))
-                {
-                    // Route through OnFarmerAction so timers are scoped to the local player's
-                    // mates only (recruiter-filtered). Without this, all mates regardless of
-                    // recruiter would mimic when ANY farmer triggers polling.
-                    OnFarmerAction(Game1.player, taskType);
-                    break; // Only process one task type per update
-                }
-            }
-
-            // ALWAYS decrement timers and clear expired tasks (regardless of what player is doing)
             foreach (var mate in _squadManager.Members)
             {
-                // Decrement timer
                 if (mate.MimickingTaskTimer > 0)
                 {
                     mate.MimickingTaskTimer--;
                 }
 
-                // Clear mimicking tasks if timer expired
-                if (mate.HasTask() && IsMimickingTask(mate.Task.Type))
+                // Clear the active mimicking task when its timer expires.
+                if (mate.HasTask() && IsMimickingTask(mate.Task.Type)
+                    && mate.MimickingTaskType == mate.Task.Type
+                    && mate.MimickingTaskTimer <= 0)
                 {
-                    // Only clear if the timer is for THIS specific task type and has expired
-                    if (mate.MimickingTaskType == mate.Task.Type && mate.MimickingTaskTimer <= 0)
-                    {
-                        ClearMateTaskAndReset(mate);
-                    }
+                    ClearMateTaskAndReset(mate);
                 }
 
-                // Clear the task type when timer expires (even if no task is assigned)
                 if (mate.MimickingTaskTimer <= 0)
                 {
                     mate.MimickingTaskType = null;
@@ -407,14 +357,82 @@ namespace TheStardewSquad.Framework
             }
         }
 
-        /// <summary>Called when player stops fishing without catching (cancel/walk away).</summary>
-        private void OnPlayerStoppedFishing()
+        /// <summary>Called when a farmer stops fishing without catching (cancel/walk away). Clears only that recruiter's fishing-task mates.</summary>
+        private void OnFarmerStoppedFishing(Farmer who)
         {
+            if (who == null) return;
             foreach (var mate in _squadManager.Members)
             {
+                if (mate.RecruiterUniqueId != who.UniqueMultiplayerID) continue;
                 if (mate.Task?.Type == TaskType.Fishing)
                 {
                     ClearMateTaskAndReset(mate);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Per-farmer state polling for tool actions and fishing. Runs host-only each slow tick.
+        /// Iterates <see cref="Game1.getOnlineFarmers"/> and re-asserts the mimicking timer for any
+        /// farmer actively using a tool (Watering/Mining/Lumbering/Attacking) or fishing. For
+        /// fishing, also detects the stop transition to clear that recruiter's fishing-task mates.
+        /// Sitting is handled separately in <see cref="UpdateFarmerSittingTracker"/> so the
+        /// transition fires once on sit-down.
+        /// </summary>
+        private void UpdateFarmerActionTrackers()
+        {
+            if (!_config.TasksEnabled) return;
+
+            foreach (var f in Game1.getOnlineFarmers())
+            {
+                if (f == null) continue;
+
+                // Tool-active actions: re-assert each tick the swing is in progress so the
+                // mimicking timer stays full while the action is sustained. OnFarmerAction
+                // is a no-op for non-mimicking modes, so safe to call unconditionally.
+                if (f.UsingTool)
+                {
+                    switch (f.CurrentTool)
+                    {
+                        case StardewValley.Tools.WateringCan:
+                            OnFarmerAction(f, TaskType.Watering);
+                            break;
+                        case StardewValley.Tools.Pickaxe:
+                            OnFarmerAction(f, TaskType.Mining);
+                            break;
+                        case StardewValley.Tools.Axe:
+                            OnFarmerAction(f, TaskType.Lumbering);
+                            break;
+                        case StardewValley.Tools.MeleeWeapon:
+                        case StardewValley.Tools.Slingshot:
+                            OnFarmerAction(f, TaskType.Attacking);
+                            break;
+                    }
+                }
+
+                // Fishing has a stop transition (clear that recruiter's fishing tasks when the
+                // farmer reels in / cancels). The OnFarmerAction call re-asserts mimicking;
+                // the transition handler clears any active fishing task on stop.
+                bool isFishingNow = _taskService.IsFarmerFishing(f);
+                if (isFishingNow)
+                {
+                    OnFarmerAction(f, TaskType.Fishing);
+                }
+                bool wasFishing = _wasFarmerFishing.GetValueOrDefault(f.UniqueMultiplayerID);
+                if (wasFishing && !isFishingNow)
+                {
+                    OnFarmerStoppedFishing(f);
+                }
+                _wasFarmerFishing[f.UniqueMultiplayerID] = isFishingNow;
+
+                // Sitting is a sustained state with no clean Harmony hook covering all sit-down
+                // entry paths (right-click vs walk-onto vs Furniture.checkForAction). Re-asserting
+                // each tick the farmer is sitting catches every sit-down implicitly and keeps the
+                // mimicking timer fresh. No stop-transition handler needed — ExecuteSittingTask
+                // (TaskManager.cs) clears its own task once IsFarmerSitting(recruiter) goes false.
+                if (_taskService.IsFarmerSitting(f))
+                {
+                    OnFarmerAction(f, TaskType.Sitting);
                 }
             }
         }
@@ -453,22 +471,15 @@ namespace TheStardewSquad.Framework
 
             this.HandleFriendshipGain();
 
-            // Check if player is fishing - if so, we need to keep updating fishing animations even during the mini-game menu
-            bool isPlayerFishing = _config.FishingMode != TaskMode.Disabled && _taskService.IsPlayerFishing();
-
-            if (!_gameStateService.IsPlayerFree || !_gameStateService.IsGameActive)
-            {
-                // If player is not fishing, halt all squad members and return
-                if (!isPlayerFishing)
-                {
-                    foreach (var mate in this._squadManager.Members)
-                    {
-                        mate.Halt();
-                    }
-                    return;
-                }
-                // Otherwise, continue to update fishing animations even during mini-game
-            }
+            // Per-recruiter busy gate. Host-local UI state (menu open, window unfocused) only
+            // gates the HOST's own mates — farmhand-recruited mates must keep updating regardless,
+            // otherwise the host opening a menu freezes farmhand gameplay. The actual gate runs
+            // per-mate inside the loop below; here we just precompute the host-local flags.
+            // Slow-tick globals (mimicking timers, per-farmer action trackers) and the riding-state
+            // pass also need to keep firing while the host is busy so farmhand actions still reach
+            // their mates.
+            bool isHostBusy = !_gameStateService.IsPlayerFree || !_gameStateService.IsGameActive;
+            bool isHostFishing = _config.FishingMode != TaskMode.Disabled && _taskService.IsFarmerFishing(Game1.player);
 
             this._updateCounter++;
 
@@ -485,13 +496,10 @@ namespace TheStardewSquad.Framework
 
                 UpdateMimickingTimers();
 
-                // Detect when player stops fishing - clear immediately
-                // Works correctly now because IsPlayerFishing() returns true during reeling
-                if (_wasPlayerFishing && !isPlayerFishing)
-                {
-                    OnPlayerStoppedFishing();
-                }
-                _wasPlayerFishing = isPlayerFishing;
+                // Per-farmer state polling: detects each online farmer's tool use (Watering/
+                // Mining/Lumbering/Attacking), fishing transitions, and sitting, dispatching
+                // to OnFarmerAction so MP farmhand actions reach the host's mates.
+                UpdateFarmerActionTrackers();
             }
 
             // Handle riding state transitions and identify the riding member
@@ -512,15 +520,21 @@ namespace TheStardewSquad.Framework
                 bool isFastTick = this._updateCounter % FastTickInterval == 0;
                 bool isSlowTick = (this._updateCounter + i) % SlowTickInterval == 0;
 
-                // If player is not free but is fishing, only update fishing-related logic
-                if (!_gameStateService.IsPlayerFree && isPlayerFishing)
+                var recruiter = ResolveRecruiterOrFallback(mate);
+                bool isHostRecruiter = recruiter.UniqueMultiplayerID == Game1.player.UniqueMultiplayerID;
+
+                // Gate on host's local UI state ONLY for host-recruited mates. Farmhand-recruited
+                // mates always update so host's menu/alt-tab doesn't freeze them.
+                if (isHostRecruiter && isHostBusy)
                 {
-                    UpdateFishingOnly(mate, isFastTick);
+                    if (isHostFishing)
+                        UpdateFishingOnly(mate, isFastTick);
+                    else
+                        mate.Halt();
+                    continue;
                 }
-                else
-                {
-                    UpdateSquadMember(mate, ResolveRecruiterOrFallback(mate), isFastTick, isSlowTick);
-                }
+
+                UpdateSquadMember(mate, recruiter, isFastTick, isSlowTick);
             }
 
             // Update waiting NPCs (keep them stationary and maintain control)

@@ -77,7 +77,6 @@
   "recruitment.already_recruited": "Someone has already recruited that NPC.",
   "recruitment.npc_not_found": "That NPC could not be found.",
   "recruitment.friendship_too_low": "You don't know them well enough yet.",
-  "recruitment.squad_full": "Your squad is full.",
   "recruitment.requester_offline": "You appear offline to the host. Try reconnecting.",
   "recruitment.factory_failed": "That NPC cannot be recruited.",
   "recruitment.version_mismatch": "Mod version mismatch — ask the host to update.",

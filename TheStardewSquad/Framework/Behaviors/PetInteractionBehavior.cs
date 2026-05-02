@@ -64,7 +64,7 @@ namespace TheStardewSquad.Framework.Behaviors
             });
         }
 
-        public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior)
+        public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior, bool suppressVisual = false)
         {
             var npc = mate.Npc;
             Game1.afterFadeFunction onDismiss = () =>
@@ -104,7 +104,7 @@ namespace TheStardewSquad.Framework.Behaviors
                 }
             };
 
-            if (isSilent || warpBehavior == DismissalWarpBehavior.RoamHere)
+            if (isSilent || suppressVisual || warpBehavior == DismissalWarpBehavior.RoamHere)
             {
                 onDismiss();
             }

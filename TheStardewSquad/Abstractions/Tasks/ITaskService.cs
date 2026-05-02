@@ -9,35 +9,11 @@ namespace TheStardewSquad.Abstractions.Tasks
     /// </summary>
     public interface ITaskService
     {
-        /// <summary>Checks if the player is currently fishing.</summary>
-        bool IsPlayerFishing();
+        /// <summary>Checks if the given farmer is currently fishing.</summary>
+        bool IsFarmerFishing(Farmer who);
 
-        /// <summary>Checks if the player is currently watering crops.</summary>
-        bool IsPlayerWatering();
-
-        /// <summary>Checks if the player is currently mining.</summary>
-        bool IsPlayerMining();
-
-        /// <summary>Checks if the player is currently chopping wood.</summary>
-        bool IsPlayerLumbering();
-
-        /// <summary>Checks if the player is currently harvesting crops.</summary>
-        bool IsPlayerHarvesting();
-
-        /// <summary>Checks if the player is currently petting animals.</summary>
-        bool IsPlayerPetting();
-
-        /// <summary>Checks if the player is currently shearing animals.</summary>
-        bool IsPlayerShearing();
-
-        /// <summary>Checks if the player is currently milking animals.</summary>
-        bool IsPlayerMilking();
-
-        /// <summary>Checks if the player is currently in combat.</summary>
-        bool IsPlayerInCombat();
-
-        /// <summary>Checks if the player is currently sitting on furniture or a bench.</summary>
-        bool IsPlayerSitting();
+        /// <summary>Checks if the given farmer is currently sitting on furniture or a bench.</summary>
+        bool IsFarmerSitting(Farmer who);
 
         /// <summary>Animates an NPC fishing at a specific tile.</summary>
         void AnimateFishing(NPC npc, Point targetTile);

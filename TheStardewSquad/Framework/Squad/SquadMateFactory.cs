@@ -3,6 +3,7 @@ using StardewValley;
 using StardewValley.Characters;
 using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Framework.Behaviors;
+using TheStardewSquad.Framework.Multiplayer;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.UI;
 
@@ -34,6 +35,16 @@ namespace TheStardewSquad.Framework.Squad
             this._petTaskBehavior = new PetTaskBehavior();
             this._petCommunicationBehavior = new PetCommunicationBehavior(config);
             this._petInteractionBehavior = new PetInteractionBehavior(helper, recruitmentManager, squadManager, interactionManager, stateHelper, memberPrompt);
+        }
+
+        /// <summary>
+        /// Wires the multiplayer dispatcher into behaviors that need to broadcast cosmetic
+        /// updates (e.g., speech bubbles aren't netfielded by vanilla SDV). Called by
+        /// ModEntry after MessageDispatcher is constructed.
+        /// </summary>
+        public void AttachDispatcher(MessageDispatcher dispatcher)
+        {
+            (this._npcCommunicationBehavior as NpcCommunicationBehavior)?.AttachDispatcher(dispatcher);
         }
 
         /// <summary>Creates a new squad mate instance for a given character.</summary>

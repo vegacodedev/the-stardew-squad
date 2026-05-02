@@ -27,13 +27,6 @@ namespace TheStardewSquad.Patches
         private static FollowerManager _followerManager;
         private static DebrisCollector _debrisCollector;
         private static ModEntry _modEntry;
-        // PerScreen<T> gives each split-screen player their own value. The "last X tick"
-        // trackers must not bleed across screens — one player petting their pet shouldn't
-        // make the other screen think it just petted.
-        private static readonly PerScreen<int> _lastPlayerPettingTick = new(() => 0);
-        private static readonly PerScreen<int> _lastPlayerHarvestingTick = new(() => 0);
-        private static readonly PerScreen<int> _lastPlayerShearingTick = new(() => 0);
-        private static readonly PerScreen<int> _lastPlayerMilkingTick = new(() => 0);
         // Ignore-depth counters guard against re-entrancy from our own NPC actions; per-screen
         // since the NPC action runs on the local screen.
         private static readonly PerScreen<int> _ignoreHarvestDepth = new(() => 0);
@@ -55,53 +48,6 @@ namespace TheStardewSquad.Patches
             _followerManager = followerManager;
             _debrisCollector = debrisCollector;
             _modEntry = modEntry;
-        }
-
-        /// <summary>Gets the last game tick when the local player petted an animal.</summary>
-        public static int GetLastPlayerPettingTick() => _lastPlayerPettingTick.Value;
-
-        /// <summary>Gets the last game tick when the local player harvested a crop.</summary>
-        public static int GetLastPlayerHarvestingTick() => _lastPlayerHarvestingTick.Value;
-
-        /// <summary>Begins ignoring harvest actions (for NPC harvests). Use in try/finally with EndIgnoreHarvest().</summary>
-        public static void BeginIgnoreHarvest() => _ignoreHarvestDepth.Value++;
-
-        /// <summary>Ends ignoring harvest actions. Always call in finally block.</summary>
-        public static void EndIgnoreHarvest() => _ignoreHarvestDepth.Value = Math.Max(0, _ignoreHarvestDepth.Value - 1);
-
-        /// <summary>Begins ignoring petting actions (for NPC petting). Use in try/finally with EndIgnorePetting().</summary>
-        public static void BeginIgnorePetting() => _ignorePettingDepth.Value++;
-
-        /// <summary>Ends ignoring petting actions. Always call in finally block.</summary>
-        public static void EndIgnorePetting() => _ignorePettingDepth.Value = Math.Max(0, _ignorePettingDepth.Value - 1);
-
-        /// <summary>Gets the last game tick when the local player sheared an animal.</summary>
-        public static int GetLastPlayerShearingTick() => _lastPlayerShearingTick.Value;
-
-        /// <summary>Gets the last game tick when the local player milked an animal.</summary>
-        public static int GetLastPlayerMilkingTick() => _lastPlayerMilkingTick.Value;
-
-        /// <summary>
-        /// Routes a "farmer just performed a mimickable task" event. On the host this
-        /// updates squad mate timers directly via <see cref="FollowerManager.OnFarmerAction"/>;
-        /// on a farmhand it sends a <c>MimickingRequest</c> to the host so the host's mates
-        /// owned by this farmhand can react.
-        /// </summary>
-        private static void DispatchMimicking(Farmer who, TaskType type)
-        {
-            if (who == null) return;
-
-            if (Context.IsMainPlayer)
-            {
-                _followerManager?.OnFarmerAction(who, type);
-            }
-            else if (Context.IsMultiplayer)
-            {
-                _modEntry?.MessageDispatcher?.SendMimickingRequest(
-                    who.UniqueMultiplayerID,
-                    type,
-                    who.currentLocation?.NameOrUniqueName ?? string.Empty);
-            }
         }
 
         /// <summary>
@@ -1158,7 +1104,57 @@ namespace TheStardewSquad.Patches
 
         #endregion
 
-        #region Animal and Pet Petting Patches
+        #region Mimicking Detection Patches
+
+        // Routes farmer actions (petting, harvesting, tool use, etc.) into FollowerManager's
+        // per-recruiter mimicking system. In MP, farmhand-side patches forward through a
+        // ModMessage so the host's mates owned by that farmhand react too.
+        //
+        // Each postfix runs on the actor's machine and calls DispatchMimicking(who, type),
+        // which either calls FollowerManager.OnFarmerAction directly (host) or sends a
+        // MimickingRequest to the host (farmhand). FollowerManager filters by RecruiterUniqueId
+        // so only the actor's own mates mimic.
+
+        // ---- Re-entrancy suppression (NPC behaviors raise these around their own actions) ----
+
+        /// <summary>Begins ignoring harvest actions (for NPC harvests). Use in try/finally with EndIgnoreHarvest().</summary>
+        public static void BeginIgnoreHarvest() => _ignoreHarvestDepth.Value++;
+
+        /// <summary>Ends ignoring harvest actions. Always call in finally block.</summary>
+        public static void EndIgnoreHarvest() => _ignoreHarvestDepth.Value = Math.Max(0, _ignoreHarvestDepth.Value - 1);
+
+        /// <summary>Begins ignoring petting actions (for NPC petting). Use in try/finally with EndIgnorePetting().</summary>
+        public static void BeginIgnorePetting() => _ignorePettingDepth.Value++;
+
+        /// <summary>Ends ignoring petting actions. Always call in finally block.</summary>
+        public static void EndIgnorePetting() => _ignorePettingDepth.Value = Math.Max(0, _ignorePettingDepth.Value - 1);
+
+        // ---- Routing primitive ----
+
+        /// <summary>
+        /// Routes a "farmer just performed a mimickable task" event. On the host this
+        /// updates squad mate timers directly via <see cref="FollowerManager.OnFarmerAction"/>;
+        /// on a farmhand it sends a <c>MimickingRequest</c> to the host so the host's mates
+        /// owned by this farmhand can react.
+        /// </summary>
+        private static void DispatchMimicking(Farmer who, TaskType type)
+        {
+            if (who == null) return;
+
+            if (Context.IsMainPlayer)
+            {
+                _followerManager?.OnFarmerAction(who, type);
+            }
+            else if (Context.IsMultiplayer)
+            {
+                _modEntry?.MessageDispatcher?.SendMimickingRequest(
+                    who.UniqueMultiplayerID,
+                    type,
+                    who.currentLocation?.NameOrUniqueName ?? string.Empty);
+            }
+        }
+
+        // ---- Petting ----
 
         /// <summary>
         /// Postfix patch for FarmAnimal.pet.
@@ -1171,11 +1167,9 @@ namespace TheStardewSquad.Patches
             if (_ignorePettingDepth.Value > 0)
                 return;
 
-            // Only track manual petting by the local-screen player (not auto-petters and
-            // not other peers - each screen tracks its own player's last-petted tick).
+            // Only the actor's own machine dispatches; DispatchMimicking routes to the host.
             if (who.IsLocalPlayer && !is_auto_pet)
             {
-                _lastPlayerPettingTick.Value = Game1.ticks;
                 DispatchMimicking(who, TaskType.Petting);
             }
         }
@@ -1199,48 +1193,12 @@ namespace TheStardewSquad.Patches
 
                 if (wasPetted)
                 {
-                    _lastPlayerPettingTick.Value = Game1.ticks;
                     DispatchMimicking(who, TaskType.Petting);
                 }
             }
         }
 
-        #endregion
-
-        #region Animal Harvesting Patches
-
-        private static void Shears_DoFunction_Prefix(StardewValley.Tools.Shears __instance, out FarmAnimal __state)
-        {
-            __state = __instance.animal;
-        }
-
-        private static void Shears_DoFunction_Postfix(FarmAnimal __state, Farmer who)
-        {
-            // Track only the local-screen player's shearing action.
-            if (!who.IsLocalPlayer || __state == null || __state.currentProduce.Value != null)
-                return;
-
-            _lastPlayerShearingTick.Value = Game1.ticks;
-            DispatchMimicking(who, TaskType.Shearing);
-        }
-
-        private static void MilkPail_DoFunction_Prefix(StardewValley.Tools.MilkPail __instance, out FarmAnimal __state)
-        {
-            __state = __instance.animal;
-        }
-
-        private static void MilkPail_DoFunction_Postfix(FarmAnimal __state, Farmer who)
-        {
-            if (!who.IsLocalPlayer || __state == null || __state.currentProduce.Value != null)
-                return;
-
-            _lastPlayerMilkingTick.Value = Game1.ticks;
-            DispatchMimicking(who, TaskType.Milking);
-        }
-
-        #endregion
-
-        #region Crop Harvesting Patches
+        // ---- Crop harvesting ----
 
         /// <summary>
         /// Postfix patch for Crop.harvest.
@@ -1265,11 +1223,41 @@ namespace TheStardewSquad.Patches
 
             if (isSuccessfulHarvest)
             {
-                _lastPlayerHarvestingTick.Value = Game1.ticks;
                 // Crop.harvest doesn't receive a Farmer parameter; the local screen's
                 // player is whoever triggered the harvest (their tool ran the call).
                 DispatchMimicking(Game1.player, TaskType.Harvesting);
             }
+        }
+
+        // ---- Animal product gathering (Shears, MilkPail) ----
+        // Prefix captures __instance.animal into __state because DoFunction may null/swap
+        // the animal reference before the postfix runs.
+
+        private static void Shears_DoFunction_Prefix(StardewValley.Tools.Shears __instance, out FarmAnimal __state)
+        {
+            __state = __instance.animal;
+        }
+
+        private static void Shears_DoFunction_Postfix(FarmAnimal __state, Farmer who)
+        {
+            // Track only the local-screen player's shearing action.
+            if (!who.IsLocalPlayer || __state == null || __state.currentProduce.Value != null)
+                return;
+
+            DispatchMimicking(who, TaskType.Shearing);
+        }
+
+        private static void MilkPail_DoFunction_Prefix(StardewValley.Tools.MilkPail __instance, out FarmAnimal __state)
+        {
+            __state = __instance.animal;
+        }
+
+        private static void MilkPail_DoFunction_Postfix(FarmAnimal __state, Farmer who)
+        {
+            if (!who.IsLocalPlayer || __state == null || __state.currentProduce.Value != null)
+                return;
+
+            DispatchMimicking(who, TaskType.Milking);
         }
 
         #endregion

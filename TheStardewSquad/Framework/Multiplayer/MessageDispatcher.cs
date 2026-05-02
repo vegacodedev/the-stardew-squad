@@ -2,8 +2,11 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Characters;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.Squad;
 
 namespace TheStardewSquad.Framework.Multiplayer
@@ -25,6 +28,7 @@ namespace TheStardewSquad.Framework.Multiplayer
         private readonly FollowerManager _follower;
         private readonly InteractionManager _interaction;
         private readonly SquadMateFactory _mateFactory;
+        private readonly Abstractions.Character.ISquadMateStateHelper _stateHelper;
         private readonly string _modUniqueId;
 
         private readonly ConcurrentQueue<QueuedMessage> _inbox = new();
@@ -39,6 +43,7 @@ namespace TheStardewSquad.Framework.Multiplayer
             FollowerManager follower,
             InteractionManager interaction,
             SquadMateFactory mateFactory,
+            Abstractions.Character.ISquadMateStateHelper stateHelper,
             string modUniqueId)
         {
             this._helper = helper;
@@ -50,6 +55,7 @@ namespace TheStardewSquad.Framework.Multiplayer
             this._follower = follower;
             this._interaction = interaction;
             this._mateFactory = mateFactory;
+            this._stateHelper = stateHelper;
             this._modUniqueId = modUniqueId;
         }
 
@@ -108,7 +114,23 @@ namespace TheStardewSquad.Framework.Multiplayer
                     if (!Context.IsMainPlayer)
                         ApplySnapshot(e.ReadAs<SquadSnapshot>());
                     break;
+                case nameof(ShowBubble):
+                    OnShowBubble(e.ReadAs<ShowBubble>());
+                    break;
             }
+        }
+
+        /// <summary>
+        /// Cosmetic bubble receiver. Renders the speech bubble locally on this peer's
+        /// NPC instance because <c>NPC.showTextAboveHead</c> writes only local fields.
+        /// Silently drops mismatched-version messages (bubbles are non-load-bearing).
+        /// </summary>
+        private void OnShowBubble(ShowBubble msg)
+        {
+            if (msg.Version != MessageVersion.Current) return;
+            var loc = Game1.getLocationFromName(msg.LocationName);
+            NPC? npc = loc?.characters.FirstOrDefault(c => c.Name == msg.NpcName);
+            npc?.showTextAboveHead(msg.Text);
         }
 
         public void OnPeerConnected(object? sender, PeerConnectedEventArgs e)
@@ -191,11 +213,14 @@ namespace TheStardewSquad.Framework.Multiplayer
                 return;
             }
 
-            // Per-recruiter squad-size check.
+            // Per-recruiter cap check uses the FARMHAND's MaxSquadSize from the request
+            // (each player's own config governs their cap). Defensive minimum of 1 in case
+            // a malformed request arrives with a zero/negative value.
+            int requesterCap = Math.Max(1, req.MaxSquadSize);
             int recruiterCount = _squad.Members.Count(m => m.RecruiterUniqueId == req.RequesterId);
-            if (recruiterCount >= _config.MaxSquadSize)
+            if (recruiterCount >= requesterCap)
             {
-                SendRecruitResult(req.RequesterId, req.NpcName, false, "squad_full");
+                SendRecruitResult(req.RequesterId, req.NpcName, false, "squadFull");
                 return;
             }
 
@@ -206,9 +231,15 @@ namespace TheStardewSquad.Framework.Multiplayer
                 return;
             }
 
+            // Distinguish a fresh recruit ("ok") from resuming a waiting mate
+            // ("resumed_from_waiting") so the farmhand can decide whether to play the
+            // recruit dialogue. Detected before calling Recruit since Recruit clears the
+            // waiting state internally.
+            bool isResume = _waiting.IsWaiting(npc);
+
             // Recruit broadcasts a SquadSnapshot itself on success, so we don't duplicate here.
             _recruitment.Recruit(mate, requester);
-            SendRecruitResult(req.RequesterId, req.NpcName, true, "ok");
+            SendRecruitResult(req.RequesterId, req.NpcName, true, isResume ? "resumed_from_waiting" : "ok");
         }
 
         private void SendRecruitResult(long toPlayerId, string npcName, bool success, string reasonKey)
@@ -243,7 +274,7 @@ namespace TheStardewSquad.Framework.Multiplayer
             }
 
             // Dismiss broadcasts a SquadSnapshot itself, so we don't duplicate here.
-            _recruitment.Dismiss(mate);
+            _recruitment.Dismiss(mate, requesterId: req.RequesterId);
             SendDismissResult(req.RequesterId, req.NpcName, true, "ok");
         }
 
@@ -355,8 +386,17 @@ namespace TheStardewSquad.Framework.Multiplayer
                 Game1.addHUDMessage(new HUDMessage(
                     _helper.Translation.Get($"recruitment.{res.ReasonKey}"),
                     HUDMessage.error_type));
+                return;
             }
-            // Success: state arrives via SquadSnapshot.
+            // Success: SquadSnapshot has already arrived (sent before this result by the
+            // host), so the mate is in the local SquadManager. Play the recruit dialogue
+            // for fresh recruits only; resumed-from-waiting mates skip.
+            if (res.ReasonKey == "ok")
+            {
+                ISquadMate? mate = _squad.Members.FirstOrDefault(m =>
+                    m.Npc.Name == res.NpcName && m.RecruiterUniqueId == res.RequesterId);
+                mate?.Communicate(DialogueKeys.Recruit);
+            }
         }
 
         private void HandleDismissResult(DismissResult res)
@@ -385,10 +425,23 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         // === Send helpers (called from InteractionManager / FollowerManager / Harmony) ===
 
-        public void SendRecruitRequest(string npcName, string locationName)
+        /// <summary>
+        /// Broadcasts a speech bubble to all peers so every screen renders it (vanilla
+        /// <c>showTextAboveHead</c> isn't netfielded). No-op in SP.
+        /// </summary>
+        public void BroadcastBubble(string npcName, string locationName, string text)
+        {
+            if (!Context.IsMultiplayer) return;
+            _helper.Multiplayer.SendMessage(
+                new ShowBubble(MessageVersion.Current, npcName, locationName, text),
+                nameof(ShowBubble),
+                modIDs: new[] { _modUniqueId });
+        }
+
+        public void SendRecruitRequest(string npcName, string locationName, int maxSquadSize)
         {
             _helper.Multiplayer.SendMessage(
-                new RecruitRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, npcName, locationName),
+                new RecruitRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, npcName, locationName, maxSquadSize),
                 nameof(RecruitRequest),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
@@ -482,8 +535,18 @@ namespace TheStardewSquad.Framework.Multiplayer
                 return;
             }
 
+            // Capture pre-existing mate identity → NPC mapping so we can detect both
+            // newly-recruited mates (run PrepareForRecruitment) and newly-dismissed mates
+            // (run PrepareForDismissal). Both helpers do local state changes that aren't
+            // netfielded by SDV (Sprite animation state, farmerPassesThrough, controller),
+            // so the host's call doesn't propagate to peers.
+            var existingByKey = new Dictionary<(string, long), NPC>();
+            foreach (var m in _squad.Members)
+                existingByKey[(m.Npc.Name, m.RecruiterUniqueId)] = m.Npc;
+
             _squad.Clear();
 
+            var snapKeys = new HashSet<(string, long)>(snap.Entries.Length);
             foreach (var entry in snap.Entries)
             {
                 var loc = Game1.getLocationFromName(entry.LocationName);
@@ -494,9 +557,21 @@ namespace TheStardewSquad.Framework.Multiplayer
                 npc.modData[SquadMate.RecruiterIdKey] = entry.RecruiterId.ToString();
                 npc.modData[SquadMate.SchemaVersionKey] = SquadMate.CurrentSchemaVersion;
 
+                var key = (entry.NpcName, entry.RecruiterId);
+                snapKeys.Add(key);
+
+                if (!existingByKey.ContainsKey(key))
+                    _stateHelper.PrepareForRecruitment(npc);
+
                 var mate = _mateFactory.Create(npc);
                 if (mate != null)
                     _squad.Add(mate);
+            }
+
+            foreach (var kvp in existingByKey)
+            {
+                if (!snapKeys.Contains(kvp.Key))
+                    _stateHelper.PrepareForDismissal(kvp.Value);
             }
         }
 
