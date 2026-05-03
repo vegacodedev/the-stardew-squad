@@ -23,6 +23,16 @@ namespace TheStardewSquad.Framework.Multiplayer
     public record DismissResult(int Version, long RequesterId, string NpcName, bool Success, string ReasonKey);
 
     /// <summary>
+    /// Farmhand asks the host to put one of their squad mates into the "waiting" state
+    /// (the "Stay here" UI action). Authority + waiting list mutation lives on the host;
+    /// the farmhand only receives the resulting <see cref="SquadSnapshot"/> and a
+    /// <see cref="WaitResult"/> for HUD feedback.
+    /// </summary>
+    public record WaitRequest(int Version, long RequesterId, string NpcName);
+
+    public record WaitResult(int Version, long RequesterId, string NpcName, bool Success, string ReasonKey);
+
+    /// <summary>
     /// Farmhand-issued manual task assignment. Contains only tile + location; the host
     /// re-runs task-type detection at handler time so farmhand-side state desync can't
     /// produce a stale type.
@@ -64,6 +74,6 @@ namespace TheStardewSquad.Framework.Multiplayer
     /// <summary>Shared message-versioning + type-name constants.</summary>
     public static class MessageVersion
     {
-        public const int Current = 2;
+        public const int Current = 3;
     }
 }

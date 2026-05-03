@@ -140,23 +140,9 @@ namespace TheStardewSquad.Framework.Behaviors
         {
             Game1.warpCharacter(npc, scheduleEntry.targetLocationName, scheduleEntry.targetTile);
             npc.faceDirection(scheduleEntry.facingDirection);
-            npc.endOfRouteMessage.Value = scheduleEntry.endOfRouteMessage;
-
-            if (!string.IsNullOrEmpty(scheduleEntry.endOfRouteBehavior))
-            {
-                this._helper.Reflection.GetMethod(npc, "startRouteBehavior").Invoke(scheduleEntry.endOfRouteBehavior);
-
-                try
-                {
-                    this._helper.Reflection.GetMethod(npc, "reallyDoAnimationAtEndOfScheduleRoute").Invoke();
-                }
-                catch (System.Exception ex)
-                {
-                    // Animation method expects pathfinding state that doesn't exist after teleport
-                    // This is safe to ignore - startRouteBehavior already set up the behavior
-                    this._monitor.Log($"Ignored animation error for {npc.Name} at dismissal (expected after teleport): {ex.Message}", LogLevel.Debug);
-                }
-            }
+            // Reflection-based animation setup. Extracted so the farmhand-side ApplySnapshot
+            // dismiss replay can run the same animation logic without re-doing the warp.
+            _recruitmentManager.PlayScheduleEntryAnimation(npc, scheduleEntry);
         }
     }
 }

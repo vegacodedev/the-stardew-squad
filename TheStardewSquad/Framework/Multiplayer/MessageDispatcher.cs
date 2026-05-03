@@ -94,6 +94,14 @@ namespace TheStardewSquad.Framework.Multiplayer
                     if (!Context.IsMainPlayer)
                         HandleDismissResult(e.ReadAs<DismissResult>());
                     break;
+                case nameof(WaitRequest):
+                    if (Context.IsMainPlayer)
+                        _inbox.Enqueue(new QueuedMessage(e.Type, e.ReadAs<WaitRequest>(), e.FromPlayerID));
+                    break;
+                case nameof(WaitResult):
+                    if (!Context.IsMainPlayer)
+                        HandleWaitResult(e.ReadAs<WaitResult>());
+                    break;
                 case nameof(TaskAssignRequest):
                     if (Context.IsMainPlayer)
                         _inbox.Enqueue(new QueuedMessage(e.Type, e.ReadAs<TaskAssignRequest>(), e.FromPlayerID));
@@ -150,6 +158,9 @@ namespace TheStardewSquad.Framework.Multiplayer
                     break;
                 case nameof(DismissRequest):
                     OnDismissRequest((DismissRequest)msg.Payload);
+                    break;
+                case nameof(WaitRequest):
+                    OnWaitRequest((WaitRequest)msg.Payload);
                     break;
                 case nameof(TaskAssignRequest):
                     OnTaskAssignRequest((TaskAssignRequest)msg.Payload);
@@ -279,6 +290,36 @@ namespace TheStardewSquad.Framework.Multiplayer
         }
 
         /// <summary>
+        /// Race-safe wait handler. Resolves the mate by (NpcName, RequesterId) so a farmhand
+        /// can only wait their own recruits. SetWaiting broadcasts a SquadSnapshot itself,
+        /// so the farmhand's local SquadManager / WaitingNpcsManager will sync via that.
+        /// </summary>
+        private void OnWaitRequest(WaitRequest req)
+        {
+            if (req.Version != MessageVersion.Current)
+            {
+                _monitor.Log($"WaitRequest version mismatch from {req.RequesterId}: got {req.Version}, expected {MessageVersion.Current}.", LogLevel.Warn);
+                SendWaitResult(req.RequesterId, req.NpcName, false, "version_mismatch");
+                return;
+            }
+
+            ISquadMate? mate = _squad.Members.FirstOrDefault(m =>
+                m.Npc.Name == req.NpcName && m.RecruiterUniqueId == req.RequesterId);
+
+            if (mate == null)
+            {
+                SendWaitResult(req.RequesterId, req.NpcName, false, "not_recruited_by_you");
+                return;
+            }
+
+            // SetWaiting broadcasts a SquadSnapshot itself. Pass isSilent=true so the
+            // host's local "X is now waiting" global message doesn't fire here.
+            // The HUD message is shown on the farmhand via HandleWaitResult.
+            _recruitment.SetWaiting(mate, isSilent: true);
+            SendWaitResult(req.RequesterId, req.NpcName, true, "ok");
+        }
+
+        /// <summary>
         /// Manual-task assignment handler. Re-runs task detection in the requester's
         /// world view (so farmhand-side desync can't produce a stale type) and assigns
         /// the closest capable mate that the requester recruited.
@@ -324,6 +365,15 @@ namespace TheStardewSquad.Framework.Multiplayer
             _helper.Multiplayer.SendMessage(
                 new DismissResult(MessageVersion.Current, toPlayerId, npcName, success, reasonKey),
                 nameof(DismissResult),
+                modIDs: new[] { _modUniqueId },
+                playerIDs: new[] { toPlayerId });
+        }
+
+        private void SendWaitResult(long toPlayerId, string npcName, bool success, string reasonKey)
+        {
+            _helper.Multiplayer.SendMessage(
+                new WaitResult(MessageVersion.Current, toPlayerId, npcName, success, reasonKey),
+                nameof(WaitResult),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { toPlayerId });
         }
@@ -390,12 +440,21 @@ namespace TheStardewSquad.Framework.Multiplayer
             }
             // Success: SquadSnapshot has already arrived (sent before this result by the
             // host), so the mate is in the local SquadManager. Play the recruit dialogue
-            // for fresh recruits only; resumed-from-waiting mates skip.
+            // for fresh recruits only; resumed-from-waiting mates skip the dialogue but
+            // get a "X resumed from waiting" HUD instead (mirrors the host's local
+            // Game1.showGlobalMessage in RecruitmentManager.Recruit, which isn't peer-
+            // propagated and so wouldn't reach the farmhand without this).
             if (res.ReasonKey == "ok")
             {
                 ISquadMate? mate = _squad.Members.FirstOrDefault(m =>
                     m.Npc.Name == res.NpcName && m.RecruiterUniqueId == res.RequesterId);
                 mate?.Communicate(DialogueKeys.Recruit);
+            }
+            else if (res.ReasonKey == "resumed_from_waiting")
+            {
+                Game1.addHUDMessage(new HUDMessage(
+                    _helper.Translation.Get("management.resumedFromWaiting", new { name = res.NpcName }),
+                    HUDMessage.newQuest_type));
             }
         }
 
@@ -409,6 +468,25 @@ namespace TheStardewSquad.Framework.Multiplayer
                     _helper.Translation.Get($"recruitment.{res.ReasonKey}"),
                     HUDMessage.error_type));
             }
+        }
+
+        private void HandleWaitResult(WaitResult res)
+        {
+            if (res.Version != MessageVersion.Current) { ShowVersionToast(); return; }
+            if (Game1.player.UniqueMultiplayerID != res.RequesterId) return;
+            if (!res.Success)
+            {
+                Game1.addHUDMessage(new HUDMessage(
+                    _helper.Translation.Get($"recruitment.{res.ReasonKey}"),
+                    HUDMessage.error_type));
+                return;
+            }
+            // Mirror the host's local "X is now waiting" message on the farmhand. The
+            // host's Game1.showGlobalMessage isn't peer-propagated, so without this the
+            // farmhand who triggered the wait sees no feedback at all.
+            Game1.addHUDMessage(new HUDMessage(
+                _helper.Translation.Get("management.waiting", new { name = res.NpcName }),
+                HUDMessage.newQuest_type));
         }
 
         private void HandleTaskAssignResult(TaskAssignResult res)
@@ -452,6 +530,15 @@ namespace TheStardewSquad.Framework.Multiplayer
             _helper.Multiplayer.SendMessage(
                 new DismissRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, npcName),
                 nameof(DismissRequest),
+                modIDs: new[] { _modUniqueId },
+                playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
+        }
+
+        public void SendWaitRequest(string npcName)
+        {
+            _helper.Multiplayer.SendMessage(
+                new WaitRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, npcName),
+                nameof(WaitRequest),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
         }
@@ -570,8 +657,15 @@ namespace TheStardewSquad.Framework.Multiplayer
 
             foreach (var kvp in existingByKey)
             {
-                if (!snapKeys.Contains(kvp.Key))
-                    _stateHelper.PrepareForDismissal(kvp.Value);
+                if (snapKeys.Contains(kvp.Key)) continue;
+
+                // Apply dismissal cleanup AND replay the host's end-of-route schedule animation
+                // to every live same-name NPC instance on this peer.
+                foreach (var live in FollowerManager.ResolveAllLiveNpcs(kvp.Value))
+                {
+                    _stateHelper.PrepareForDismissal(live);
+                    _recruitment.PlayCurrentScheduleAnimation(live);
+                }
             }
         }
 

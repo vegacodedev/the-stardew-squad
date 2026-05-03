@@ -33,7 +33,11 @@ namespace TheStardewSquad.Framework.Behaviors
 
             _monitor.Log($"[Communication] {npc.Name} attempting to communicate: {dialogueKey}", LogLevel.Trace);
 
-            string dialogueText = _dialogueManager.GetDialogue(npc, dialogueKey);
+            // Resolve dialogue using the recruiter's context
+            GameLocation contextLocation = npc.currentLocation;
+            Farmer contextPlayer = mate.TryGetRecruiter(out var rec) ? rec : null;
+
+            string dialogueText = _dialogueManager.GetDialogue(npc, dialogueKey, contextLocation, contextPlayer);
 
             if (string.IsNullOrEmpty(dialogueText))
             {

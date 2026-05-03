@@ -143,6 +143,36 @@ namespace TheStardewSquad.Framework
             return Game1.MasterPlayer ?? Game1.player;
         }
 
+        /// <summary>
+        /// Returns ALL live NPC instances the player could collide with that share the captured
+        /// NPC's name, across all loaded locations including building interiors. In MP, the
+        /// farmhand process can hold multiple same-name NPC instances:
+        /// a. the captured reference from <see cref="MessageDispatcher.ApplySnapshot"/>,
+        ///     which can be orphaned by vanilla netcode replacing it on warp/location-load;
+        /// b. a vanilla-spawned instance at the NPC's home location (no recruiter modData);
+        /// c. the host's recruited instance replicated into the host's current location.
+        /// We must apply per-process state maintenance to all of them. Vanilla collision
+        /// only checks the instance currently in <c>location.characters</c>, but we don't
+        /// know which one that is from any single screen's perspective. Side effect: any
+        /// non-recruited modded duplicates sharing a recruit's name will also be marked
+        /// walk-through; accepted as the lesser evil.
+        /// </summary>
+        public static IEnumerable<NPC> ResolveAllLiveNpcs(NPC captured)
+        {
+            string name = captured.Name;
+            var found = new List<NPC>();
+            Utility.ForEachLocation(loc =>
+            {
+                foreach (var c in loc.characters)
+                {
+                    if (c is NPC npc && npc.Name == name)
+                        found.Add(npc);
+                }
+                return true;
+            });
+            return found;
+        }
+
         public void ResetStateForNewSession()
         {
             this._claimedInteractionSpots.Clear();
@@ -462,6 +492,28 @@ namespace TheStardewSquad.Framework
             }
             this._wasInCutscene.Value = isInCutsceneNow;
 
+            // Per-process local-state maintenance. Runs on host AND farmhands because
+            // farmerPassesThrough, controller, IsWalkingInSquare are non-netfield local
+            // fields (vanilla SDV does not sync them); see SquadMateStateHelper.MaintainControl.
+            //
+            // We iterate ALL same-name NPC instances across every loaded location, not just
+            // mate.Npc, because in MP the farmhand process can hold multiple
+            // instances of the same NPC
+            foreach (var mate in this._squadManager.Members.ToList())
+            {
+                foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                {
+                    SquadMateStateHelper.MaintainControl(live);
+                }
+            }
+            foreach (var waitingMate in this._waitingNpcsManager.WaitingMembers.ToList())
+            {
+                foreach (var live in ResolveAllLiveNpcs(waitingMate.Npc))
+                {
+                    SquadMateStateHelper.MaintainControl(live);
+                }
+            }
+
             // Host-only authority: in MP, only the main player runs squad AI mutations.
             if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
 
@@ -550,9 +602,6 @@ namespace TheStardewSquad.Framework
         private void UpdateWaitingNpc(ISquadMate mate)
         {
             var npc = mate.Npc;
-
-            // Maintain control over the NPC
-            SquadMateStateHelper.MaintainControl(npc);
 
             // Keep NPC halted at their wait position
             npc.Halt();
@@ -664,7 +713,6 @@ namespace TheStardewSquad.Framework
                 mate.FramesSinceTaskCleared++;
             }
 
-            SquadMateStateHelper.MaintainControl(npc);
             HandleLocationAndSpeed(mate, player);
 
             // The catch-up mechanic should only trigger if the squad member has a task.
@@ -1319,8 +1367,6 @@ namespace TheStardewSquad.Framework
             // their mount.Position is the most current position via netfield sync.
             if (!mate.TryGetRecruiter(out var rider))
                 return;
-
-            SquadMateStateHelper.MaintainControl(npc);
 
             // Ensure the NPC is in the same location as the rider
             if (npc.currentLocation != rider.currentLocation)

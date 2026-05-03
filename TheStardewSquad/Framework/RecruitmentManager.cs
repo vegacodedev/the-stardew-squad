@@ -260,10 +260,19 @@ namespace TheStardewSquad.Framework
 
         /// <summary>Sets a squad mate to waiting state - removes from squad but keeps control at current location.</summary>
         /// <param name="isSilent">If true, suppresses the global "X is now waiting" message and the
-        /// pet roam-here notification. Used by R2.8 auto-park when a recruiter goes offline.</param>
+        /// pet roam-here notification. Used by auto-park when a recruiter goes offline,
+        /// and by <see cref="MessageDispatcher.OnWaitRequest"/> when the host is proxying a
+        /// farmhand's WaitRequest (the HUD is shown on the farmhand via WaitResult instead).</param>
         public void SetWaiting(ISquadMate mate, bool isSilent = false)
         {
-            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
+            // MP routing: farmhand forwards to the host. Mirrors the Recruit/Dismiss
+            // pattern. The host's broadcast SquadSnapshot syncs squad/waiting membership;
+            // the farmhand's HandleWaitResult shows the HUD message.
+            if (Context.IsMultiplayer && !Context.IsMainPlayer)
+            {
+                this._dispatcher?.SendWaitRequest(mate.Npc.Name);
+                return;
+            }
             if (!this._squadManager.IsRecruited(mate.Npc))
                 return;
 
@@ -345,7 +354,18 @@ namespace TheStardewSquad.Framework
         {
             var schedule = npc.Schedule;
             if (schedule == null)
-                return null;
+            {
+                // Vanilla NPC.checkSchedule (the per-tick schedule loader) is host-only, so
+                // farmhand NPC instances often have a null Schedule mid-day. TryLoadSchedule
+                // is public and parses the schedule data (only the dayScheduleName.Value
+                // netfield writes inside it are IsMasterGame-gated, which is fine - those
+                // are syncable from host anyway). Force-load so dismissal-time animation
+                // replay can find the current entry on every peer.
+                npc.TryLoadSchedule();
+                schedule = npc.Schedule;
+                if (schedule == null)
+                    return null;
+            }
 
             SchedulePathDescription lastValidEntry = null;
             int lastValidTime = -1;
@@ -363,6 +383,90 @@ namespace TheStardewSquad.Framework
             }
 
             return lastValidEntry;
+        }
+
+        /// <summary>
+        /// Plays the end-of-route schedule animation/behavior for an NPC at a known schedule
+        /// entry. Sets <c>endOfRouteMessage</c> and runs vanilla's <c>startRouteBehavior</c>
+        /// + <c>reallyDoAnimationAtEndOfScheduleRoute</c> via reflection. Used by both the
+        /// host's dismissal flow (after warping the NPC to her schedule destination) and
+        /// the farmhand's <see cref="MessageDispatcher.ApplySnapshot"/> dismiss branch
+        /// (Sprite state isn't netfielded, so each peer must replay the animation locally
+        /// on its own NPC instances). Caller is responsible for the warp itself.
+        /// </summary>
+        public void PlayScheduleEntryAnimation(NPC npc, SchedulePathDescription scheduleEntry)
+        {
+            if (scheduleEntry == null) return;
+
+            // endOfRouteMessage is netfielded; host-side writes propagate to peers. Setting
+            // it here on the host is the canonical path; on farmhand it's a defensive no-op.
+            if (!string.IsNullOrEmpty(scheduleEntry.endOfRouteMessage))
+                npc.endOfRouteMessage.Value = scheduleEntry.endOfRouteMessage;
+
+            string behavior = scheduleEntry.endOfRouteBehavior;
+            if (string.IsNullOrEmpty(behavior))
+                return;
+
+            // SQUARE WALKING - e.g. Elliott's "square_4_5" pacing by the sea.
+            // Vanilla NPC.startRouteBehavior parses "square_W_H[_facingPref]" and calls
+            // walkInSquare(...), but only when Game1.IsMasterGame == true (vanilla NPC.cs
+            // line 4491). On a farmhand the gate fails silently, isWalkingInSquare stays
+            // false, and the NPC just stands still. Replicate the parse + walkInSquare here
+            // because walkInSquare itself isn't IsMasterGame-gated.
+            if (behavior.Contains("square_"))
+            {
+                string[] parts = behavior.Split('_');
+                if (parts.Length >= 3 && int.TryParse(parts[1], out int sw) && int.TryParse(parts[2], out int sh))
+                {
+                    npc.walkInSquare(sw, sh, 6000); // 6000 = vanilla's hardcoded squarePauseOffset (NPC.cs:4493)
+                    npc.squareMovementFacingPreference = (parts.Length >= 4 && int.TryParse(parts[3], out int fp)) ? fp : -1;
+                }
+                return; // Square-walking behaviors don't pair with an end-of-route animation.
+            }
+
+            // ANIMATION BEHAVIORS (manning_shop, abigail_videogames, sleep, etc.). Vanilla's
+            // per-peer animation chain (NPC.update at vanilla NPC.cs line 3202+) is driven by
+            // the endOfRouteBehaviorName NetString and the doingEndOfRouteAnimation NetBool;
+            // when those change, each peer's update auto-loads behavior data and plays the
+            // animation locally. We don't go through vanilla's path-completion handoff
+            // (getRouteEndBehaviorFunction sets the netfield + calls loadEndOfRouteBehavior),
+            // so we set up the missing pieces ourselves:
+            //   1. Set endOfRouteBehaviorName.Value on host so the netfield change syncs to
+            //      farmhands (drives vanilla auto-detection on the netcoll-bound instance).
+            //   2. Call loadEndOfRouteBehavior on EVERY peer so loadedEndOfRouteBehavior is
+            //      populated before reallyDoAnimationAtEndOfScheduleRoute reads it at line 4399.
+            //   3. Call startRouteBehavior + reallyDoAnimation on EVERY peer so the animation
+            //      also plays on local-spawn duplicates that aren't netcoll-bound (per
+            //      pattern-mp-npc-duplication.md). Vanilla's auto-trigger may also fire on the
+            //      netcoll-bound instance — idempotent since it gates on currentlyDoingEnd*.
+            if (Context.IsMainPlayer)
+                npc.endOfRouteBehaviorName.Value = behavior;
+
+            this._helper.Reflection.GetMethod(npc, "loadEndOfRouteBehavior").Invoke(behavior);
+            this._helper.Reflection.GetMethod(npc, "startRouteBehavior").Invoke(behavior);
+
+            try
+            {
+                this._helper.Reflection.GetMethod(npc, "reallyDoAnimationAtEndOfScheduleRoute").Invoke();
+            }
+            catch (System.Exception ex)
+            {
+                // Animation method expects pathfinding state that doesn't exist after teleport
+                // This is safe to ignore - startRouteBehavior already set up the behavior
+                this._monitor.Log($"Ignored animation error for {npc.Name} at dismissal (expected after teleport): {ex.Message}", LogLevel.Debug);
+            }
+        }
+
+        /// <summary>
+        /// Convenience wrapper that resolves the current schedule entry and plays its
+        /// end-of-route animation in one call. Used by farmhand-side replay where the
+        /// caller doesn't already have the entry in hand.
+        /// </summary>
+        public void PlayCurrentScheduleAnimation(NPC npc)
+        {
+            var entry = GetCurrentScheduleEntryFor(npc);
+            if (entry != null)
+                PlayScheduleEntryAnimation(npc, entry);
         }
     }
 }
