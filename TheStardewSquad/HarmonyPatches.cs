@@ -880,6 +880,10 @@ namespace TheStardewSquad.Patches
             if (mate == null)
                 return;
 
+            // Disable cardinal-stair-step netfield interpolation (see NPC_Draw_Prefix
+            // comment).
+            __instance.position.Field.AxisAlignedMovement = false;
+
             // Apply riding draw offset — mirrors NPC_Draw_Prefix.
             // Necessary because Pet.draw is a custom override that does not call
             // base.draw, so the NPC.draw prefix never fires for Pet instances.
@@ -1072,6 +1076,11 @@ namespace TheStardewSquad.Patches
             var mate = _squadManager.GetMember(__instance);
             if (mate == null)
                 return;
+
+            // Disable cardinal-stair-step netfield interpolation.
+            // Without this, on remote farmhand screens the
+            // netfield interpolates the position in cardinal stair-step between syncs.
+            __instance.position.Field.AxisAlignedMovement = false;
 
             if (mate.IsRidingWithPlayer && _followerManager != null)
             {
