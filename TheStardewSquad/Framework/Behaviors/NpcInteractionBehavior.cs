@@ -97,10 +97,15 @@ namespace TheStardewSquad.Framework.Behaviors
         {
             var npc = mate.Npc;
 
+            // Remove from SquadManager synchronously so RecruitmentManager.Dismiss's subsequent
+            // BroadcastSnapshot captures the post-remove state. If this stayed in the fade
+            // closure, the snapshot would race ahead with the mate still present and farmhands
+            // would re-apply a stale entry.
+            this._squadManager.Remove(npc);
+
             Game1.afterFadeFunction onDismiss = () =>
             {
                 _stateHelper.PrepareForDismissal(npc);
-                this._squadManager.Remove(npc);
 
                 SchedulePathDescription scheduleEntry = _recruitmentManager.GetCurrentScheduleEntryFor(npc);
 

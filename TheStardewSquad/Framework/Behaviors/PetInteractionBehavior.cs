@@ -67,12 +67,16 @@ namespace TheStardewSquad.Framework.Behaviors
         public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior, bool suppressVisual = false)
         {
             var npc = mate.Npc;
+
+            // Remove from SquadManager synchronously so RecruitmentManager.Dismiss's subsequent
+            // BroadcastSnapshot captures the post-remove state, and so the warpToFarmHouse
+            // Harmony block (which gates on recruited status) doesn't reject the warp inside
+            // the fade callback below.
+            this._squadManager.Remove(npc);
+
             Game1.afterFadeFunction onDismiss = () =>
             {
                 _stateHelper.PrepareForDismissal(npc);
-
-                // Remove the pet BEFORE warping it away. This is due to the fact that we block warpToFarmHouse with Harmony as long as it is recruited.
-                this._squadManager.Remove(npc);
 
                 if (npc is Pet pet)
                 {
