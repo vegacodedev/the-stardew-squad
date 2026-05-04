@@ -179,23 +179,9 @@ namespace TheStardewSquad.Framework.NpcConfig
         /// </summary>
         public void PlayIdleAnimation(ISquadMate mate, IdleAnimationSpec animationSpec)
         {
-            var npc = mate.Npc;
+            var animationFrames = ApplyIdleAnimationFrames(mate.Npc, animationSpec);
+            if (animationFrames == null) return;
 
-            var allDescriptions = _dataProvider.LoadAnimationDescriptions();
-            if (!allDescriptions.TryGetValue(animationSpec.Id, out var description))
-            {
-                _monitor.Log($"Could not find animation '{animationSpec.Id}' in Data/animationDescriptions.", LogLevel.Warn);
-                return;
-            }
-
-            var animationFrames = ParseAnimation(description, animationSpec.Loop, _npcSpriteService.GetFacingDirection(npc), npc);
-            if (animationFrames == null || !animationFrames.Any())
-            {
-                _monitor.Log($"Failed to parse animation description for '{animationSpec.Id}'.", LogLevel.Warn);
-                return;
-            }
-
-            _npcSpriteService.SetCurrentAnimation(npc, animationFrames);
             mate.IsAnimating = true;
 
             if (animationSpec.Loop)
@@ -215,6 +201,31 @@ namespace TheStardewSquad.Framework.NpcConfig
                 int cooldownInTicks = (int)(animationDurationMs / MillisecondsPerTick) + 2; // Add extra ticks for safety
                 mate.ActionCooldown = cooldownInTicks;
             }
+        }
+
+        /// <summary>
+        /// Parses and applies the named idle animation to the given NPC's sprite, returning the
+        /// frame list (so callers can compute cooldown duration). Public so MP code can re-apply
+        /// the animation per same-name duplicate on the farmhand.
+        /// </summary>
+        public List<FarmerSprite.AnimationFrame> ApplyIdleAnimationFrames(NPC npc, IdleAnimationSpec animationSpec)
+        {
+            var allDescriptions = _dataProvider.LoadAnimationDescriptions();
+            if (!allDescriptions.TryGetValue(animationSpec.Id, out var description))
+            {
+                _monitor.Log($"Could not find animation '{animationSpec.Id}' in Data/animationDescriptions.", LogLevel.Warn);
+                return null;
+            }
+
+            var animationFrames = ParseAnimation(description, animationSpec.Loop, _npcSpriteService.GetFacingDirection(npc), npc);
+            if (animationFrames == null || !animationFrames.Any())
+            {
+                _monitor.Log($"Failed to parse animation description for '{animationSpec.Id}'.", LogLevel.Warn);
+                return null;
+            }
+
+            _npcSpriteService.SetCurrentAnimation(npc, animationFrames);
+            return animationFrames;
         }
 
         /// <summary>

@@ -354,6 +354,12 @@ namespace TheStardewSquad.Framework
             {
                 mate.Halt();
                 mate.ActionCooldown = 0;
+                // Sync the clear to peers — Sprite/IsAnimating/ActionCooldown are non-netfield
+                // local state, so without this the farmhand's right-click interrupts only THEIR
+                // screen while the host (and other peers) keep cycling the loop. Host's own
+                // FollowerManager.DetectAndBroadcastAnimationClears handles the host-self path
+                // automatically; this covers the farmhand-initiated case. No-op in SP.
+                _dispatcher?.BroadcastClearIdleAnim(mate);
             }
         }
     }

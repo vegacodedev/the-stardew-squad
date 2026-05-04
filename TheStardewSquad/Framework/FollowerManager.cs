@@ -547,8 +547,9 @@ namespace TheStardewSquad.Framework
                 {
                     if (isHostFishing)
                         UpdateFishingOnly(mate, isFastTick);
-                    else
+                    else if (!mate.IsAnimating)
                         mate.Halt();
+                    // If an idle animation is mid-play, skip Halt so it isn't cleared.
                     continue;
                 }
 
@@ -724,8 +725,7 @@ namespace TheStardewSquad.Framework
                 {
                     mate.IdleTicks++;
 
-                    // 180 ticks = 3 seconds at 60 FPS.
-                    if (this._config.EnableIdleAnimations && mate.IdleTicks > 180 && _randomService.NextDouble() < 1.0 / 40.0)
+                    if (this._config.EnableIdleAnimations && mate.IdleTicks > 12 && _randomService.NextDouble() < 1.0 / 80.0)
                     {
                         var animationSpec = _behaviorManager.GetRandomIdleAnimation(mate.Npc);
                         if (animationSpec != null)

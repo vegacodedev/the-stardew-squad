@@ -172,12 +172,11 @@ namespace TheStardewSquad.Framework.Multiplayer
             var spec = new NpcConfig.Models.IdleAnimationSpec { Id = msg.AnimationId, Loop = msg.Loop };
             _behaviorManager.PlayIdleAnimation(mate, spec);
 
-            var animList = mate.Npc.Sprite.CurrentAnimation;
-            if (animList == null) return;
+            // Re-parse the animation for each live duplicate.
             foreach (var live in FollowerManager.ResolveAllLiveNpcs(mate.Npc))
             {
                 if (ReferenceEquals(live, mate.Npc)) continue;
-                live.Sprite.setCurrentAnimation(animList);
+                _behaviorManager.ApplyIdleAnimationFrames(live, spec);
             }
         }
 
