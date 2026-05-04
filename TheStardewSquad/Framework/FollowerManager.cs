@@ -480,14 +480,14 @@ namespace TheStardewSquad.Framework
                 this.DriveFarmhandPetAnimation(_gameStateService.CurrentGameTime);
             }
 
+            this.HandleFriendshipGain();
+
             // Host-only authority: in MP, only the main player runs squad AI mutations.
             if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
 
             this._debrisCollector.Update(this._squadManager.Members);
 
             if (HandleFestivalState()) return;
-
-            this.HandleFriendshipGain();
 
             // Per-recruiter busy gate. Host-local UI state (menu open, window unfocused) only
             // gates the HOST's own mates — farmhand-recruited mates must keep updating regardless,
@@ -1458,18 +1458,25 @@ namespace TheStardewSquad.Framework
             if (pointsToAdd <= 0)
                 return;
 
+            long localId = Game1.player.UniqueMultiplayerID;
+            bool isHost = !Context.IsMultiplayer || Context.IsMainPlayer;
+
             foreach (var mate in this._squadManager.Members)
             {
-                // Friendship gain credits the recruiter so a farmhand's mate raises that
-                // farmhand's friendship.
-                var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
                 if (mate.Npc is Pet pet)
                 {
-                    pet.friendshipTowardFarmer.Value = Math.Min(1000, pet.friendshipTowardFarmer.Value + pointsToAdd);
+                    // Pet.friendshipTowardFarmer is a host-owned netfield (Pet lives in
+                    // Game1.locations); only host-side writes replicate. Vanilla pet
+                    // friendship has no per-recruiter dimension; one shared value.
+                    if (isHost)
+                        pet.friendshipTowardFarmer.Value = Math.Min(1000, pet.friendshipTowardFarmer.Value + pointsToAdd);
                 }
                 else if (mate.Npc.isVillager())
                 {
-                    who.changeFriendship(pointsToAdd, mate.Npc);
+                    // Each peer credits only its own Game1.player. Host writing to a
+                    // farmhand's friendshipData replica does not propagate.
+                    if (mate.RecruiterUniqueId == localId)
+                        Game1.player.changeFriendship(pointsToAdd, mate.Npc);
                 }
             }
 
