@@ -159,6 +159,11 @@ namespace TheStardewSquad.Patches
             );
 
             harmony.Patch(
+                original: AccessTools.Method(typeof(Pet), nameof(Pet.behaviorOnFarmerLocationEntry)),
+                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(BehaviorOnFarmerLocationEntry_Prefix))
+            );
+
+            harmony.Patch(
                 original: AccessTools.Method(typeof(Pet), nameof(Pet.warpToFarmHouse)),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(WarpToFarmHouse_Prefix))
             );
@@ -610,6 +615,23 @@ namespace TheStardewSquad.Patches
             }
 
             // Otherwise, let the pet behave as normal when not recruited.
+            return true;
+        }
+
+        /// <summary>
+        /// Prevents a recruited pet's behavior from being flipped to "Sleep" when any farmer
+        /// enters the pet's current location (vanilla rolls a 50% chance to do that during the day).
+        /// MaintainControl pins behavior to "Walk" so vanilla's slave-animation drives walking
+        /// frames on the farmhand; if vanilla flips Walk→Sleep here, MaintainControl resets next tick
+        /// and OnNewBehavior's RandomizeDirection branch fires on the host, briefly setting a random
+        /// FacingDirection that the farmhand renders for one frame as a "split-second turn".
+        /// </summary>
+        private static bool BehaviorOnFarmerLocationEntry_Prefix(Pet __instance)
+        {
+            if (_squadManager.IsRecruited(__instance))
+            {
+                return false;
+            }
             return true;
         }
 

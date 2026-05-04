@@ -97,8 +97,7 @@ namespace TheStardewSquad.Framework.Wrappers
             // Ensure pacing behavior stays disabled during recruitment
             if (npc.IsWalkingInSquare) npc.IsWalkingInSquare = false;
 
-            // For pets, ensure they stay in their passive "recruited" state.
-            // The vanilla game constantly tries to make them wander, so this override is crucial.
+            // For pets, pin CurrentBehavior to "Sleep" while recruited.
             if (npc is Pet pet && pet.CurrentBehavior != Pet.behavior_Sleep)
             {
                 pet.CurrentBehavior = Pet.behavior_Sleep;

@@ -145,8 +145,8 @@ namespace TheStardewSquad.Framework
 
         /// <summary>
         /// Returns ALL live NPC instances the player could collide with that share the captured
-        /// NPC's name, across all loaded locations including building interiors. In MP, the
-        /// farmhand process can hold multiple same-name NPC instances:
+        /// NPC's name, across all loaded locations including building interiors AND generated
+        /// levels. In MP the farmhand process can hold multiple same-name NPC instances:
         /// a. the captured reference from <see cref="MessageDispatcher.ApplySnapshot"/>,
         ///     which can be orphaned by vanilla netcode replacing it on warp/location-load;
         /// b. a vanilla-spawned instance at the NPC's home location (no recruiter modData);
@@ -169,8 +169,46 @@ namespace TheStardewSquad.Framework
                         found.Add(npc);
                 }
                 return true;
-            });
+            }, includeInteriors: true, includeGenerated: true);
             return found;
+        }
+
+        /// <summary>
+        /// Farmhand-only per-tick sprite animation drive for recruited pets. With
+        /// CurrentBehavior pinned to "Sleep" by MaintainControl, vanilla
+        /// <c>Pet.updateSlaveAnimation</c> early-returns and won't animate. We mirror the
+        /// non-Simple-NPC branch of base <c>Character.updateSlaveAnimation</c> here so the
+        /// pet's walk frames advance based on the netfielded position interpolation, same
+        /// way villager mates already animate correctly on the farmhand.
+        ///
+        /// We explicitly null out <c>Sprite.CurrentAnimation</c> first because vanilla's
+        /// Sleep <c>OnNewBehavior</c> sets a looping sleep animation list (frames 28-29),
+        /// and if we leave it set, vanilla's <c>animateOnce(time)</c> on the next tick keeps
+        /// cycling sleep frames over our writes.
+        /// </summary>
+        private void DriveFarmhandPetAnimation(GameTime time)
+        {
+            foreach (var mate in this._squadManager.Members)
+            {
+                if (mate.Npc is not Pet) continue;
+
+                foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                {
+                    if (live is not Pet pet) continue;
+
+                    pet.Sprite.CurrentAnimation = null;
+                    pet.faceDirection(pet.FacingDirection);
+                    if (pet.isMoving())
+                    {
+                        pet.animateInFacingDirection(time);
+                    }
+                    else
+                    {
+                        pet.Sprite.CurrentFrame = BehaviorManager.GetIdleFrame(pet.FacingDirection);
+                        pet.Sprite.StopAnimation();
+                    }
+                }
+            }
         }
 
         public void ResetStateForNewSession()
@@ -512,6 +550,18 @@ namespace TheStardewSquad.Framework
                 {
                     SquadMateStateHelper.MaintainControl(live);
                 }
+            }
+
+            // Farmhand-only: drive sprite animation for recruited pets. MaintainControl pins
+            // pet.CurrentBehavior to "Sleep", which makes vanilla Pet.updateSlaveAnimation
+            // early-return on its `CurrentBehavior != "Walk"` gate, so vanilla never animates
+            // the pet on the farmhand. We replicate the motion-aware drive vanilla uses for
+            // villager mates (which works because the base Character.updateSlaveAnimation has
+            // no behavior gate). The host already drives animation via ExecutePathMovement
+            // below this gate, so this pass is intentionally farmhand-only.
+            if (Context.IsMultiplayer && !Context.IsMainPlayer)
+            {
+                this.DriveFarmhandPetAnimation(_gameStateService.CurrentGameTime);
             }
 
             // Host-only authority: in MP, only the main player runs squad AI mutations.
