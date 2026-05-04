@@ -224,8 +224,15 @@ namespace TheStardewSquad.Framework
             {
                 if (!isSilent)
                 {
+                    bool isPet = mate.Npc is StardewValley.Characters.Pet;
                     Game1.globalFadeToBlack(() =>
                     {
+                        // Pet dismiss HUD: fire optimistically on the farmhand's screen.
+                        // The host's PetInteractionBehavior.HandleDismissal suppresses its
+                        // own local showGlobalMessage when proxying (suppressVisual=true)
+                        // because Game1.showGlobalMessage isn't peer-propagated.
+                        if (isPet)
+                            Game1.showGlobalMessage(this._helper.Translation.Get("recruitment.petDismissed", new { name = mate.Name }));
                         mate.Communicate(DialogueKeys.Dismiss);
                         Game1.globalFadeToClear();
                     });

@@ -103,7 +103,7 @@ namespace TheStardewSquad
                 this.SquadManager, this.WaitingNpcsManager,
                 this.RecruitmentManager, this.FollowerManager,
                 this.InteractionManager, this.SquadMateFactory,
-                stateHelper,
+                stateHelper, this.BehaviorManager,
                 this.ModManifest.UniqueID);
             this.RecruitmentManager.AttachDispatcher(this.MessageDispatcher);
             this.InteractionManager.AttachDispatcher(this.MessageDispatcher);

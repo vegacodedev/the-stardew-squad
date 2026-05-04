@@ -1,4 +1,5 @@
-﻿using TheStardewSquad.Pathfinding;
+﻿using System.Reflection;
+using TheStardewSquad.Pathfinding;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
@@ -68,6 +69,10 @@ namespace TheStardewSquad.Framework
         // Per-farmer riding state. In MP each online farmer can mount independently and
         // their own recruited mate rides with them.
         private readonly Dictionary<long, bool> _wasFarmerRiding = new();
+        // Per-mate IsAnimating from the previous host tick, keyed by (NpcName, RecruiterId).
+        // Used to detect IsAnimating true→false transitions and broadcast a ClearIdleAnim
+        // so peers stop the animation. Host-only; farmhand never populates this.
+        private readonly Dictionary<(string, long), bool> _wasAnimating = new();
         private int _updateCounter = 0;
         private int _lastFriendshipGainHour = -1;
 
@@ -173,28 +178,61 @@ namespace TheStardewSquad.Framework
             return found;
         }
 
+        private static readonly FieldInfo PetCurrentBehaviorField = typeof(Pet).GetField(
+            "_currentBehavior", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly MethodInfo PetOnNewBehaviorMethod = typeof(Pet).GetMethod(
+            "_OnNewBehavior", BindingFlags.Instance | BindingFlags.NonPublic);
+
         /// <summary>
-        /// Farmhand-only per-tick sprite animation drive for recruited pets. With
-        /// CurrentBehavior pinned to "Sleep" by MaintainControl, vanilla
-        /// <c>Pet.updateSlaveAnimation</c> early-returns and won't animate. We mirror the
-        /// non-Simple-NPC branch of base <c>Character.updateSlaveAnimation</c> here so the
-        /// pet's walk frames advance based on the netfielded position interpolation, same
-        /// way villager mates already animate correctly on the farmhand.
-        ///
-        /// We explicitly null out <c>Sprite.CurrentAnimation</c> first because vanilla's
-        /// Sleep <c>OnNewBehavior</c> sets a looping sleep animation list (frames 28-29),
-        /// and if we leave it set, vanilla's <c>animateOnce(time)</c> on the next tick keeps
-        /// cycling sleep frames over our writes.
+        /// Farmhand-only: tick down per-mate animation cooldowns set by
+        /// <see cref="MessageDispatcher.OnPlayIdleAnim"/>, and clear the animation when a
+        /// non-looping idle finishes.
+        /// </summary>
+        private void TickFarmhandIdleAnimationCooldowns()
+        {
+            foreach (var mate in this._squadManager.Members.ToList())
+            {
+                if (!mate.IsAnimating) continue;
+                if (mate.ActionCooldown == int.MaxValue) continue;
+                if (!mate.IsOnCooldown()) continue;
+
+                if (mate.DecrementCooldown())
+                {
+                    mate.Halt();
+                    // mate.Halt() clears Sprite.CurrentAnimation on mate.Npc, but per
+                    // pattern-mp-npc-duplication mate.Npc may be orphaned; clear all live
+                    // same-name instances too so the visible NPC stops animating.
+                    foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                    {
+                        if (ReferenceEquals(live, mate.Npc)) continue;
+                        live.Sprite.CurrentAnimation = null;
+                        live.Sprite.StopAnimation();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Farmhand-only per-tick sprite animation drive for pets.
         /// </summary>
         private void DriveFarmhandPetAnimation(GameTime time)
         {
+            // PASS 1: recruited pets — explicit walk/idle drive.
+            var recruitedPetNames = new HashSet<string>();
             foreach (var mate in this._squadManager.Members)
             {
                 if (mate.Npc is not Pet) continue;
+                recruitedPetNames.Add(mate.Npc.Name);
 
                 foreach (var live in ResolveAllLiveNpcs(mate.Npc))
                 {
                     if (live is not Pet pet) continue;
+
+                    if (mate.IsAnimating)
+                    {
+                        if (!pet.isMoving()) continue;
+                        mate.IsAnimating = false;
+                    }
 
                     pet.Sprite.CurrentAnimation = null;
                     pet.faceDirection(pet.FacingDirection);
@@ -209,6 +247,25 @@ namespace TheStardewSquad.Framework
                     }
                 }
             }
+
+            if (PetCurrentBehaviorField == null || PetOnNewBehaviorMethod == null) return;
+
+            Utility.ForEachLocation(loc =>
+            {
+                foreach (var c in loc.characters)
+                {
+                    if (c is not Pet pet) continue;
+                    if (recruitedPetNames.Contains(pet.Name)) continue;
+
+                    string netCurrent = pet.CurrentBehavior;
+                    string cached = (string)PetCurrentBehaviorField.GetValue(pet);
+                    if (netCurrent != cached)
+                    {
+                        PetOnNewBehaviorMethod.Invoke(pet, null);
+                    }
+                }
+                return true;
+            }, includeInteriors: true, includeGenerated: true);
         }
 
         public void ResetStateForNewSession()
@@ -561,6 +618,7 @@ namespace TheStardewSquad.Framework
             // below this gate, so this pass is intentionally farmhand-only.
             if (Context.IsMultiplayer && !Context.IsMainPlayer)
             {
+                this.TickFarmhandIdleAnimationCooldowns();
                 this.DriveFarmhandPetAnimation(_gameStateService.CurrentGameTime);
             }
 
@@ -643,6 +701,41 @@ namespace TheStardewSquad.Framework
             foreach (var waitingMate in this._waitingNpcsManager.WaitingMembers.ToList())
             {
                 UpdateWaitingNpc(waitingMate);
+            }
+
+            this.DetectAndBroadcastAnimationClears();
+        }
+
+        /// <summary>
+        /// Host-only. Compares current <c>IsAnimating</c> against the snapshot from the
+        /// previous tick; broadcasts <c>ClearIdleAnim</c> for each mate that just transitioned
+        /// true→false. Then refreshes the snapshot and prunes entries for mates no longer
+        /// in the squad. Cheap (one dictionary lookup per mate; no allocs in steady state).
+        /// </summary>
+        private void DetectAndBroadcastAnimationClears()
+        {
+            foreach (var mate in this._squadManager.Members)
+            {
+                var key = (mate.Npc.Name, mate.RecruiterUniqueId);
+                bool wasAnim = this._wasAnimating.TryGetValue(key, out var prev) && prev;
+                bool isAnim = mate.IsAnimating;
+                if (wasAnim && !isAnim)
+                {
+                    this._dispatcher?.BroadcastClearIdleAnim(mate);
+                }
+                this._wasAnimating[key] = isAnim;
+            }
+
+            // Drop snapshot entries for mates no longer in the squad (dismissed, recruiter
+            // disconnected, etc.) so the dictionary doesn't grow unbounded across a session.
+            if (this._wasAnimating.Count > this._squadManager.Count)
+            {
+                var liveKeys = new HashSet<(string, long)>(
+                    this._squadManager.Members.Select(m => (m.Npc.Name, m.RecruiterUniqueId)));
+                foreach (var k in this._wasAnimating.Keys.ToList())
+                {
+                    if (!liveKeys.Contains(k)) this._wasAnimating.Remove(k);
+                }
             }
         }
 
@@ -880,6 +973,9 @@ namespace TheStardewSquad.Framework
                         if (animationSpec != null)
                         {
                             _behaviorManager.PlayIdleAnimation(mate, animationSpec);
+                            // Sprite.CurrentAnimation isn't netfielded; broadcast so peers
+                            // replay the same frames on their NPC instance. No-op in SP.
+                            this._dispatcher?.BroadcastPlayIdleAnim(mate, animationSpec);
                             return;
                         }
                     }

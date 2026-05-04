@@ -29,6 +29,7 @@ namespace TheStardewSquad.Framework.Multiplayer
         private readonly InteractionManager _interaction;
         private readonly SquadMateFactory _mateFactory;
         private readonly Abstractions.Character.ISquadMateStateHelper _stateHelper;
+        private readonly BehaviorManager _behaviorManager;
         private readonly string _modUniqueId;
 
         private readonly ConcurrentQueue<QueuedMessage> _inbox = new();
@@ -44,6 +45,7 @@ namespace TheStardewSquad.Framework.Multiplayer
             InteractionManager interaction,
             SquadMateFactory mateFactory,
             Abstractions.Character.ISquadMateStateHelper stateHelper,
+            BehaviorManager behaviorManager,
             string modUniqueId)
         {
             this._helper = helper;
@@ -56,6 +58,7 @@ namespace TheStardewSquad.Framework.Multiplayer
             this._interaction = interaction;
             this._mateFactory = mateFactory;
             this._stateHelper = stateHelper;
+            this._behaviorManager = behaviorManager;
             this._modUniqueId = modUniqueId;
         }
 
@@ -125,6 +128,56 @@ namespace TheStardewSquad.Framework.Multiplayer
                 case nameof(ShowBubble):
                     OnShowBubble(e.ReadAs<ShowBubble>());
                     break;
+                case nameof(PlayIdleAnim):
+                    OnPlayIdleAnim(e.ReadAs<PlayIdleAnim>());
+                    break;
+                case nameof(ClearIdleAnim):
+                    OnClearIdleAnim(e.ReadAs<ClearIdleAnim>());
+                    break;
+            }
+        }
+
+        private void OnClearIdleAnim(ClearIdleAnim msg)
+        {
+            if (msg.Version != MessageVersion.Current) return;
+            ISquadMate? mate = _squad.Members.FirstOrDefault(m =>
+                m.Npc.Name == msg.NpcName && m.RecruiterUniqueId == msg.RecruiterId);
+            if (mate == null) return;
+            mate.Halt();
+            // mate.Halt() clears Sprite.CurrentAnimation on mate.Npc, but per
+            // pattern-mp-npc-duplication mate.Npc may be orphaned — clear all live
+            // same-name instances too so the visible NPC stops animating.
+            foreach (var live in FollowerManager.ResolveAllLiveNpcs(mate.Npc))
+            {
+                if (ReferenceEquals(live, mate.Npc)) continue;
+                live.Sprite.CurrentAnimation = null;
+                live.Sprite.StopAnimation();
+            }
+        }
+
+        /// <summary>
+        /// Cosmetic idle-animation receiver. Looks up the local mate by (NpcName, RecruiterId)
+        /// and replays the same idle animation locally so this peer's NPC instance shows
+        /// the same frames as the host. Vanilla doesn't propagate <c>Sprite.CurrentAnimation</c>
+        /// and the host-side call lives below the host-only update gate, so without this
+        /// peers never see idle animations. Silently drops mismatched-version messages
+        /// (animations are non-load-bearing).
+        /// </summary>
+        private void OnPlayIdleAnim(PlayIdleAnim msg)
+        {
+            if (msg.Version != MessageVersion.Current) return;
+            ISquadMate? mate = _squad.Members.FirstOrDefault(m =>
+                m.Npc.Name == msg.NpcName && m.RecruiterUniqueId == msg.RecruiterId);
+            if (mate == null) return;
+            var spec = new NpcConfig.Models.IdleAnimationSpec { Id = msg.AnimationId, Loop = msg.Loop };
+            _behaviorManager.PlayIdleAnimation(mate, spec);
+
+            var animList = mate.Npc.Sprite.CurrentAnimation;
+            if (animList == null) return;
+            foreach (var live in FollowerManager.ResolveAllLiveNpcs(mate.Npc))
+            {
+                if (ReferenceEquals(live, mate.Npc)) continue;
+                live.Sprite.setCurrentAnimation(animList);
             }
         }
 
@@ -513,6 +566,36 @@ namespace TheStardewSquad.Framework.Multiplayer
             _helper.Multiplayer.SendMessage(
                 new ShowBubble(MessageVersion.Current, npcName, locationName, text),
                 nameof(ShowBubble),
+                modIDs: new[] { _modUniqueId });
+        }
+
+        /// <summary>
+        /// Broadcasts an idle-animation play to all peers so every screen renders the same
+        /// frames (vanilla <c>Sprite.CurrentAnimation</c> isn't netfielded). The host picks
+        /// the animation from BehaviorManager's pool and plays it locally; peers replay
+        /// via <see cref="OnPlayIdleAnim"/>. No-op in SP.
+        /// </summary>
+        public void BroadcastPlayIdleAnim(ISquadMate mate, NpcConfig.Models.IdleAnimationSpec spec)
+        {
+            if (!Context.IsMultiplayer) return;
+            _helper.Multiplayer.SendMessage(
+                new PlayIdleAnim(MessageVersion.Current, mate.Npc.Name, mate.RecruiterUniqueId, spec.Id, spec.Loop),
+                nameof(PlayIdleAnim),
+                modIDs: new[] { _modUniqueId });
+        }
+
+        /// <summary>
+        /// Broadcasts an idle-animation clear to all peers so every screen stops the looping
+        /// frames (vanilla doesn't propagate <c>mate.Halt()</c>). Called from
+        /// <see cref="FollowerManager"/> when it detects an IsAnimating true→false transition
+        /// on the host. No-op in SP.
+        /// </summary>
+        public void BroadcastClearIdleAnim(ISquadMate mate)
+        {
+            if (!Context.IsMultiplayer) return;
+            _helper.Multiplayer.SendMessage(
+                new ClearIdleAnim(MessageVersion.Current, mate.Npc.Name, mate.RecruiterUniqueId),
+                nameof(ClearIdleAnim),
                 modIDs: new[] { _modUniqueId });
         }
 

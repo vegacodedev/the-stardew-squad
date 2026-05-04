@@ -62,6 +62,26 @@ namespace TheStardewSquad.Framework.Multiplayer
     /// </summary>
     public record ShowBubble(int Version, string NpcName, string LocationName, string Text);
 
+    /// <summary>
+    /// Cosmetic-only broadcast: tells all peers to play the named idle animation on the
+    /// recruited NPC identified by (NpcName, RecruiterId). The host picks the animation
+    /// (random + GSQ-conditional pool in <see cref="BehaviorManager.GetRandomIdleAnimation"/>)
+    /// and plays it locally; peers replay so their NPC instance shows the same frames.
+    /// Vanilla doesn't propagate <c>Sprite.CurrentAnimation</c>, so without this peers see
+    /// no idle animations at all (host-only gate in FollowerManager hides the call).
+    /// </summary>
+    public record PlayIdleAnim(int Version, string NpcName, long RecruiterId, string AnimationId, bool Loop);
+
+    /// <summary>
+    /// Cosmetic-only broadcast: tells all peers to clear an in-progress idle animation
+    /// on the recruited NPC. Host detects an <c>IsAnimating</c> true→false transition
+    /// each tick (any caller of <c>mate.Halt()</c> can produce one — distance check, task
+    /// assignment, cooldown finish, etc.) and broadcasts. Without this, looping idles
+    /// (Loop=true → ActionCooldown=int.MaxValue) keep cycling on peers forever because
+    /// the host's interrupting Halt never propagates.
+    /// </summary>
+    public record ClearIdleAnim(int Version, string NpcName, long RecruiterId);
+
     /// <summary>One mate's serialized state inside a <see cref="SquadSnapshot"/>.</summary>
     public record SquadEntry(string NpcName, long RecruiterId, string LocationName, TaskType? CurrentTask);
 
@@ -74,6 +94,6 @@ namespace TheStardewSquad.Framework.Multiplayer
     /// <summary>Shared message-versioning + type-name constants.</summary>
     public static class MessageVersion
     {
-        public const int Current = 3;
+        public const int Current = 4;
     }
 }

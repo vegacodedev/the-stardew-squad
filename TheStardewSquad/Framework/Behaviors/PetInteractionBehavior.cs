@@ -101,7 +101,11 @@ namespace TheStardewSquad.Framework.Behaviors
                     }
                 }
 
-                if (!isSilent)
+                // Suppress the local HUD when proxying for a remote farmhand - the farmhand
+                // fires it optimistically on their own screen (see RecruitmentManager.Dismiss).
+                // Game1.showGlobalMessage isn't peer-propagated, so without this gate the
+                // host sees the HUD for someone else's dismiss and the farmhand sees nothing.
+                if (!isSilent && !suppressVisual)
                 {
                     var message = _helper.Translation.Get("recruitment.petDismissed", new { name = mate.Name });
                     Game1.showGlobalMessage(message);
