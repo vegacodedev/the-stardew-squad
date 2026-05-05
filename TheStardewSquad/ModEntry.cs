@@ -103,12 +103,13 @@ namespace TheStardewSquad
                 this.SquadManager, this.WaitingNpcsManager,
                 this.RecruitmentManager, this.FollowerManager,
                 this.InteractionManager, this.SquadMateFactory,
-                stateHelper, this.BehaviorManager,
+                stateHelper, this.BehaviorManager, this.SpriteManager,
                 this.ModManifest.UniqueID);
             this.RecruitmentManager.AttachDispatcher(this.MessageDispatcher);
             this.InteractionManager.AttachDispatcher(this.MessageDispatcher);
             this.FollowerManager.AttachDispatcher(this.MessageDispatcher);
             this.SquadMateFactory.AttachDispatcher(this.MessageDispatcher);
+            this.SpriteManager.AttachDispatcher(this.MessageDispatcher);
 
             this.AssetManager = new AssetManager();
             TaskManager.Initialize(this.Config, this.FollowerManager, this.SpriteManager);

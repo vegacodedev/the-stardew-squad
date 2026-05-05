@@ -234,6 +234,24 @@ namespace TheStardewSquad.Framework
             "_OnNewBehavior", BindingFlags.Instance | BindingFlags.NonPublic);
 
         /// <summary>
+        /// <summary>
+        /// Per-process per-tick frame cycling for sustained tasks (Sitting, Fishing).
+        /// ForceApplyTaskAnimation derives the frame from <c>Game1.currentGameTime.TotalGameTime.TotalMilliseconds</c>
+        /// which is local-process; each peer drives its own NPC instances.
+        /// </summary>
+        private void DriveSustainedTaskFrames()
+        {
+            if (this._spriteManager == null) return;
+            foreach (var mate in this._squadManager.Members)
+            {
+                var type = mate.Task?.Type;
+                if (type != TaskType.Sitting && type != TaskType.Fishing) continue;
+                foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                    this._spriteManager.ForceApplyTaskAnimation(live, type.ToString()!);
+            }
+        }
+
+        /// <summary>
         /// Farmhand-only per-tick sprite animation drive for pets.
         /// </summary>
         private void DriveFarmhandPetAnimation(GameTime time)
@@ -482,6 +500,11 @@ namespace TheStardewSquad.Framework
 
             this.HandleFriendshipGain();
 
+            // Per-process per-tick frame drive for sustained tasks (Sitting, Fishing).
+            // Sprite.currentFrame and npc.flip aren't netfielded; ForceApplyTaskAnimation
+            // computes the frame from elapsed time, which each peer drives locally.
+            this.DriveSustainedTaskFrames();
+
             // Host-only authority: in MP, only the main player runs squad AI mutations.
             if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
 
@@ -576,13 +599,12 @@ namespace TheStardewSquad.Framework
                 ClearMateTaskAndReset(mate);
             }
 
-            // If an idle animation is playing, check if the player has moved too far away.
-            if (mate.IsAnimating && distanceToPlayer > 2.5f)
+            // Idle animations must yield to incoming work.
+            bool idleBlocksMimicking = mate.IsAnimating && !mate.HasTask() && mate.MimickingTaskTimer > 0;
+            if ((mate.IsAnimating && distanceToPlayer > 2.5f) || idleBlocksMimicking)
             {
-                mate.Halt(); // This stops the animation and resets the IsAnimating flag.
-                mate.ActionCooldown = 0; // Reset the cooldown to allow other actions.
-
-                // Manually reset the sprite to a standard idle frame, since Halt() can leave it on a weird frame.
+                mate.Halt();
+                mate.ActionCooldown = 0;
                 npc.Sprite.CurrentFrame = BehaviorManager.GetIdleFrame(npc.FacingDirection);
             }
 
@@ -820,6 +842,11 @@ namespace TheStardewSquad.Framework
 
         private void ClearMateTask(ISquadMate mate)
         {
+            // Broadcast a peer clear if there's any task animation or texture swap to undo.
+            // Peers don't gate on this themselves; the host filters to avoid spurious traffic.
+            bool needsClearBroadcast = (mate.Task != null || !string.IsNullOrEmpty(mate.AppliedTaskTexture))
+                && Context.IsMainPlayer;
+
             if (mate.Task != null) this._claimedTaskTargets.Remove(mate.Task.Tile);
             if (mate.ClaimedInteractionSpot.HasValue)
             {
@@ -829,6 +856,8 @@ namespace TheStardewSquad.Framework
             mate.Task = null;
             mate.FramesSinceTaskCleared = 0; // Start counting frames since task cleared
             mate.LastMonsterTile = null; // Reset monster tracking when task is cleared
+
+            if (needsClearBroadcast) this._dispatcher?.BroadcastClearTaskAnim(mate);
         }
 
         /// <summary>Clears a mate's task and resets their movement state.</summary>
@@ -1542,6 +1571,8 @@ namespace TheStardewSquad.Framework
                             mate.Npc.Sprite.StopAnimation();
                             mate.Npc.flip = false;
                             mate.Halt();
+                            // Riding-dismount cleanup doesn't go through ClearMateTask; broadcast directly.
+                            this._dispatcher?.BroadcastClearTaskAnim(mate);
                         }
                     }
                 }

@@ -30,6 +30,7 @@ namespace TheStardewSquad.Framework.Multiplayer
         private readonly SquadMateFactory _mateFactory;
         private readonly Abstractions.Character.ISquadMateStateHelper _stateHelper;
         private readonly BehaviorManager _behaviorManager;
+        private readonly NpcConfig.SpriteManager _spriteManager;
         private readonly string _modUniqueId;
 
         private readonly ConcurrentQueue<QueuedMessage> _inbox = new();
@@ -46,6 +47,7 @@ namespace TheStardewSquad.Framework.Multiplayer
             SquadMateFactory mateFactory,
             Abstractions.Character.ISquadMateStateHelper stateHelper,
             BehaviorManager behaviorManager,
+            NpcConfig.SpriteManager spriteManager,
             string modUniqueId)
         {
             this._helper = helper;
@@ -59,6 +61,7 @@ namespace TheStardewSquad.Framework.Multiplayer
             this._mateFactory = mateFactory;
             this._stateHelper = stateHelper;
             this._behaviorManager = behaviorManager;
+            this._spriteManager = spriteManager;
             this._modUniqueId = modUniqueId;
         }
 
@@ -134,6 +137,12 @@ namespace TheStardewSquad.Framework.Multiplayer
                 case nameof(ClearIdleAnim):
                     OnClearIdleAnim(e.ReadAs<ClearIdleAnim>());
                     break;
+                case nameof(PlayTaskAnim):
+                    OnPlayTaskAnim(e.ReadAs<PlayTaskAnim>());
+                    break;
+                case nameof(ClearTaskAnim):
+                    OnClearTaskAnim(e.ReadAs<ClearTaskAnim>());
+                    break;
             }
         }
 
@@ -191,6 +200,66 @@ namespace TheStardewSquad.Framework.Multiplayer
             var loc = Game1.getLocationFromName(msg.LocationName);
             NPC? npc = loc?.characters.FirstOrDefault(c => c.Name == msg.NpcName);
             npc?.showTextAboveHead(msg.Text);
+        }
+
+        /// <summary>
+        /// Cosmetic task-animation receiver. Vanilla doesn't propagate Sprite.CurrentAnimation,
+        /// Sprite.currentFrame, or npc.flip; the host-side apply lives below the host-only
+        /// update gate, so without this peers see no task sprite changes. Iterates every live
+        /// duplicate (per pattern-mp-npc-duplication) so the visible NPC instance updates.
+        /// </summary>
+        private void OnPlayTaskAnim(PlayTaskAnim msg)
+        {
+            if (msg.Version != MessageVersion.Current) return;
+            ISquadMate? mate = _squad.Members.FirstOrDefault(m =>
+                m.Npc.Name == msg.NpcName && m.RecruiterUniqueId == msg.RecruiterId);
+            if (mate == null) return;
+
+            foreach (var live in FollowerManager.ResolveAllLiveNpcs(mate.Npc))
+            {
+                if (!string.IsNullOrEmpty(msg.AppliedTexturePath)
+                    && !string.Equals(live.Sprite?.Texture?.Name, msg.AppliedTexturePath, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (string.IsNullOrEmpty(mate.OriginalTexture))
+                        mate.OriginalTexture = NpcConfig.NpcTextureHelper.GetTextureAssetPath(live);
+                    live.TryLoadSprites(msg.AppliedTexturePath, out _);
+                    mate.AppliedTaskTexture = msg.AppliedTexturePath;
+                }
+                _spriteManager.ApplyTaskAnimation(live, msg.TaskType, 400);
+                _spriteManager.SetTaskFrame(live, msg.TaskType, msg.FacingDirection);
+            }
+
+            // Sustained tasks (Sitting, Fishing) need mate.Task populated on the peer so
+            // the per-process per-tick frame-drive in FollowerManager.DriveSustainedTaskFrames
+            // picks them up. Synthesize a stub SquadTask; only Type matters for that pass.
+            if (Enum.TryParse<TaskType>(msg.TaskType, out var typeEnum)
+                && (typeEnum == TaskType.Sitting || typeEnum == TaskType.Fishing))
+            {
+                mate.Task = new SquadTask(typeEnum, Microsoft.Xna.Framework.Point.Zero, Microsoft.Xna.Framework.Point.Zero);
+            }
+        }
+
+        /// <summary>
+        /// Cosmetic task-clear receiver. Restores the NPC's original texture (if swapped)
+        /// and stops any in-progress task animation on every live duplicate.
+        /// </summary>
+        private void OnClearTaskAnim(ClearTaskAnim msg)
+        {
+            if (msg.Version != MessageVersion.Current) return;
+            ISquadMate? mate = _squad.Members.FirstOrDefault(m =>
+                m.Npc.Name == msg.NpcName && m.RecruiterUniqueId == msg.RecruiterId);
+            if (mate == null) return;
+
+            foreach (var live in FollowerManager.ResolveAllLiveNpcs(mate.Npc))
+            {
+                _spriteManager.RestoreOriginalTexture(live, mate);
+                live.Sprite.StopAnimation();
+                live.Sprite.CurrentAnimation = null;
+            }
+
+            // Clear the peer-side stub Task set by OnPlayTaskAnim so the per-process
+            // sustained-frame drive stops touching this mate.
+            mate.Task = null;
         }
 
         public void OnPeerConnected(object? sender, PeerConnectedEventArgs e)
@@ -598,6 +667,34 @@ namespace TheStardewSquad.Framework.Multiplayer
                 modIDs: new[] { _modUniqueId });
         }
 
+        /// <summary>
+        /// Broadcasts a task-animation apply to all peers so every screen renders the same
+        /// task sprite (Sprite.CurrentAnimation, currentFrame, flip, and optional texture
+        /// swap aren't netfielded). No-op in SP.
+        /// </summary>
+        public void BroadcastPlayTaskAnim(ISquadMate mate, string taskType, int facingDirection, string? appliedTexturePath)
+        {
+            if (!Context.IsMultiplayer) return;
+            _helper.Multiplayer.SendMessage(
+                new PlayTaskAnim(MessageVersion.Current, mate.Npc.Name, mate.RecruiterUniqueId, taskType, facingDirection, appliedTexturePath),
+                nameof(PlayTaskAnim),
+                modIDs: new[] { _modUniqueId });
+        }
+
+        /// <summary>
+        /// Broadcasts a task-animation clear to all peers so every screen restores the NPC's
+        /// original texture (if swapped) and stops the task animation. Called from task-clear
+        /// paths in FollowerManager / TaskManager. No-op in SP.
+        /// </summary>
+        public void BroadcastClearTaskAnim(ISquadMate mate)
+        {
+            if (!Context.IsMultiplayer) return;
+            _helper.Multiplayer.SendMessage(
+                new ClearTaskAnim(MessageVersion.Current, mate.Npc.Name, mate.RecruiterUniqueId),
+                nameof(ClearTaskAnim),
+                modIDs: new[] { _modUniqueId });
+        }
+
         public void SendRecruitRequest(string npcName, string locationName, int maxSquadSize)
         {
             _helper.Multiplayer.SendMessage(
@@ -734,7 +831,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
                 var mate = _mateFactory.Create(npc);
                 if (mate != null)
+                {
+                    // Late-joiner / re-snapshot rehydration: synthesize a stub Task for sustained
+                    // task types (Sitting, Fishing) so the per-process per-tick frame-drive in
+                    // FollowerManager.DriveSustainedTaskFrames picks them up immediately.
+                    if (entry.CurrentTask is TaskType ct && (ct == TaskType.Sitting || ct == TaskType.Fishing))
+                        mate.Task = new SquadTask(ct, Microsoft.Xna.Framework.Point.Zero, Microsoft.Xna.Framework.Point.Zero);
                     _squad.Add(mate);
+                }
             }
 
             foreach (var kvp in existingByKey)

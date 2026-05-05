@@ -82,6 +82,23 @@ namespace TheStardewSquad.Framework.Multiplayer
     /// </summary>
     public record ClearIdleAnim(int Version, string NpcName, long RecruiterId);
 
+    /// <summary>
+    /// Cosmetic-only broadcast: tells all peers to apply a task sprite animation on the
+    /// recruited NPC identified by (NpcName, RecruiterId). Sprite.CurrentAnimation,
+    /// Sprite.currentFrame, and npc.flip are non-netfielded local fields, so without
+    /// this peers see no task sprite changes at all (host-only gate hides the call).
+    /// AppliedTexturePath carries the asset path when the task swaps the NPC's texture
+    /// sheet (Sitting today; null for tasks that don't swap).
+    /// </summary>
+    public record PlayTaskAnim(int Version, string NpcName, long RecruiterId, string TaskType, int FacingDirection, string? AppliedTexturePath);
+
+    /// <summary>
+    /// Cosmetic-only broadcast: tells all peers to clear an in-progress task animation
+    /// and restore the NPC's original texture if one was swapped. Sent host->peers when
+    /// the host clears a mate's task or completes a task with a custom sprite sheet.
+    /// </summary>
+    public record ClearTaskAnim(int Version, string NpcName, long RecruiterId);
+
     /// <summary>One mate's serialized state inside a <see cref="SquadSnapshot"/>.</summary>
     public record SquadEntry(string NpcName, long RecruiterId, string LocationName, TaskType? CurrentTask);
 

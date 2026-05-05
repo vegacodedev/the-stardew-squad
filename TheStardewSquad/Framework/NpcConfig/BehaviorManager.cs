@@ -225,6 +225,10 @@ namespace TheStardewSquad.Framework.NpcConfig
             }
 
             _npcSpriteService.SetCurrentAnimation(npc, animationFrames);
+            // Vanilla persists Sprite.loop across animations; villagers can land here with
+            // loop=false from a prior schedule animation (e.g. NPC.checkAction emote paths).
+            // For 1-frame main loops the animation then nulls after one tick instead of cycling.
+            npc.Sprite.loop = animationSpec.Loop;
             return animationFrames;
         }
 

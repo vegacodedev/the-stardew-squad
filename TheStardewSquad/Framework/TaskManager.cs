@@ -511,7 +511,7 @@ namespace TheStardewSquad.Framework
             FacePosition(npc, monster.getStandingPosition());
             AnimateAttacking(npc);
 
-            _spriteManager?.ApplyTaskAnimation(npc, "Attacking", 400);
+            _spriteManager?.ApplyTaskAnimation(npc, "Attacking", 400, mate);
             npc.shake(400);
 
             mate.ActionCooldown = 48;
@@ -535,7 +535,7 @@ namespace TheStardewSquad.Framework
             switch (npc.FacingDirection)
             {
                 case 1: // Right
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -553,7 +553,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 50 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -571,7 +571,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 100 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -589,7 +589,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 150 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -609,7 +609,7 @@ namespace TheStardewSquad.Framework
                     { delayBeforeAnimationStart = 200 });
                     break;
                 case 3: // Left
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -627,7 +627,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 50 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -645,7 +645,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 100 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -663,7 +663,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 150 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -683,7 +683,7 @@ namespace TheStardewSquad.Framework
                     { delayBeforeAnimationStart = 200 });
                     break;
                 case 0: // Up
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -701,7 +701,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 50 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -719,7 +719,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 100 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -737,7 +737,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 150 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -757,7 +757,7 @@ namespace TheStardewSquad.Framework
                     { delayBeforeAnimationStart = 200 });
                     break;
                 case 2: // Down
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -775,7 +775,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 50 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -793,7 +793,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 100 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -811,7 +811,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 150 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -899,7 +899,7 @@ namespace TheStardewSquad.Framework
 
             FacePosition(npc, monster.getStandingPosition());
             AnimatePetAttacking(npc);
-            _spriteManager?.ApplyTaskAnimation(npc, "Attacking", 250);
+            _spriteManager?.ApplyTaskAnimation(npc, "Attacking", 250, mate);
             npc.shake(250); // A little shake instead of a full animation
             mate.ActionCooldown = 40; // Pets can attack a bit faster
 
@@ -916,25 +916,25 @@ namespace TheStardewSquad.Framework
             switch (npc.FacingDirection)
             {
                 case 1: // Right
-                    npc.currentLocation.temporarySprites.Add(new TemporaryAnimatedSprite(15, npc.Position + new Vector2(40f, -100f), Color.White, 4, flipped: false, 80f, 0, 128, 1f, 128)
+                    Game1.Multiplayer.broadcastSprites(npc.currentLocation, new TemporaryAnimatedSprite(15, npc.Position + new Vector2(40f, -100f), Color.White, 4, flipped: false, 80f, 0, 128, 1f, 128)
                     {
                         layerDepth = (float)(npc.GetBoundingBox().Bottom + 1) / 10000f
                     });
                     break;
                 case 3: // Left
-                    npc.currentLocation.temporarySprites.Add(new TemporaryAnimatedSprite(15, npc.Position + new Vector2(-92f, -100f), Color.White, 4, flipped: true, 80f, 0, 128, 1f, 128)
+                    Game1.Multiplayer.broadcastSprites(npc.currentLocation, new TemporaryAnimatedSprite(15, npc.Position + new Vector2(-92f, -100f), Color.White, 4, flipped: true, 80f, 0, 128, 1f, 128)
                     {
                         layerDepth = (float)(npc.GetBoundingBox().Bottom + 1) / 10000f
                     });
                     break;
                 case 0: // Up
-                    npc.currentLocation.temporarySprites.Add(new TemporaryAnimatedSprite(18, npc.Position + new Vector2(40f, -132f), Color.White, 4, flipped: false, 100f, 0, 64, 1f, 64)
+                    Game1.Multiplayer.broadcastSprites(npc.currentLocation, new TemporaryAnimatedSprite(18, npc.Position + new Vector2(40f, -132f), Color.White, 4, flipped: false, 100f, 0, 64, 1f, 64)
                     {
                         layerDepth = (float)(npc.StandingPixel.Y - 9) / 10000f
                     });
                     break;
                 case 2: // Down
-                    npc.currentLocation.temporarySprites.Add(new TemporaryAnimatedSprite(19, npc.Position + new Vector2(60f, -128f), Color.White, 4, flipped: false, 80f, 0, 128, 1f, 128)
+                    Game1.Multiplayer.broadcastSprites(npc.currentLocation, new TemporaryAnimatedSprite(19, npc.Position + new Vector2(60f, -128f), Color.White, 4, flipped: false, 80f, 0, 128, 1f, 128)
                     {
                         layerDepth = (float)(npc.GetBoundingBox().Bottom + 1) / 10000f
                     });
@@ -999,15 +999,15 @@ namespace TheStardewSquad.Framework
                 dirt.state.Value = HoeDirt.watered;
                 location.playSound("wateringCan");
 
-                location.temporarySprites.Add(new TemporaryAnimatedSprite(
-                    Game1.animationsName, new Rectangle(294, 1856, 16, 16), 100f, 4, 1,
-                    (tileVector * 64f) + new Vector2(Game1.random.Next(-16, 16), Game1.random.Next(-16, 16)),
-                    false, false, (tile.Y * 64 + 32) / 10000f, 0.01f, Color.White, 4f, 0.01f, 0f, 0f));
+                // Row-13 splash from vanilla TileSheets/animations, matching WateringCan.DoFunction.
+                Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
+                    13, tileVector * 64f, Color.White, 10, Game1.random.Next(2) == 0, 70f, 0, 64,
+                    (tile.Y * 64f + 32f) / 10000f - 0.01f));
 
                 var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
                 FacePosition(npc, targetWorldPosition);
                 AnimateWatering(npc);
-                _spriteManager?.ApplyTaskAnimation(npc, "Watering", 400);
+                _spriteManager?.ApplyTaskAnimation(npc, "Watering", 400, mate);
                 npc.shake(230);
 
                 mate.ActionCooldown = 48;
@@ -1040,7 +1040,7 @@ namespace TheStardewSquad.Framework
                 case 2: default: sourceRect = new Rectangle(0, 208, 16, 32); positionOffset = new Vector2(0, -32); break;
             }
 
-            location.temporarySprites.Add(new TemporaryAnimatedSprite(
+            Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                 textureName: Game1.toolSpriteSheet.Name,
                 sourceRect,
                 animationInterval,
@@ -1180,7 +1180,7 @@ namespace TheStardewSquad.Framework
                 FacePosition(npc, targetWorldPosition);
                 AnimateLumbering(npc);
                 SpawnToolSwipeOverlay(npc);
-                _spriteManager?.ApplyTaskAnimation(npc, "Lumbering", 400);
+                _spriteManager?.ApplyTaskAnimation(npc, "Lumbering", 400, mate);
                 npc.shake(230);
                 mate.ActionCooldown = 48;
                 if (Game1.random.Next(10) == 0)
@@ -1235,7 +1235,7 @@ namespace TheStardewSquad.Framework
                     break;
             }
 
-            location.temporarySprites.Add(new TemporaryAnimatedSprite(
+            Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                 textureName: Game1.animationsName,
                 sourceRect: sourceRect,
                 animationInterval: interval,
@@ -1273,8 +1273,7 @@ namespace TheStardewSquad.Framework
                         // Frame 2: Strike
                         var swingFrame2 = new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(64, -48), false, false, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 };
 
-                        location.temporarySprites.Add(swingFrame1);
-                        location.temporarySprites.Add(swingFrame2);
+                        Game1.Multiplayer.broadcastSprites(location, swingFrame1, swingFrame2);
                         break;
                     }
                 case 3: // Left
@@ -1287,8 +1286,7 @@ namespace TheStardewSquad.Framework
                         // Frame 2: Strike
                         var swingFrame2 = new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(-64, -48), false, true, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 };
 
-                        location.temporarySprites.Add(swingFrame1);
-                        location.temporarySprites.Add(swingFrame2);
+                        Game1.Multiplayer.broadcastSprites(location, swingFrame1, swingFrame2);
                         break;
                     }
                 case 0: // Up
@@ -1297,7 +1295,7 @@ namespace TheStardewSquad.Framework
                     {
                         Rectangle sourceRect = (npc.FacingDirection == 0) ? new Rectangle(48, 144, 16, 32) : new Rectangle(0, 144, 16, 32);
                         Vector2 positionOffset = (npc.FacingDirection == 0) ? new Vector2(0, -128) : new Vector2(0, -80);
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 200f, 2, 0, npc.Position + positionOffset, false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 200f, 2, 0, npc.Position + positionOffset, false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
                         break;
                     }
             }
@@ -1392,7 +1390,7 @@ namespace TheStardewSquad.Framework
                 FacePosition(npc, targetWorldPosition);
                 AnimateMining(npc);
                 SpawnToolSwipeOverlay(npc);
-                _spriteManager?.ApplyTaskAnimation(npc, "Mining", 400);
+                _spriteManager?.ApplyTaskAnimation(npc, "Mining", 400, mate);
                 npc.shake(230);
                 mate.ActionCooldown = 48;
 
@@ -1431,16 +1429,16 @@ namespace TheStardewSquad.Framework
                     {
                         var strikeRotation = (float)Math.PI / 2f;
                         var sourceRect = new Rectangle(32, 80, 16, 32); // Pickaxe sprite
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 75f, 1, 0, npc.Position + new Vector2(16, -103), false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(64, -48), false, false, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 });
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 75f, 1, 0, npc.Position + new Vector2(16, -103), false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(64, -48), false, false, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 });
                         break;
                     }
                 case 3: // Left
                     {
                         var strikeRotation = (float)-Math.PI / 2f;
                         var sourceRect = new Rectangle(32, 80, 16, 32); // Pickaxe sprite
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 75f, 1, 0, npc.Position + new Vector2(-16, -103), false, true, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(-64, -48), false, true, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 });
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 75f, 1, 0, npc.Position + new Vector2(-16, -103), false, true, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(-64, -48), false, true, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 });
                         break;
                     }
                 case 0: // Up
@@ -1449,7 +1447,7 @@ namespace TheStardewSquad.Framework
                     {
                         Rectangle sourceRect = (npc.FacingDirection == 0) ? new Rectangle(48, 80, 16, 32) : new Rectangle(0, 80, 16, 32); // Pickaxe sprite
                         Vector2 positionOffset = (npc.FacingDirection == 0) ? new Vector2(0, -128) : new Vector2(0, -80);
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 200f, 2, 0, npc.Position + positionOffset, false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 200f, 2, 0, npc.Position + positionOffset, false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
                         break;
                     }
             }
@@ -1561,7 +1559,7 @@ namespace TheStardewSquad.Framework
                 Patches.HarmonyPatches.EndIgnoreHarvest();
             }
 
-            _spriteManager?.ApplyTaskAnimation(npc, "Harvesting", 400);
+            _spriteManager?.ApplyTaskAnimation(npc, "Harvesting", 400, mate);
             npc.shake(400);
             mate.ActionCooldown = 48;
             location.playSound("harvest");
@@ -1687,7 +1685,7 @@ namespace TheStardewSquad.Framework
             if (performedAction)
             {
                 // Animate and set cooldown
-                _spriteManager?.ApplyTaskAnimation(npc, "Foraging", 400);
+                _spriteManager?.ApplyTaskAnimation(npc, "Foraging", 400, mate);
                 npc.shake(400);
                 mate.ActionCooldown = 48;
 
@@ -2322,7 +2320,7 @@ namespace TheStardewSquad.Framework
                 yStopCoordinate = (int)(position.Y + FishingConstants.FishIconStopOffset)
             };
 
-            location.temporarySprites.Add(fishIcon);
+            Game1.Multiplayer.broadcastSprites(location, fishIcon);
         }
 
         /// <summary>Draws fishing rod and bobber sprites on NPC to mimic fishing action.</summary>
@@ -2350,7 +2348,7 @@ namespace TheStardewSquad.Framework
             float bobberLayerDepth = bobberPos.Y / 10000f;
 
             // Add the bobber as a temporary sprite
-            location.temporarySprites.Add(new TemporaryAnimatedSprite(
+            Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                 textureName: Game1.bobbersTexture.Name,
                 sourceRect: bobberSourceRect,
                 animationInterval: FishingConstants.RodAnimationInterval,
@@ -2407,7 +2405,7 @@ namespace TheStardewSquad.Framework
             }
 
             // Add the fishing rod as a temporary sprite overlay on the NPC
-            location.temporarySprites.Add(new TemporaryAnimatedSprite(
+            Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                 textureName: Game1.toolSpriteSheetName,
                 sourceRect: sourceRect,
                 animationInterval: FishingConstants.RodAnimationInterval,
@@ -2765,7 +2763,7 @@ namespace TheStardewSquad.Framework
             var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
             FacePosition(npc, targetWorldPosition);
 
-            _spriteManager?.ApplyTaskAnimation(npc, "Petting", 400);
+            _spriteManager?.ApplyTaskAnimation(npc, "Petting", 400, mate);
             npc.shake(400);
 
             mate.ActionCooldown = 48;
@@ -3195,7 +3193,7 @@ namespace TheStardewSquad.Framework
             if (isMilking)
                 targetAnimal.pauseTimer = 1500;
 
-            _spriteManager?.ApplyTaskAnimation(npc, taskName, 400);
+            _spriteManager?.ApplyTaskAnimation(npc, taskName, 400, mate);
             npc.shake(400);
             mate.ActionCooldown = 120;
 
