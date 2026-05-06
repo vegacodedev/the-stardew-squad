@@ -505,6 +505,9 @@ namespace TheStardewSquad.Framework
             // computes the frame from elapsed time, which each peer drives locally.
             this.DriveSustainedTaskFrames();
 
+            // Track player sitting state on slow ticks (timer is set when player sits down)
+            Patches.HarmonyPatches.UpdatePlayerSittingState();
+
             // Host-only authority: in MP, only the main player runs squad AI mutations.
             if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
 
@@ -528,9 +531,6 @@ namespace TheStardewSquad.Framework
             bool isGlobalSlowTick = this._updateCounter % SlowTickInterval == 0;
             if (isGlobalSlowTick)
             {
-                // Track player sitting state on slow ticks (timer is set when player sits down)
-                Patches.HarmonyPatches.UpdatePlayerSittingState();
-
                 // Park mates whose recruiter disconnected, resume on reconnect, auto-dismiss
                 // after ParkTimeoutMinutes. Does nothing in SP.
                 HandleOfflineRecruiters();
