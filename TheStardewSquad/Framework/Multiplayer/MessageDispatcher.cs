@@ -28,7 +28,7 @@ namespace TheStardewSquad.Framework.Multiplayer
         private readonly FollowerManager _follower;
         private readonly InteractionManager _interaction;
         private readonly SquadMateFactory _mateFactory;
-        private readonly Abstractions.Character.ISquadMateStateHelper _stateHelper;
+        private readonly Wrappers.SquadMateStateHelper _stateHelper;
         private readonly BehaviorManager _behaviorManager;
         private readonly NpcConfig.SpriteManager _spriteManager;
         private readonly string _modUniqueId;
@@ -45,7 +45,7 @@ namespace TheStardewSquad.Framework.Multiplayer
             FollowerManager follower,
             InteractionManager interaction,
             SquadMateFactory mateFactory,
-            Abstractions.Character.ISquadMateStateHelper stateHelper,
+            Wrappers.SquadMateStateHelper stateHelper,
             BehaviorManager behaviorManager,
             NpcConfig.SpriteManager spriteManager,
             string modUniqueId)
@@ -65,10 +65,10 @@ namespace TheStardewSquad.Framework.Multiplayer
             this._modUniqueId = modUniqueId;
         }
 
-        // === Event handlers wired by ModEntry ===
+        #region Tick & Routing
 
         /// <summary>
-        /// Drains the host inbox each tick. Farmhand peers always early-return — they
+        /// Drains the host inbox each tick. Farmhand peers always early-return; they
         /// handle <c>*Result</c> messages and snapshots inline in <see cref="OnModMessageReceived"/>.
         /// </summary>
         public void OnUpdateTicked(object? sender, UpdateTickedEventArgs e)
@@ -151,6 +151,10 @@ namespace TheStardewSquad.Framework.Multiplayer
                     break;
             }
         }
+
+        #endregion
+
+        #region Inbound Handlers
 
         private void OnClearIdleAnim(ClearIdleAnim msg)
         {
@@ -320,7 +324,9 @@ namespace TheStardewSquad.Framework.Multiplayer
             BroadcastSnapshot(toPeerId: e.Peer.PlayerID);
         }
 
-        // === Host-side dispatch ===
+        #endregion
+
+        #region Host Authority Handlers
 
         private void DispatchHostHandler(QueuedMessage msg)
         {
@@ -598,7 +604,9 @@ namespace TheStardewSquad.Framework.Multiplayer
             _follower.WarpSquadToFarmer(farmer);
         }
 
-        // === Farmhand-side result handlers ===
+        #endregion
+
+        #region Farmhand Result Handlers
 
         private void HandleRecruitResult(RecruitResult res)
         {
@@ -674,7 +682,10 @@ namespace TheStardewSquad.Framework.Multiplayer
             }
         }
 
-        // === Send helpers (called from InteractionManager / FollowerManager / Harmony) ===
+        #endregion
+
+        #region Outbound Senders
+        // Called from InteractionManager / FollowerManager / Harmony.
 
         /// <summary>
         /// Broadcasts a speech bubble to all peers so every screen renders it (vanilla
@@ -828,7 +839,9 @@ namespace TheStardewSquad.Framework.Multiplayer
                 playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
         }
 
-        // === Snapshot ===
+        #endregion
+
+        #region Snapshot
 
         /// <summary>
         /// Sends the host's full squad state to one peer (after they connect or after
@@ -958,7 +971,9 @@ namespace TheStardewSquad.Framework.Multiplayer
             }
         }
 
-        // === Helpers ===
+        #endregion
+
+        #region Helpers
 
         private void ShowVersionToast()
         {
@@ -981,5 +996,7 @@ namespace TheStardewSquad.Framework.Multiplayer
                 this.FromPlayerId = fromPlayerId;
             }
         }
+
+        #endregion
     }
 }

@@ -526,7 +526,11 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(config.FramesByDirection[expectedKey]);
+            var expectedFrames = config.FramesByDirection[expectedKey]
+                .Cast<int>()
+                .Select(frame => (frameIndex: frame, flip: false))
+                .ToList();
+            result.Should().BeEquivalentTo(expectedFrames);
         }
 
         [Fact]
@@ -549,7 +553,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert - Should fallback to Down
             result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(new[] { 1, 0 });
+            result.Should().BeEquivalentTo(new[] { (frameIndex: 1, flip: false), (frameIndex: 0, flip: false) });
         }
 
         [Fact]
@@ -626,7 +630,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert - Should fallback to Down
             result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(new[] { 1, 0 });
+            result.Should().BeEquivalentTo(new[] { (frameIndex: 1, flip: false), (frameIndex: 0, flip: false) });
         }
 
         #endregion

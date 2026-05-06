@@ -12,9 +12,7 @@ using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.Behaviors;
 using TheStardewSquad.Framework.Gathering;
 using TheStardewSquad.Framework.Tasks;
-using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Abstractions.Core;
-using TheStardewSquad.Abstractions.Tasks;
 using TheStardewSquad.Framework.Wrappers;
 
 namespace TheStardewSquad.Framework
@@ -32,10 +30,7 @@ namespace TheStardewSquad.Framework
         private readonly UnifiedTaskManager _unifiedTaskManager;
         private readonly FormationManager _formationManager;
         private readonly BehaviorManager _behaviorManager;
-        private readonly IGameStateService _gameStateService;
-        private readonly IWarpService _warpService;
         private readonly IRandomService _randomService;
-        private readonly ITaskService _taskService;
         private SpriteManager? _spriteManager;
         private MessageDispatcher? _dispatcher;
         private RecruitmentManager? _recruitment;
@@ -108,10 +103,7 @@ namespace TheStardewSquad.Framework
             UnifiedTaskManager unifiedTaskManager,
             FormationManager formationManager,
             BehaviorManager behaviorManager,
-            IGameStateService gameStateService,
-            IWarpService warpService,
-            IRandomService randomService,
-            ITaskService taskService)
+            IRandomService randomService)
         {
             this._monitor = monitor;
             this._squadManager = squadManager;
@@ -121,10 +113,7 @@ namespace TheStardewSquad.Framework
             this._unifiedTaskManager = unifiedTaskManager;
             this._formationManager = formationManager;
             this._behaviorManager = behaviorManager;
-            this._gameStateService = gameStateService;
-            this._warpService = warpService;
             this._randomService = randomService;
-            this._taskService = taskService;
         }
 
         /// <summary>Sets the SpriteManager dependency (called after construction due to initialization order).</summary>
@@ -357,7 +346,7 @@ namespace TheStardewSquad.Framework
                 if (mate.RecruiterUniqueId != recruiter.UniqueMultiplayerID) continue;
 
                 var npc = mate.Npc;
-                _warpService.WarpCharacter(npc, recruiter.currentLocation.NameOrUniqueName, recruiter.TilePoint);
+                Game1.warpCharacter(npc, recruiter.currentLocation.NameOrUniqueName, recruiter.TilePoint);
                 mate.Path.Clear();
                 ClearMateTask(mate);
                 mate.IsCatchingUp = false;
@@ -440,14 +429,14 @@ namespace TheStardewSquad.Framework
 
         public void OnUpdateTicked(object? sender, EventArgs e)
         {
-            if (!_gameStateService.IsWorldReady) return;
+            if (!Context.IsWorldReady) return;
             if (this._squadManager.Count == 0 && this._waitingNpcsManager.Count == 0) return;
 
             // Per-screen cutscene-end detection. Runs above the host-only guard so farmhand
             // peers can also detect when their own local cutscene ended; they notify the host
             // via CutsceneEnded so the host can re-warp their mates. Each split-screen player
             // tracks its own state via PerScreen<bool>.
-            bool isInCutsceneNow = _gameStateService.IsEventUp;
+            bool isInCutsceneNow = Game1.eventUp;
             bool wasInCutscene = this._wasInCutscene.Value;
             if (wasInCutscene && !isInCutsceneNow)
             {
@@ -495,7 +484,7 @@ namespace TheStardewSquad.Framework
             if (Context.IsMultiplayer && !Context.IsMainPlayer)
             {
                 this.TickFarmhandIdleAnimationCooldowns();
-                this.DriveFarmhandPetAnimation(_gameStateService.CurrentGameTime);
+                this.DriveFarmhandPetAnimation(Game1.currentGameTime);
             }
 
             this.HandleFriendshipGain();
@@ -529,8 +518,8 @@ namespace TheStardewSquad.Framework
             // Slow-tick globals (mimicking timers, per-farmer action trackers) and the riding-state
             // pass also need to keep firing while the host is busy so farmhand actions still reach
             // their mates.
-            bool isHostBusy = !_gameStateService.IsPlayerFree || !_gameStateService.IsGameActive;
-            bool isHostFishing = _config.FishingMode != TaskMode.Disabled && _taskService.IsFarmerFishing(Game1.player);
+            bool isHostBusy = !Context.IsPlayerFree || !Game1.game1.IsActive;
+            bool isHostFishing = _config.FishingMode != TaskMode.Disabled && TaskManager.IsFarmerFishing(Game1.player);
 
             this._updateCounter++;
 
@@ -696,7 +685,7 @@ namespace TheStardewSquad.Framework
                 // Special case: Fishing animation (only when at fishing spot)
                 if (mate.Task?.Type == TaskType.Fishing && npc.TilePoint == mate.Task.InteractionTile)
                 {
-                    _taskService.AnimateFishing(npc, mate.Task.Tile);
+                    TaskManager.AnimateFishing(npc, mate.Task.Tile);
                     if (Game1.random.Next(600) == 0)
                     {
                         mate.Communicate("Fishing_Waiting");
@@ -811,7 +800,7 @@ namespace TheStardewSquad.Framework
             // Only animate if the NPC has a fishing task and is at their fishing spot
             if (mate.Task?.Type == TaskType.Fishing && npc.TilePoint == mate.Task.InteractionTile && isFastTick)
             {
-                _taskService.AnimateFishing(npc, mate.Task.Tile);
+                TaskManager.AnimateFishing(npc, mate.Task.Tile);
             }
         }
 
@@ -966,7 +955,7 @@ namespace TheStardewSquad.Framework
                     // Only face the recruiter if we haven't just cleared a task (prevents brief turn glitch)
                     if (mate.FramesSinceTaskCleared > 15)
                     {
-                        _taskService.FacePosition(mate.Npc, player.getStandingPosition());
+                        TaskManager.FacePosition(mate.Npc, player.getStandingPosition());
                     }
                 }
             }
@@ -1026,7 +1015,7 @@ namespace TheStardewSquad.Framework
 
             if (mate.StuckCounter > 20)
             {
-                _warpService.WarpCharacter(npc, npc.currentLocation.NameOrUniqueName, player.TilePoint);
+                Game1.warpCharacter(npc, npc.currentLocation.NameOrUniqueName, player.TilePoint);
                 mate.Path.Clear();
                 ClearMateTask(mate);
                 mate.StuckCounter = 0;
@@ -1091,7 +1080,7 @@ namespace TheStardewSquad.Framework
             npc.faceDirection(mate.CurrentMoveDirection);
             Vector2 velocity = Utility.getVelocityTowardPoint(npc.getStandingPosition(), targetPosition, npc.speed);
             npc.Position += velocity;
-            npc.animateInFacingDirection(_gameStateService.CurrentGameTime);
+            npc.animateInFacingDirection(Game1.currentGameTime);
 
             if (Vector2.Distance(npc.getStandingPosition(), targetPosition) <= npc.speed)
             {
@@ -1118,7 +1107,7 @@ namespace TheStardewSquad.Framework
 
             if (npc.currentLocation != player.currentLocation)
             {
-                _warpService.WarpCharacter(npc, player.currentLocation.NameOrUniqueName, player.TilePoint);
+                Game1.warpCharacter(npc, player.currentLocation.NameOrUniqueName, player.TilePoint);
                 mate.Path.Clear();
                 ClearMateTask(mate);
                 mate.StuckCounter = 0;
@@ -1356,7 +1345,7 @@ namespace TheStardewSquad.Framework
                     Vector2.Distance(mate.Npc.Tile, who.Tile) < 15f &&
                     !mate.IsOnCooldown())
                 {
-                    _taskService.TryNpcCatchFish(mate, squadSize);
+                    TaskManager.TryNpcCatchFish(mate, squadSize);
                 }
             }
 
@@ -1431,7 +1420,7 @@ namespace TheStardewSquad.Framework
                 // Fishing has a stop transition (clear that recruiter's fishing tasks when the
                 // farmer reels in / cancels). The OnFarmerAction call re-asserts mimicking;
                 // the transition handler clears any active fishing task on stop.
-                bool isFishingNow = _taskService.IsFarmerFishing(f);
+                bool isFishingNow = TaskManager.IsFarmerFishing(f);
                 if (isFishingNow)
                 {
                     OnFarmerAction(f, TaskType.Fishing);
@@ -1448,7 +1437,7 @@ namespace TheStardewSquad.Framework
                 // each tick the farmer is sitting catches every sit-down implicitly and keeps the
                 // mimicking timer fresh. No stop-transition handler needed — ExecuteSittingTask
                 // (TaskManager.cs) clears its own task once IsFarmerSitting(recruiter) goes false.
-                if (_taskService.IsFarmerSitting(f))
+                if (TaskManager.IsFarmerSitting(f))
                 {
                     OnFarmerAction(f, TaskType.Sitting);
                 }
@@ -1461,7 +1450,7 @@ namespace TheStardewSquad.Framework
 
         private bool HandleFestivalState()
         {
-            bool isInFestival = _gameStateService.IsFestival();
+            bool isInFestival = Game1.isFestival();
             if (isInFestival && !this._wasInFestival)
             {
                 this._wasInFestival = true;
@@ -1498,7 +1487,7 @@ namespace TheStardewSquad.Framework
             if (this._config.FriendshipPointsPerHour <= 0)
                 return;
 
-            int currentHour = _gameStateService.TimeOfDay / 100;
+            int currentHour = Game1.timeOfDay / 100;
 
             if (this._lastFriendshipGainHour == -1)
             {
@@ -1659,7 +1648,7 @@ namespace TheStardewSquad.Framework
             // Ensure the NPC is in the same location as the rider
             if (npc.currentLocation != rider.currentLocation)
             {
-                _warpService.WarpCharacter(npc, rider.currentLocation.NameOrUniqueName, rider.TilePoint);
+                Game1.warpCharacter(npc, rider.currentLocation.NameOrUniqueName, rider.TilePoint);
             }
 
             // +Y offset layers the NPC in front of the rider for Up/Left/Right.

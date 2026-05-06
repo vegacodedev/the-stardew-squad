@@ -2,8 +2,8 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Extensions;
 using StardewValley.Pathfinding;
-using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Framework.NpcConfig;
+using TheStardewSquad.Framework.Wrappers;
 using TheStardewSquad.Framework.Squad;
 using TheStardewSquad.Framework.UI;
 
@@ -17,12 +17,12 @@ namespace TheStardewSquad.Framework.Behaviors
         private readonly SquadManager _squadManager;
         private readonly InteractionManager _interactionManager;
         private readonly BehaviorManager _behaviorManager;
-        private readonly ISquadMateStateHelper _stateHelper;
+        private readonly SquadMateStateHelper _stateHelper;
         private readonly DialogueManager _dialogueManager;
         private readonly ModConfig _config;
         private readonly SquadMemberPrompt _memberPrompt;
 
-        public NpcInteractionBehavior(IModHelper helper, IMonitor monitor, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, BehaviorManager behaviorManager, ISquadMateStateHelper stateHelper, DialogueManager dialogueManager, ModConfig config, SquadMemberPrompt memberPrompt)
+        public NpcInteractionBehavior(IModHelper helper, IMonitor monitor, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, BehaviorManager behaviorManager, SquadMateStateHelper stateHelper, DialogueManager dialogueManager, ModConfig config, SquadMemberPrompt memberPrompt)
         {
             this._helper = helper;
             this._monitor = monitor;

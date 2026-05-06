@@ -34,16 +34,16 @@ namespace TheStardewSquad.Framework.NpcConfig
         /// <returns>True if the texture is vanilla, false if it has been modified or on error.</returns>
         public bool IsVanillaSprite(NPC npc)
         {
-            string assetPath = NpcTextureHelper.GetTextureAssetPath(npc);
-
+            string assetPath;
             Texture2D currentTexture;
             try
             {
+                assetPath = NpcTextureHelper.GetTextureAssetPath(npc);
                 currentTexture = Game1.content.Load<Texture2D>(assetPath);
             }
             catch (Exception ex)
             {
-                _monitor.Log($"Error loading current texture for {assetPath}: {ex.Message}", LogLevel.Warn);
+                _monitor.Log($"Error resolving texture for npc '{npc?.Name}': {ex.Message}", LogLevel.Warn);
                 return false;
             }
 

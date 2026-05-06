@@ -8,7 +8,6 @@ using StardewValley.Extensions;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
 using TheStardewSquad.Abstractions.Core;
-using TheStardewSquad.Abstractions.UI;
 using TheStardewSquad.Framework.Multiplayer;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.Squad;
@@ -26,7 +25,6 @@ namespace TheStardewSquad.Framework
         private readonly SquadManager _squadManager;
         private readonly BehaviorManager _behaviorManager;
         private readonly IGameContext _gameContext;
-        private readonly IUIService _uiService;
         private readonly ModConfig _config;
 
         // Tool-attempt flag is per-screen: each split-screen player has their own pending
@@ -41,14 +39,13 @@ namespace TheStardewSquad.Framework
 
         private MessageDispatcher? _dispatcher;
 
-        public InteractionManager(IModHelper helper, SquadManager squadManager, SquadMateFactory squadMateFactory, BehaviorManager behaviorManager, IGameContext gameContext, IUIService uiService, ModConfig config)
+        public InteractionManager(IModHelper helper, SquadManager squadManager, SquadMateFactory squadMateFactory, BehaviorManager behaviorManager, IGameContext gameContext, ModConfig config)
         {
             this._helper = helper;
             this._squadManager = squadManager;
             this.SquadMateFactory = squadMateFactory;
             this._behaviorManager = behaviorManager;
             this._gameContext = gameContext;
-            this._uiService = uiService;
             this._config = config;
         }
 
@@ -87,7 +84,7 @@ namespace TheStardewSquad.Framework
 
                 if (_gameContext.IsFestival)
                 {
-                    _uiService.ShowErrorMessage(_uiService.GetTranslation("recruitment.festival_block"));
+                    Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("recruitment.festival_block"), HUDMessage.error_type));
                 }
                 else if (character is NPC npc && (_config.RecruitAllNpcs || _gameContext.HasFriendship(npc.Name) || npc is Pet))
                 {
@@ -120,7 +117,7 @@ namespace TheStardewSquad.Framework
                 int myMateCount = this._squadManager.Members.Count(m => m.RecruiterUniqueId == player.UniqueMultiplayerID);
                 if (myMateCount == 0)
                 {
-                    _uiService.ShowErrorMessage(_uiService.GetTranslation("commands.noFollower"));
+                    Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("commands.noFollower"), HUDMessage.error_type));
                     return;
                 }
 
@@ -149,7 +146,7 @@ namespace TheStardewSquad.Framework
                 _helper.WriteConfig(_config);
 
                 string messageKey = _config.TasksEnabled ? "config.tasksToggle.enabled" : "config.tasksToggle.disabled";
-                _uiService.ShowMessage(_uiService.GetTranslation(messageKey));
+                Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get(messageKey), HUDMessage.newQuest_type));
                 return;
             }
         }
@@ -345,7 +342,7 @@ namespace TheStardewSquad.Framework
 
         public void ShowSquadInventory()
         {
-            _uiService.SetActiveMenu(new SquadInventoryMenu(_helper));
+            Game1.activeClickableMenu = new SquadInventoryMenu(_helper);
         }
 
         private void DisableIdleAnimation(ISquadMate mate)

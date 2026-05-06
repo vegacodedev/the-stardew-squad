@@ -1,8 +1,8 @@
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
-using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Framework.Behaviors;
+using TheStardewSquad.Framework.Wrappers;
 using TheStardewSquad.Framework.Multiplayer;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.UI;
@@ -21,7 +21,7 @@ namespace TheStardewSquad.Framework.Squad
         private readonly ICommunicationBehavior _petCommunicationBehavior;
         private readonly IInteractionBehavior _petInteractionBehavior;
 
-        public SquadMateFactory(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, ModConfig config, InteractionManager interactionManager, BehaviorManager behaviorManager, ISquadMateStateHelper stateHelper, DialogueManager dialogueManager, IMonitor monitor)
+        public SquadMateFactory(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, ModConfig config, InteractionManager interactionManager, BehaviorManager behaviorManager, SquadMateStateHelper stateHelper, DialogueManager dialogueManager, IMonitor monitor)
         {
             // Shared presenter routes between custom menu and vanilla dialogue based on config
             var memberPrompt = new SquadMemberPrompt(helper, config, squadManager);

@@ -10,7 +10,7 @@ using StardewValley.Characters;
 using TheStardewSquad.Framework.Multiplayer;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.Squad;
-using TheStardewSquad.Abstractions.Character;
+using TheStardewSquad.Framework.Wrappers;
 
 namespace TheStardewSquad.Framework
 {
@@ -22,11 +22,11 @@ namespace TheStardewSquad.Framework
         private readonly SquadManager _squadManager;
         private readonly WaitingNpcsManager _waitingNpcsManager;
         private readonly FormationManager _formationManager;
-        private readonly ISquadMateStateHelper _stateHelper;
+        private readonly SquadMateStateHelper _stateHelper;
         private FollowerManager _followerManager;
         private MessageDispatcher? _dispatcher;
 
-        public RecruitmentManager(IModHelper helper, IMonitor monitor, ModConfig config, SquadManager squadManager, WaitingNpcsManager waitingNpcsManager, FormationManager formationManager, ISquadMateStateHelper stateHelper)
+        public RecruitmentManager(IModHelper helper, IMonitor monitor, ModConfig config, SquadManager squadManager, WaitingNpcsManager waitingNpcsManager, FormationManager formationManager, SquadMateStateHelper stateHelper)
         {
             this._helper = helper;
             this._monitor = monitor;

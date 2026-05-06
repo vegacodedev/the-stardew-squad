@@ -1,13 +1,12 @@
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Characters;
-using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Framework.Squad;
 
 namespace TheStardewSquad.Framework.Wrappers
 {
     /// <summary>A helper class to manage the state transitions of squad members.</summary>
-    internal class SquadMateStateHelper : ISquadMateStateHelper
+    public class SquadMateStateHelper
     {
         /// <summary>Resets an NPC's state to prepare them for following the player.</summary>
         public void PrepareForRecruitment(NPC npc)

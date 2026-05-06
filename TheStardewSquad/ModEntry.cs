@@ -55,7 +55,6 @@ namespace TheStardewSquad
 
             // Core services
             var gameContext = factory.CreateGameContext();
-            var gameStateService = factory.CreateGameStateService();
             var gameStateChecker = factory.CreateGameStateChecker();
             var randomService = factory.CreateRandomService();
 
@@ -63,16 +62,9 @@ namespace TheStardewSquad
             var stateHelper = factory.CreateSquadMateStateHelper();
             var npcDialogueService = factory.CreateNpcDialogueService();
             var npcSpriteService = factory.CreateNpcSpriteService();
-            var warpService = factory.CreateWarpService();
 
             // Data providers
             var npcConfigDataProvider = factory.CreateNpcConfigDataProvider();
-
-            // Task services
-            var taskService = factory.CreateTaskService();
-
-            // UI services
-            var uiService = factory.CreateUIService();
 
             // Utility services
             var randomSelector = factory.CreateRandomSelector();
@@ -88,10 +80,10 @@ namespace TheStardewSquad
 
             // Initialize other managers with dependencies
             this.RecruitmentManager = new RecruitmentManager(helper, this.Monitor, this.Config, this.SquadManager, this.WaitingNpcsManager, this.FormationManager, stateHelper);
-            this.InteractionManager = new InteractionManager(helper, this.SquadManager, null, this.BehaviorManager, gameContext, uiService, this.Config);
+            this.InteractionManager = new InteractionManager(helper, this.SquadManager, null, this.BehaviorManager, gameContext, this.Config);
             this.SquadMateFactory = new SquadMateFactory(helper, this.RecruitmentManager, this.SquadManager, this.Config, this.InteractionManager, this.BehaviorManager, stateHelper, this.DialogueManager, this.Monitor);
             this.InteractionManager.SquadMateFactory = this.SquadMateFactory;
-            this.FollowerManager = new FollowerManager(this.Monitor, this.SquadManager, this.WaitingNpcsManager, this.Config, this.DebrisCollector, this.UnifiedTaskManager, this.FormationManager, this.BehaviorManager, gameStateService, warpService, randomService, taskService);
+            this.FollowerManager = new FollowerManager(this.Monitor, this.SquadManager, this.WaitingNpcsManager, this.Config, this.DebrisCollector, this.UnifiedTaskManager, this.FormationManager, this.BehaviorManager, randomService);
             this.RecruitmentManager.SetFollowerManager(this.FollowerManager);
             this.FollowerManager.SetRecruitmentManager(this.RecruitmentManager);
             this.FollowerManager.SetSpriteManager(this.SpriteManager);

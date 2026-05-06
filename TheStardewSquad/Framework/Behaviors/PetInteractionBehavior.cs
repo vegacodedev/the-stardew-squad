@@ -1,8 +1,8 @@
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
-using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Framework.Squad;
+using TheStardewSquad.Framework.Wrappers;
 using TheStardewSquad.Framework.UI;
 
 namespace TheStardewSquad.Framework.Behaviors
@@ -13,10 +13,10 @@ namespace TheStardewSquad.Framework.Behaviors
         private readonly RecruitmentManager _recruitmentManager;
         private readonly SquadManager _squadManager;
         private readonly InteractionManager _interactionManager;
-        private readonly ISquadMateStateHelper _stateHelper;
+        private readonly SquadMateStateHelper _stateHelper;
         private readonly SquadMemberPrompt _memberPrompt;
 
-        public PetInteractionBehavior(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, ISquadMateStateHelper stateHelper, SquadMemberPrompt memberPrompt)
+        public PetInteractionBehavior(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, SquadMateStateHelper stateHelper, SquadMemberPrompt memberPrompt)
         {
             this._helper = helper;
             this._recruitmentManager = recruitmentManager;
