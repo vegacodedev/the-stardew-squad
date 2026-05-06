@@ -90,6 +90,8 @@ namespace TheStardewSquad.Framework.Tasks
                 otherClaimedSpots.Remove(mate.ClaimedInteractionSpot.Value);
             }
 
+            Farmer? recruiter = mate.TryGetRecruiter(out var rec) ? rec : null;
+
             // Check tasks in priority order - for each task, check BOTH mimicking and autonomous
             foreach (var taskType in TaskPriorityManager.GetTasksInPriorityOrder())
             {
@@ -113,7 +115,7 @@ namespace TheStardewSquad.Framework.Tasks
 
                     if (timerActiveForThisTask)
                     {
-                        SquadTask task = TryFindTaskByType(taskType, locationInfo, playerPosition, npcPosition, claimedTaskTargets, otherClaimedSpots);
+                        SquadTask task = TryFindTaskByType(taskType, locationInfo, playerPosition, npcPosition, claimedTaskTargets, otherClaimedSpots, recruiter);
                         if (task != null)
                             return task;
                     }
@@ -121,7 +123,7 @@ namespace TheStardewSquad.Framework.Tasks
                 // Check Autonomous mode
                 else if (taskMode == TaskMode.Autonomous)
                 {
-                    SquadTask task = TryFindTaskByType(taskType, locationInfo, playerPosition, npcPosition, claimedTaskTargets, otherClaimedSpots);
+                    SquadTask task = TryFindTaskByType(taskType, locationInfo, playerPosition, npcPosition, claimedTaskTargets, otherClaimedSpots, recruiter);
                     if (task != null)
                         return task;
                 }
@@ -137,7 +139,8 @@ namespace TheStardewSquad.Framework.Tasks
             Point playerPosition,
             Point npcPosition,
             ISet<Point> claimedTaskTargets,
-            ISet<Vector2> otherClaimedSpots)
+            ISet<Vector2> otherClaimedSpots,
+            Farmer? recruiter)
         {
             const int searchRadius = 8;
             const int sittingSearchRadius = 5;
@@ -189,7 +192,7 @@ namespace TheStardewSquad.Framework.Tasks
 
                 case TaskType.Foraging:
                     var (forageTarget, forageInteractionPoint) = TaskManager.FindForageableTarget(
-                        locationInfo, playerPosition, npcPosition, searchRadius, claimedTaskTargets);
+                        locationInfo, playerPosition, npcPosition, searchRadius, claimedTaskTargets, recruiter);
                     if (forageTarget.HasValue && forageInteractionPoint.HasValue)
                         return new SquadTask(TaskType.Foraging, forageTarget.Value, forageInteractionPoint.Value);
                     break;

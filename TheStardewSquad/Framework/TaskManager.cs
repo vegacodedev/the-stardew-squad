@@ -285,6 +285,19 @@ namespace TheStardewSquad.Framework
             return true;
         }
 
+        private static void TransferExperienceGained(Farmer source, Farmer target, int skill, int beforeSourceExperience)
+        {
+            if (source == null || target == null || source.UniqueMultiplayerID == target.UniqueMultiplayerID)
+                return;
+
+            int gained = source.experiencePoints[skill] - beforeSourceExperience;
+            if (gained <= 0)
+                return;
+
+            source.experiencePoints[skill] = Math.Max(0, source.experiencePoints[skill] - gained);
+            target.gainExperience(skill, gained);
+        }
+
         private static (Point target, Point? interactionPoint) CheckForTrellis(GameLocation location, Point target, NPC npc)
         {
             return CheckForTrellis(new LocationInfoWrapper(location, npc), target, npc.TilePoint);
@@ -1556,6 +1569,7 @@ namespace TheStardewSquad.Framework
             var npc = mate.Npc;
             var location = npc.currentLocation;
             var tileVector = tile.ToVector2();
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
 
             if (!location.terrainFeatures.TryGetValue(tileVector, out var feature) || feature is not HoeDirt { crop: { } } dirt || !dirt.readyForHarvest())
             {
@@ -1566,12 +1580,18 @@ namespace TheStardewSquad.Framework
             Patches.HarmonyPatches.BeginIgnoreHarvest();
             try
             {
+                int hostFarmingExperience = Game1.player.experiencePoints[0];
+                int hostForagingExperience = Game1.player.experiencePoints[2];
+
                 dirt.crop.harvest(tile.X, tile.Y, dirt, null, true);
 
                 if (dirt.crop == null || dirt.crop.RegrowsAfterHarvest() == false)
                 {
                     dirt.destroyCrop(showAnimation: true);
                 }
+
+                TransferExperienceGained(Game1.player, who, 0, hostFarmingExperience);
+                TransferExperienceGained(Game1.player, who, 2, hostForagingExperience);
             }
             finally
             {
@@ -1609,7 +1629,8 @@ namespace TheStardewSquad.Framework
             Point searchCenter,
             Point npcPosition,
             int searchRadius,
-            ISet<Point> claimedTaskTargets)
+            ISet<Point> claimedTaskTargets,
+            Farmer? recruiter = null)
         {
             var candidates = new List<Point>();
 
@@ -1623,7 +1644,7 @@ namespace TheStardewSquad.Framework
                 // Check if the inventory can accept this item before considering it
                 // If GetObjectAt returns null (test environment), skip the check
                 var obj = locationInfo.GetObjectAt(foragePoint);
-                if (obj == null || CanAcceptItem(obj))
+                if (obj == null || CanAcceptItem(obj, recruiter))
                 {
                     candidates.Add(foragePoint);
                 }
@@ -1670,8 +1691,7 @@ namespace TheStardewSquad.Framework
             // Check for a berry bush first
             if (bushFeature is Bush bush && bush.tileSheetOffset.Value == 1 && bush.readyForHarvest() && bush.inBloom() && !bush.townBush.Value)
             {
-                // The shake method handles dropping the item and changing the bush state.
-                bush.shake(bush.Tile, true);
+                HarvestBushForNpc(mate, bush);
                 location.playSound("leafrustle");
                 performedAction = true;
             }
@@ -1716,6 +1736,50 @@ namespace TheStardewSquad.Framework
             
             // The task is always complete after one attempt.
             return true;
+        }
+
+        private static void HarvestBushForNpc(ISquadMate mate, Bush bush)
+        {
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+            string shakeOff = bush.GetShakeOffItem();
+            if (shakeOff == null)
+                return;
+
+            bush.tileSheetOffset.Value = 0;
+            bush.setUpSourceRect();
+
+            if (bush.size.Value == 3)
+            {
+                Game1.createItemDebris(
+                    ItemRegistry.Create(shakeOff),
+                    bush.Tile * 64f + new Vector2(32f, 32f),
+                    Game1.random.Next(1, 4),
+                    bush.Location);
+                return;
+            }
+
+            int number = Utility.CreateRandom(
+                bush.Tile.X,
+                (double)bush.Tile.Y * 5000.0,
+                Game1.uniqueIDForThisGame,
+                Game1.stats.DaysPlayed).Next(1, 2) + who.ForagingLevel / 4;
+
+            for (int i = 0; i < number; i++)
+            {
+                Item item = ItemRegistry.Create(shakeOff);
+                if (who.professions.Contains(Farmer.botanist))
+                {
+                    item.Quality = 4;
+                }
+
+                Game1.createItemDebris(
+                    item,
+                    Utility.PointToVector2(bush.getBoundingBox().Center),
+                    Game1.random.Next(1, 4),
+                    bush.Location);
+            }
+
+            who.gainExperience(2, number);
         }
 
         /// <summary>Handles picking up a loose forage item, applying recruiter professions, and adding it to the appropriate inventory.</summary>
@@ -2676,6 +2740,7 @@ namespace TheStardewSquad.Framework
             NPC npc = mate.Npc;
             var location = npc.currentLocation;
             var tileVector = tile.ToVector2();
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
 
             // Find the animal at this tile
             Character targetAnimal = null;
@@ -2725,17 +2790,17 @@ namespace TheStardewSquad.Framework
                     return true; // Already petted
                 }
 
-                // Save player state to prevent side effects from the pet() method
-                var playerPosition = Game1.player.Position;
-                var playerFacingDirection = Game1.player.FacingDirection;
-                var playerIsMoving = Game1.player.isMoving();
+                // Save farmer state to prevent side effects from the pet() method
+                var playerPosition = who.Position;
+                var playerFacingDirection = who.FacingDirection;
+                var playerIsMoving = who.isMoving();
 
                 Patches.HarmonyPatches.BeginIgnorePetting();
                 try
                 {
                     // Use the game's built-in pet method (manual mode for full friendship bonus)
                     // This properly sets wasPet.Value = true and gives full friendship
-                    farmAnimal.pet(Game1.player, is_auto_pet: false);
+                    farmAnimal.pet(who, is_auto_pet: false);
                 }
                 finally
                 {
@@ -2748,19 +2813,19 @@ namespace TheStardewSquad.Framework
                     location?.NameOrUniqueName ?? string.Empty,
                     tile.X, tile.Y, 20);
 
-                // Restore player state so they aren't affected by the NPC's petting action
-                Game1.player.Position = playerPosition;
-                Game1.player.FacingDirection = playerFacingDirection;
+                // Restore farmer state so they aren't affected by the NPC's petting action
+                who.Position = playerPosition;
+                who.FacingDirection = playerFacingDirection;
                 if (playerIsMoving)
                 {
-                    Game1.player.setMoving((byte)playerFacingDirection);
+                    who.setMoving((byte)playerFacingDirection);
                 }
             }
             // Check if it's a pet
             else if (targetAnimal is StardewValley.Characters.Pet pet)
             {
                 // Check if already petted today using the pet's tracking system
-                if (pet.lastPetDay.TryGetValue(Game1.player.UniqueMultiplayerID, out var lastDay)
+                if (pet.lastPetDay.TryGetValue(who.UniqueMultiplayerID, out var lastDay)
                     && lastDay == Game1.Date.TotalDays)
                 {
                     return true; // Already petted
@@ -2771,7 +2836,7 @@ namespace TheStardewSquad.Framework
                 {
                     // Use the game's built-in checkAction method to pet
                     // This handles friendship increase and sets lastPetDay
-                    pet.checkAction(Game1.player, location);
+                    pet.checkAction(who, location);
 
                     // Ensure emote and sound play (checkAction already calls these, but we ensure they happen)
                     // The pet's playContentSound() method is species-specific (cat, dog, etc.)
