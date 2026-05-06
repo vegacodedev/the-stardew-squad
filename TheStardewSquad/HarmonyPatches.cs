@@ -911,7 +911,12 @@ namespace TheStardewSquad.Patches
             // base.draw, so the NPC.draw prefix never fires for Pet instances.
             if (mate.IsRidingWithPlayer && _followerManager != null)
             {
-                __instance.drawOffset = _followerManager.ComputeRidingDrawOffset(mate);
+                __instance.drawOffset = _followerManager.ComputeRidingDrawOffset(__instance, mate);
+
+                if (mate.TryGetRecruiter(out var rider))
+                {
+                    __instance.facingDirection.Value = rider.FacingDirection;
+                }
             }
 
             // Swimming visuals (only applies when actually swimming)
@@ -1106,7 +1111,19 @@ namespace TheStardewSquad.Patches
 
             if (mate.IsRidingWithPlayer && _followerManager != null)
             {
-                __instance.drawOffset = _followerManager.ComputeRidingDrawOffset(mate);
+                __instance.drawOffset = _followerManager.ComputeRidingDrawOffset(__instance, mate);
+
+                // Per-process facingDirection sync. Position is NetVector2 with built-in
+                // interpolation so it feels tight even with sync lag; facingDirection is a
+                // NetInt with no interpolation, so the round trip (rider → host writes via
+                // UpdateRidingMember → sync back) is visibly stale. Pull the rider's current
+                // facing locally and write to the visible duplicate so the sprite frame
+                // (set per tick by DriveSustainedTaskFrames from npc.FacingDirection)
+                // tracks the rider without the round trip.
+                if (mate.TryGetRecruiter(out var rider))
+                {
+                    __instance.facingDirection.Value = rider.FacingDirection;
+                }
             }
 
             // Handle fishing line rendering
@@ -1391,17 +1408,29 @@ namespace TheStardewSquad.Patches
             if (!_squadManager.IsRecruited(character))
                 return npcDepth;
 
-            // Riding Down: slot the mate behind the player. Anchoring off horse
-            // body depth would be unsafe because drawLayerDisambiguator is 0 in single-player.
-            if (character is StardewValley.NPC ridingNpc
-                && player.isRidingHorse()
-                && player.FacingDirection == 2
-                && player.mount != null)
+            if (character is StardewValley.NPC ridingNpc)
             {
                 var mate = _squadManager.GetMember(ridingNpc);
-                if (mate != null && mate.IsRidingWithPlayer)
+                if (mate != null && mate.IsRidingWithPlayer
+                    && mate.TryGetRecruiter(out var rider)
+                    && rider.isRidingHorse()
+                    && rider.mount != null)
                 {
-                    return MathF.BitDecrement(player.getDrawLayer());
+                    if (rider.FacingDirection == 0)
+                    {
+                        return rider.getDrawLayer() + 0.0001f;
+                    }
+
+                    // Riding Down: slot the mate behind the rider. Resolve through the mate's
+                    // recruiter rather than Game1.player so this fires on every screen, not just
+                    // the local rider's. Without this, observers (host watching farmhand ride, or
+                    // farmhand watching host ride) skip the depth adjustment entirely and the NPC
+                    // renders above the rider instead of between rider and horse. Anchoring off
+                    // horse body depth would be unsafe because drawLayerDisambiguator is 0 in SP.
+                    if (rider.FacingDirection == 2)
+                    {
+                        return MathF.BitDecrement(rider.getDrawLayer());
+                    }
                 }
             }
 
