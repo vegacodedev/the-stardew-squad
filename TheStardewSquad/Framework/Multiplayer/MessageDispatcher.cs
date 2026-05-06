@@ -143,6 +143,12 @@ namespace TheStardewSquad.Framework.Multiplayer
                 case nameof(ClearTaskAnim):
                     OnClearTaskAnim(e.ReadAs<ClearTaskAnim>());
                     break;
+                case nameof(ShowAnimalEmote):
+                    OnShowAnimalEmote(e.ReadAs<ShowAnimalEmote>());
+                    break;
+                case nameof(ShakeNpc):
+                    OnShakeNpc(e.ReadAs<ShakeNpc>());
+                    break;
             }
         }
 
@@ -200,6 +206,52 @@ namespace TheStardewSquad.Framework.Multiplayer
             var loc = Game1.getLocationFromName(msg.LocationName);
             NPC? npc = loc?.characters.FirstOrDefault(c => c.Name == msg.NpcName);
             npc?.showTextAboveHead(msg.Text);
+        }
+
+        /// <summary>
+        /// Cosmetic shake receiver. Vanilla <c>NPC.shake</c> writes only <c>shakeTimer</c>
+        /// (plain int, not NetField-wrapped), so the host's call doesn't propagate. Iterates
+        /// every loaded location and shakes every same-name NPC. Per
+        /// pattern-mp-npc-duplication, the farmhand can hold multiple same-name instances and
+        /// the visible one isn't necessarily in <c>msg.LocationName</c>; a name-only sweep
+        /// matches the iteration pattern used by every other cosmetic receiver in this file.
+        /// </summary>
+        private void OnShakeNpc(ShakeNpc msg)
+        {
+            if (msg.Version != MessageVersion.Current) return;
+            Utility.ForEachLocation(loc =>
+            {
+                foreach (var c in loc.characters)
+                    if (c is NPC npc && npc.Name == msg.NpcName) npc.shake(msg.DurationMs);
+                return true;
+            }, includeInteriors: true, includeGenerated: true);
+        }
+
+        /// <summary>
+        /// Cosmetic emote receiver. Vanilla <c>Character.doEmote</c> mutates only local fields,
+        /// so without this peers never see emotes triggered by host-side NPC actions (petting
+        /// pets, petting/milking farm animals). Locates the target by tile so animal names
+        /// can collide harmlessly. Searches Pets in the location's <c>characters</c> list and
+        /// FarmAnimals via <c>Farm.getAllFarmAnimals</c> filtered by current location.
+        /// </summary>
+        private void OnShowAnimalEmote(ShowAnimalEmote msg)
+        {
+            if (msg.Version != MessageVersion.Current) return;
+            var loc = Game1.getLocationFromName(msg.LocationName);
+            if (loc == null) return;
+            var tile = new Microsoft.Xna.Framework.Point(msg.TileX, msg.TileY);
+
+            Character? target = loc.characters.OfType<StardewValley.Characters.Pet>()
+                .FirstOrDefault(p => p.TilePoint == tile);
+
+            if (target == null)
+            {
+                var farm = Game1.getFarm();
+                target = farm?.getAllFarmAnimals()
+                    .FirstOrDefault(a => a.currentLocation == loc && a.TilePoint == tile);
+            }
+
+            target?.doEmote(msg.EmoteIndex);
         }
 
         /// <summary>
@@ -638,6 +690,33 @@ namespace TheStardewSquad.Framework.Multiplayer
         }
 
         /// <summary>
+        /// Broadcasts an animal/pet emote to all peers so every screen renders it (vanilla
+        /// <c>Character.doEmote</c> isn't netfielded). Targets by tile because animal names
+        /// can collide. No-op in SP.
+        /// </summary>
+        public void BroadcastAnimalEmote(string locationName, int tileX, int tileY, int emoteIndex)
+        {
+            if (!Context.IsMultiplayer) return;
+            _helper.Multiplayer.SendMessage(
+                new ShowAnimalEmote(MessageVersion.Current, locationName, tileX, tileY, emoteIndex),
+                nameof(ShowAnimalEmote),
+                modIDs: new[] { _modUniqueId });
+        }
+
+        /// <summary>
+        /// Broadcasts an NPC shake to all peers so every screen sees the wobble (vanilla
+        /// <c>NPC.shake</c> writes a non-netfielded <c>shakeTimer</c>). No-op in SP.
+        /// </summary>
+        public void BroadcastShake(string npcName, string locationName, int durationMs)
+        {
+            if (!Context.IsMultiplayer) return;
+            _helper.Multiplayer.SendMessage(
+                new ShakeNpc(MessageVersion.Current, npcName, locationName, durationMs),
+                nameof(ShakeNpc),
+                modIDs: new[] { _modUniqueId });
+        }
+
+        /// <summary>
         /// Broadcasts an idle-animation play to all peers so every screen renders the same
         /// frames (vanilla <c>Sprite.CurrentAnimation</c> isn't netfielded). The host picks
         /// the animation from BehaviorManager's pool and plays it locally; peers replay
@@ -766,7 +845,9 @@ namespace TheStardewSquad.Framework.Multiplayer
                 m.Npc.Name,
                 m.RecruiterUniqueId,
                 m.Npc.currentLocation?.NameOrUniqueName ?? string.Empty,
-                m.Task?.Type
+                m.Task?.Type,
+                m.Task is null ? null : m.Task.InteractionTile,
+                m.Task is null ? null : m.Task.Tile
             )).ToArray();
 
             var snap = new SquadSnapshot(MessageVersion.Current, entries);
@@ -817,6 +898,24 @@ namespace TheStardewSquad.Framework.Multiplayer
             {
                 var loc = Game1.getLocationFromName(entry.LocationName);
                 NPC? npc = loc?.characters.FirstOrDefault(c => c.Name == entry.NpcName);
+
+                // Fallback: LocationName captures wherever the NPC was at snapshot time.
+                // Snapshots only fire on recruit/dismiss/wait/peer-connect/sustained-task-change,
+                // so an NPC that warped between those events (e.g., host recruits Elliott in town
+                // then warps him to the beach) lives at a different location on this peer.
+                // Without this fallback the entry is dropped and per-process maintenance
+                // (farmerPassesThrough, controller pinning) never runs on this peer's instance.
+                if (npc == null)
+                {
+                    NPC? found = null;
+                    Utility.ForEachLocation(l =>
+                    {
+                        var candidate = l.characters.FirstOrDefault(c => c.Name == entry.NpcName);
+                        if (candidate != null) { found = candidate; return false; }
+                        return true;
+                    }, includeInteriors: true, includeGenerated: true);
+                    npc = found;
+                }
                 if (npc == null) continue;
 
                 // Defensive re-stamp
@@ -832,11 +931,15 @@ namespace TheStardewSquad.Framework.Multiplayer
                 var mate = _mateFactory.Create(npc);
                 if (mate != null)
                 {
-                    // Late-joiner / re-snapshot rehydration: synthesize a stub Task for sustained
+                    // Late-joiner / re-snapshot rehydration: synthesize a Task for sustained
                     // task types (Sitting, Fishing) so the per-process per-tick frame-drive in
                     // FollowerManager.DriveSustainedTaskFrames picks them up immediately.
                     if (entry.CurrentTask is TaskType ct && (ct == TaskType.Sitting || ct == TaskType.Fishing))
-                        mate.Task = new SquadTask(ct, Microsoft.Xna.Framework.Point.Zero, Microsoft.Xna.Framework.Point.Zero);
+                    {
+                        var interactionTile = entry.InteractionTile ?? Microsoft.Xna.Framework.Point.Zero;
+                        var taskTile = entry.TaskTile ?? Microsoft.Xna.Framework.Point.Zero;
+                        mate.Task = new SquadTask(ct, taskTile, interactionTile);
+                    }
                     _squad.Add(mate);
                 }
             }

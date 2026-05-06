@@ -91,6 +91,28 @@
               "Loop": false,
               "FallbackFrame": 0
             },
+            "Shearing": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 400,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
+            "Milking": {
+              "FramesByDirection": {
+                "Down": [1, 0],
+                "Right": [5, 4],
+                "Up": [9, 8],
+                "Left": [13, 12]
+              },
+              "FrameDuration": 400,
+              "Loop": false,
+              "FallbackFrame": 0
+            },
             "Fishing": {
               "FramesByDirection": {
                 "Down": [0],

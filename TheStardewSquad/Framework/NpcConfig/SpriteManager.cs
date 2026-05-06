@@ -308,7 +308,8 @@ namespace TheStardewSquad.Framework.NpcConfig
                                     npc.Sprite.StopAnimation();
                                     npc.Sprite.currentFrame = freezeFrame;
                                     npc.Sprite.CurrentFrame = freezeFrame;
-                                }
+                                },
+                                behaviorAtEndOfFrame: true
                             ));
                         }
                         else
@@ -335,6 +336,11 @@ namespace TheStardewSquad.Framework.NpcConfig
                 new(baseFrame, frameDuration),
                 new(baseFrame - 1, frameDuration)
             });
+            // Vanilla setCurrentAnimation does not reset Sprite.loop (default true). Without
+            // this, the [walk, stand] fallback loops forever on peers; with ClearTaskAnim
+            // no longer broadcast for non-sustained tasks, the animation must self-terminate
+            // so the NPC reverts to its prior frame.
+            npc.Sprite.loop = false;
         }
 
         /// <summary>

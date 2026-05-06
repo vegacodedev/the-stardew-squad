@@ -836,16 +836,35 @@ namespace TheStardewSquad.Framework
             mate.ActionCooldown = 0;
             mate.CurrentMoveDirection = -1;
 
+            // Sustained tasks need their tiles propagated to peers so the line/seat render
+            // paths can compare npc.TilePoint to mate.Task.InteractionTile. SquadEntry
+            // carries InteractionTile/TaskTile (v5+); peers rehydrate via ApplySnapshot.
+            if (Context.IsMainPlayer
+                && (newTask.Type == TaskType.Fishing || newTask.Type == TaskType.Sitting))
+            {
+                this._dispatcher?.BroadcastSnapshot();
+            }
+
             // Note: MimickingTaskTimer is now managed centrally in UpdateMimickingTimers()
             // based on player actions, not when assigning tasks
         }
 
         private void ClearMateTask(ISquadMate mate)
         {
-            // Broadcast a peer clear if there's any task animation or texture swap to undo.
-            // Peers don't gate on this themselves; the host filters to avoid spurious traffic.
-            bool needsClearBroadcast = (mate.Task != null || !string.IsNullOrEmpty(mate.AppliedTaskTexture))
+            // Broadcast a peer clear only when the cleared task had a long-running visual
+            // that peers wouldn't terminate on their own. Sustained tasks (Sitting, Fishing)
+            // and texture swaps need an explicit clear.
+            bool clearedTaskIsSustained = mate.Task != null
+                && (mate.Task.Type == TaskType.Fishing || mate.Task.Type == TaskType.Sitting);
+            bool needsClearBroadcast = (clearedTaskIsSustained || !string.IsNullOrEmpty(mate.AppliedTaskTexture))
                 && Context.IsMainPlayer;
+
+            // Snapshot peers so they drop the stale Task object too. Without this, peers
+            // would keep rendering the line/seat at the old InteractionTile until the
+            // next recruit/dismiss-driven snapshot arrives.
+            bool needsSnapshot = Context.IsMainPlayer
+                && mate.Task != null
+                && (mate.Task.Type == TaskType.Fishing || mate.Task.Type == TaskType.Sitting);
 
             if (mate.Task != null) this._claimedTaskTargets.Remove(mate.Task.Tile);
             if (mate.ClaimedInteractionSpot.HasValue)
@@ -858,6 +877,7 @@ namespace TheStardewSquad.Framework
             mate.LastMonsterTile = null; // Reset monster tracking when task is cleared
 
             if (needsClearBroadcast) this._dispatcher?.BroadcastClearTaskAnim(mate);
+            if (needsSnapshot) this._dispatcher?.BroadcastSnapshot();
         }
 
         /// <summary>Clears a mate's task and resets their movement state.</summary>

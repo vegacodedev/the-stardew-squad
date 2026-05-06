@@ -114,6 +114,7 @@ namespace TheStardewSquad
             this.AssetManager = new AssetManager();
             TaskManager.Initialize(this.Config, this.FollowerManager, this.SpriteManager);
             TaskManager.SetMonitor(this.Monitor);
+            TaskManager.AttachDispatcher(this.MessageDispatcher);
 
             var harmony = new Harmony(this.ModManifest.UniqueID);
             HarmonyPatches.Initialize(this.InteractionManager, this.SquadManager, this.Config, this.FollowerManager, this.DebrisCollector, this);

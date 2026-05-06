@@ -22,6 +22,7 @@ namespace TheStardewSquad.Framework
         private static FollowerManager _followerManager;
         private static StardewModdingAPI.IMonitor _monitor;
         private static NpcConfig.SpriteManager _spriteManager;
+        private static Multiplayer.MessageDispatcher? _dispatcher;
 
         private static readonly Shears _sharedShears = new();
         private static readonly MilkPail _sharedMilkPail = new();
@@ -39,6 +40,24 @@ namespace TheStardewSquad.Framework
         public static void SetMonitor(StardewModdingAPI.IMonitor monitor)
         {
             _monitor = monitor;
+        }
+
+        public static void AttachDispatcher(Multiplayer.MessageDispatcher dispatcher)
+        {
+            _dispatcher = dispatcher;
+        }
+
+        /// <summary>
+        /// Calls vanilla <c>NPC.shake</c> on the host AND broadcasts a ShakeNpc message so peers
+        /// see the wobble too. Vanilla <c>shakeTimer</c> is a plain int (not NetField-wrapped).
+        /// </summary>
+        private static void ShakeAndBroadcast(NPC npc, int durationMs)
+        {
+            npc.shake(durationMs);
+            _dispatcher?.BroadcastShake(
+                npc.Name,
+                npc.currentLocation?.NameOrUniqueName ?? string.Empty,
+                durationMs);
         }
 
         /// <summary>
@@ -512,7 +531,7 @@ namespace TheStardewSquad.Framework
             AnimateAttacking(npc);
 
             _spriteManager?.ApplyTaskAnimation(npc, "Attacking", 400, mate);
-            npc.shake(400);
+            ShakeAndBroadcast(npc, 400);
 
             mate.ActionCooldown = 48;
 
@@ -899,8 +918,8 @@ namespace TheStardewSquad.Framework
 
             FacePosition(npc, monster.getStandingPosition());
             AnimatePetAttacking(npc);
-            _spriteManager?.ApplyTaskAnimation(npc, "Attacking", 250, mate);
-            npc.shake(250); // A little shake instead of a full animation
+            _spriteManager?.ApplyTaskAnimation(npc, "Attacking", 250);
+            ShakeAndBroadcast(npc, 250); // A little shake instead of a full animation
             mate.ActionCooldown = 40; // Pets can attack a bit faster
 
             if (Game1.random.Next(8) == 0)
@@ -1008,7 +1027,7 @@ namespace TheStardewSquad.Framework
                 FacePosition(npc, targetWorldPosition);
                 AnimateWatering(npc);
                 _spriteManager?.ApplyTaskAnimation(npc, "Watering", 400, mate);
-                npc.shake(230);
+                ShakeAndBroadcast(npc, 300);
 
                 mate.ActionCooldown = 48;
 
@@ -1181,7 +1200,7 @@ namespace TheStardewSquad.Framework
                 AnimateLumbering(npc);
                 SpawnToolSwipeOverlay(npc);
                 _spriteManager?.ApplyTaskAnimation(npc, "Lumbering", 400, mate);
-                npc.shake(230);
+                ShakeAndBroadcast(npc, 400);
                 mate.ActionCooldown = 48;
                 if (Game1.random.Next(10) == 0)
                 {
@@ -1391,7 +1410,7 @@ namespace TheStardewSquad.Framework
                 AnimateMining(npc);
                 SpawnToolSwipeOverlay(npc);
                 _spriteManager?.ApplyTaskAnimation(npc, "Mining", 400, mate);
-                npc.shake(230);
+                ShakeAndBroadcast(npc, 300);
                 mate.ActionCooldown = 48;
 
                 if (rock.minutesUntilReady.Value <= 0 && location.objects.ContainsKey(tileVector))
@@ -1560,7 +1579,7 @@ namespace TheStardewSquad.Framework
             }
 
             _spriteManager?.ApplyTaskAnimation(npc, "Harvesting", 400, mate);
-            npc.shake(400);
+            ShakeAndBroadcast(npc, 400);
             mate.ActionCooldown = 48;
             location.playSound("harvest");
 
@@ -1686,7 +1705,7 @@ namespace TheStardewSquad.Framework
             {
                 // Animate and set cooldown
                 _spriteManager?.ApplyTaskAnimation(npc, "Foraging", 400, mate);
-                npc.shake(400);
+                ShakeAndBroadcast(npc, 400);
                 mate.ActionCooldown = 48;
 
                 if (Game1.random.Next(7) == 0)
@@ -2261,9 +2280,13 @@ namespace TheStardewSquad.Framework
         {
             var npc = mate.Npc;
 
+            // Credit the recruiter (farmhand for farmhand-recruited NPCs) so the fish
+            // routes to the right player's inventory in MP. Mirrors ExecuteForagePickup.
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+
             // Add the fish to the appropriate inventory
             Item fishCopy = fish.getOne();
-            if (!TryAddItemToInventory(fishCopy))
+            if (!TryAddItemToInventory(fishCopy, recruiter: who))
             {
                 // Inventory full, don't give fish
                 return;
@@ -2719,6 +2742,12 @@ namespace TheStardewSquad.Framework
                     Patches.HarmonyPatches.EndIgnorePetting();
                 }
 
+                // Vanilla FarmAnimal.pet calls base.doEmote(20) on the host's instance, but
+                // doEmote isn't netfielded — peers see no heart. Mirror to all screens.
+                _dispatcher?.BroadcastAnimalEmote(
+                    location?.NameOrUniqueName ?? string.Empty,
+                    tile.X, tile.Y, 20);
+
                 // Restore player state so they aren't affected by the NPC's petting action
                 Game1.player.Position = playerPosition;
                 Game1.player.FacingDirection = playerFacingDirection;
@@ -2748,6 +2777,11 @@ namespace TheStardewSquad.Framework
                     // The pet's playContentSound() method is species-specific (cat, dog, etc.)
                     pet.doEmote(20); // Heart emote
                     pet.playContentSound(); // Species-specific sound
+
+                    // doEmote isn't netfielded — peers see no heart without this broadcast.
+                    _dispatcher?.BroadcastAnimalEmote(
+                        location?.NameOrUniqueName ?? string.Empty,
+                        tile.X, tile.Y, 20);
                 }
                 finally
                 {
@@ -2764,7 +2798,7 @@ namespace TheStardewSquad.Framework
             FacePosition(npc, targetWorldPosition);
 
             _spriteManager?.ApplyTaskAnimation(npc, "Petting", 400, mate);
-            npc.shake(400);
+            ShakeAndBroadcast(npc, 400);
 
             mate.ActionCooldown = 48;
 
@@ -3178,10 +3212,17 @@ namespace TheStardewSquad.Framework
                 produce.Stack = 2;
 
             location.playSound(soundName);
-            if (isMilking) targetAnimal.doEmote(20);
+            if (isMilking)
+            {
+                targetAnimal.doEmote(20);
+                // doEmote isn't netfielded — broadcast so peers see the heart too.
+                _dispatcher?.BroadcastAnimalEmote(
+                    location?.NameOrUniqueName ?? string.Empty,
+                    tile.X, tile.Y, 20);
+            }
 
             int producedStack = produce.Stack;
-            TryAddItemToInventory(produce, npc);
+            TryAddItemToInventory(produce, npc, recruiter: who);
 
             targetAnimal.HandleStatsOnProduceCollected(produce, (uint)producedStack);
             targetAnimal.currentProduce.Value = null;
@@ -3194,7 +3235,7 @@ namespace TheStardewSquad.Framework
                 targetAnimal.pauseTimer = 1500;
 
             _spriteManager?.ApplyTaskAnimation(npc, taskName, 400, mate);
-            npc.shake(400);
+            ShakeAndBroadcast(npc, 400);
             mate.ActionCooldown = 120;
 
             if (Game1.random.Next(7) == 0)

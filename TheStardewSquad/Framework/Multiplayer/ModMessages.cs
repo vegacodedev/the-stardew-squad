@@ -95,12 +95,38 @@ namespace TheStardewSquad.Framework.Multiplayer
     /// <summary>
     /// Cosmetic-only broadcast: tells all peers to clear an in-progress task animation
     /// and restore the NPC's original texture if one was swapped. Sent host->peers when
-    /// the host clears a mate's task or completes a task with a custom sprite sheet.
+    /// the host clears a sustained-task mate or completes a task with a custom sprite sheet.
+    /// Non-sustained tasks self-terminate via Sprite.loop=false + the configured last-frame
+    /// callback, so the host filters in ClearMateTask to avoid clobbering peer animations
+    /// before they can render.
     /// </summary>
     public record ClearTaskAnim(int Version, string NpcName, long RecruiterId);
 
+    /// <summary>
+    /// Cosmetic-only broadcast: tells all peers to play a Character.doEmote on the
+    /// FarmAnimal or Pet at the given tile. Vanilla <c>Character.doEmote</c> writes only
+    /// local fields (<c>isEmoting</c>, <c>currentEmote</c>, <c>currentEmoteFrame</c>,
+    /// <c>emoteInterval</c>); none are NetField-wrapped, so without this peers never see
+    /// the host's emote. Sent host->peers when an NPC pets/milks an animal. Identifies
+    /// the target by tile rather than name because farm-animal/pet names can collide.
+    /// </summary>
+    public record ShowAnimalEmote(int Version, string LocationName, int TileX, int TileY, int EmoteIndex);
+
+    /// <summary>
+    /// Cosmetic-only broadcast: tells all peers to wobble the named NPC for the given
+    /// duration. Vanilla <c>NPC.shake</c> writes only <c>shakeTimer</c> (a plain int,
+    /// not NetField-wrapped); the host's call doesn't propagate. Sent host->peers
+    /// after every task action that calls <c>npc.shake(...)</c>.
+    /// </summary>
+    public record ShakeNpc(int Version, string NpcName, string LocationName, int DurationMs);
+
     /// <summary>One mate's serialized state inside a <see cref="SquadSnapshot"/>.</summary>
-    public record SquadEntry(string NpcName, long RecruiterId, string LocationName, TaskType? CurrentTask);
+    /// <remarks>
+    /// <see cref="InteractionTile"/> and <see cref="TaskTile"/> are populated for sustained tasks
+    /// whose render paths key off the tiles (Fishing line draw checks <c>npc.TilePoint == InteractionTile</c>).
+    /// Null when no task or for tasks that don't need them.
+    /// </remarks>
+    public record SquadEntry(string NpcName, long RecruiterId, string LocationName, TaskType? CurrentTask, Point? InteractionTile, Point? TaskTile);
 
     /// <summary>
     /// Authoritative full-squad snapshot sent by the host. Farmhands clear their local
@@ -111,6 +137,6 @@ namespace TheStardewSquad.Framework.Multiplayer
     /// <summary>Shared message-versioning + type-name constants.</summary>
     public static class MessageVersion
     {
-        public const int Current = 4;
+        public const int Current = 5;
     }
 }
