@@ -60,9 +60,18 @@ namespace TheStardewSquad.Framework
         // a farmhand reeling in must clear that recruiter's mates' fishing tasks.
         private readonly Dictionary<long, bool> _wasFarmerFishing = new();
 
-        // Per-farmer riding state. In MP each online farmer can mount independently and
-        // their own recruited mate rides with them.
-        private readonly Dictionary<long, bool> _wasFarmerRiding = new();
+        // Per-screen per-farmer riding state. Each screen detects mount/dismount transitions
+        // independently so it can write to its own local NPC instance via ResolveAllLiveNpcs.
+        // (In splitscreen each Game1 instance has its own _locations and NPC objects; netfield
+        // writes don't propagate between instances, so per-screen visuals must be applied locally.)
+        private readonly PerScreen<Dictionary<long, bool>> _wasFarmerRiding =
+            new(() => new Dictionary<long, bool>());
+
+        // Per-screen record of which mate is riding behind each farmer. Needed at dismount so
+        // the second screen to detect the transition can clean up the right mate even after
+        // mate.IsRidingWithPlayer was cleared by the first screen's tick.
+        private readonly PerScreen<Dictionary<long, ISquadMate>> _ridingMate =
+            new(() => new Dictionary<long, ISquadMate>());
 
         // Per-mate IsAnimating from the previous host tick, keyed by (NpcName, RecruiterId).
         // Used to detect IsAnimating true→false transitions and broadcast a ClearIdleAnim
@@ -346,7 +355,11 @@ namespace TheStardewSquad.Framework
                 if (mate.RecruiterUniqueId != recruiter.UniqueMultiplayerID) continue;
 
                 var npc = mate.Npc;
-                Game1.warpCharacter(npc, recruiter.currentLocation.NameOrUniqueName, recruiter.TilePoint);
+                // Pass the GameLocation directly; in splitscreen, recruiter.currentLocation
+                // may not be in the host instance's _locationLookup, so the (string, ...)
+                // overload would fail to resolve the destination and leave a duplicate NPC
+                // in the old location.
+                Game1.warpCharacter(npc, recruiter.currentLocation, new Vector2(recruiter.TilePoint.X, recruiter.TilePoint.Y));
                 mate.Path.Clear();
                 ClearMateTask(mate);
                 mate.IsCatchingUp = false;
@@ -504,6 +517,17 @@ namespace TheStardewSquad.Framework
             // BroadcastClearTaskAnim) are gated inside.
             this.UpdateRidingState();
 
+            // Per-screen riding-mate maintenance. Drives Position/facing/sprite/HideShadow on
+            // every live duplicate visible to the active screen, so each splitscreen player's
+            // NPC instance stays glued to the saddle and on the sitting sprite. Runs above
+            // the host-only gate because the farmhand-screen's NPC instance otherwise gets no
+            // per-tick refresh and vanilla animation drifts the sprite to walking.
+            foreach (var ridingMate in this._squadManager.Members)
+            {
+                if (ridingMate.IsRidingWithPlayer)
+                    UpdateRidingMember(ridingMate);
+            }
+
             // Host-only authority: in MP, only the main player runs squad AI mutations.
             if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
 
@@ -544,16 +568,11 @@ namespace TheStardewSquad.Framework
             {
                 var mate = members[i];
 
-                // Drive Position/facingDirection for any mate currently riding (host's own mate
-                // OR a remote farmer's recruited mate). Riding-state transitions are handled
-                // above the host-only gate; this branch just keeps the riding mate pinned to
-                // its rider's saddle every tick. Host is the authoritative writer for the
-                // netfielded position and facing.
+                // Riding mates are driven by the per-screen UpdateRidingMember pass above
+                // the host-only gate; skip them here so they aren't double-processed by the
+                // normal squad-AI update logic.
                 if (mate.IsRidingWithPlayer)
-                {
-                    UpdateRidingMember(mate);
                     continue;
-                }
 
                 bool isFastTick = this._updateCounter % FastTickInterval == 0;
                 bool isSlowTick = (this._updateCounter + i) % SlowTickInterval == 0;
@@ -907,7 +926,8 @@ namespace TheStardewSquad.Framework
             }
             this._formationManager.Reset();
             this._lastFriendshipGainHour = -1;
-            this._wasFarmerRiding.Clear();
+            this._wasFarmerRiding.ResetAllScreens();
+            this._ridingMate.ResetAllScreens();
         }
 
         #endregion
@@ -1107,7 +1127,7 @@ namespace TheStardewSquad.Framework
 
             if (npc.currentLocation != player.currentLocation)
             {
-                Game1.warpCharacter(npc, player.currentLocation.NameOrUniqueName, player.TilePoint);
+                Game1.warpCharacter(npc, player.currentLocation, new Vector2(player.TilePoint.X, player.TilePoint.Y));
                 mate.Path.Clear();
                 ClearMateTask(mate);
                 mate.StuckCounter = 0;
@@ -1544,127 +1564,136 @@ namespace TheStardewSquad.Framework
             if (!_config.EnableRiding)
                 return;
 
-            // Walk every online farmer. In SP this loops once over Game1.player. In MP each
-            // farmer's mount state is independently tracked so two farmhands can each ride
-            // with their own recruited mate at the same time. Runs on every process; host-only
-            // authoritative writes (HideShadow netfield, ClearMateTaskAndReset, mate.Halt,
-            // BroadcastClearTaskAnim) are gated on Context.IsMainPlayer below. The per-screen
-            // side effects (mate.IsRidingWithPlayer, sprite sheet swap, drawOffset reset) must
-            // run on every process so each peer's NPC.Draw prefix applies the saddle offset
-            // and renders the sitting sprite. _wasFarmerRiding is per-instance, so each
-            // process tracks transitions independently.
+            // Per-screen mount/dismount detection. Each screen (and each network process) tracks
+            // its own _wasFarmerRiding state so each can drive the visual setup against its own
+            // local NPC instance via ResolveAllLiveNpcs. Host-only authoritative work (task
+            // clear, network broadcast) is gated on Context.IsMainPlayer; in splitscreen only
+            // ScreenId 0 is IsMainPlayer, so the host-only block fires once per transition.
+            var perScreenState = _wasFarmerRiding.Value;
+            var perScreenRidingMate = _ridingMate.Value;
+
             foreach (var farmer in Game1.getOnlineFarmers())
             {
                 long farmerId = farmer.UniqueMultiplayerID;
                 bool isFarmerRiding = farmer.mount != null;
-                _wasFarmerRiding.TryGetValue(farmerId, out bool wasFarmerRiding);
+                perScreenState.TryGetValue(farmerId, out bool wasFarmerRiding);
 
                 if (isFarmerRiding && !wasFarmerRiding)
                 {
-                    // This farmer just mounted — assign their first available recruited mate to ride.
+                    // Two-tier mate selection: prefer a mate already marked riding (set by an
+                    // earlier screen's tick this transition), else assign a fresh eligible one.
+                    // mate.IsRidingWithPlayer lives on the shared SquadMate, so the second screen
+                    // to detect the transition reuses the first screen's choice.
                     var rideMate = _squadManager.Members
-                        .FirstOrDefault(m => m.RecruiterUniqueId == farmerId && !m.IsRidingWithPlayer);
+                        .FirstOrDefault(m => m.RecruiterUniqueId == farmerId && m.IsRidingWithPlayer)
+                        ?? _squadManager.Members.FirstOrDefault(m => m.RecruiterUniqueId == farmerId && !m.IsRidingWithPlayer);
+
                     if (rideMate != null)
                     {
-                        rideMate.IsRidingWithPlayer = true;
+                        if (!rideMate.IsRidingWithPlayer)
+                            rideMate.IsRidingWithPlayer = true;
 
-                        // Host-only: task clear, HideShadow netfield, and sprite-sheet swap.
-                        // TryApplySittingSpriteSheet broadcasts PlayTaskAnim to peers, whose
-                        // OnPlayTaskAnim handler iterates ResolveAllLiveNpcs and applies the
-                        // swap to every live duplicate. Calling it directly on farmhand would
-                        // target only mate.Npc (potentially the orphan per
-                        // pattern-mp-npc-duplication) and pre-set mate.OriginalTexture from
-                        // the orphan, which the broadcast handler then refuses to overwrite,
-                        // leaving the visible duplicate stuck on the sitting sheet.
+                        // Remember which mate is riding for this screen, so dismount cleanup
+                        // can target it even after another screen flips IsRidingWithPlayer off.
+                        perScreenRidingMate[farmerId] = rideMate;
+
+                        // Per-screen: HideShadow + sprite swap on every live duplicate visible to
+                        // the active screen. In splitscreen each Game1 instance has its own NPC
+                        // objects and HideShadow netfield writes don't cross instances, so each
+                        // screen must set them locally.
+                        foreach (var live in ResolveAllLiveNpcs(rideMate.Npc))
+                        {
+                            live.HideShadow = true;
+                            bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(live, rideMate, farmer.FacingDirection) ?? false;
+                            if (!usedCustomSprite)
+                                _spriteManager?.ForceApplyTaskAnimation(live, TaskType.Sitting.ToString());
+                        }
+
+                        // Host-only: shared mate-state cleanup (idempotent), and broadcast for
+                        // network MP peers (whose OnPlayTaskAnim does the same per-instance work
+                        // there). Only ScreenId 0 hits this in splitscreen, so it runs once per
+                        // mount transition regardless of which screen ticks first.
                         if (Context.IsMainPlayer)
                         {
                             ClearMateTaskAndReset(rideMate);
-                            rideMate.Npc.HideShadow = true;
-                            bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(rideMate.Npc, rideMate, farmer.FacingDirection) ?? false;
-                            if (!usedCustomSprite)
-                            {
-                                _spriteManager?.ForceApplyTaskAnimation(rideMate.Npc, TaskType.Sitting.ToString());
+                            bool customForBroadcast = _spriteManager?.TryApplySittingSpriteSheet(rideMate.Npc, rideMate, farmer.FacingDirection) ?? false;
+                            if (!customForBroadcast)
                                 _dispatcher?.BroadcastPlayTaskAnim(rideMate, TaskType.Sitting.ToString(), farmer.FacingDirection, null);
-                            }
                         }
                     }
                 }
                 else if (!isFarmerRiding && wasFarmerRiding)
                 {
-                    // This farmer just dismounted — release any of their riding mates.
-                    foreach (var mate in _squadManager.Members)
+                    // Use the per-screen record of who was riding here, not mate.IsRidingWithPlayer:
+                    // an earlier screen's tick this transition may have already cleared the flag.
+                    if (perScreenRidingMate.TryGetValue(farmerId, out var mate))
                     {
-                        if (mate.RecruiterUniqueId == farmerId && mate.IsRidingWithPlayer)
-                        {
+                        if (mate.IsRidingWithPlayer)
                             mate.IsRidingWithPlayer = false;
 
-                            // Reset drawOffset on every live duplicate. NPC.Draw_Prefix sets
-                            // drawOffset on the visible instance every frame while riding;
-                            // once IsRidingWithPlayer flips false the prefix stops touching
-                            // it, so the last saddle offset would persist if not cleared
-                            // explicitly. mate.Npc may be the orphan (per
-                            // pattern-mp-npc-duplication), so iterate across all duplicates.
-                            foreach (var live in ResolveAllLiveNpcs(mate.Npc))
-                            {
-                                live.drawOffset = Vector2.Zero;
-                            }
-
-                            // Host-only: HideShadow netfield, sprite restore (broadcasts
-                            // ClearTaskAnim to peers; OnClearTaskAnim handler iterates
-                            // ResolveAllLiveNpcs and calls RestoreOriginalTexture per
-                            // duplicate), and mate state cleanup.
-                            if (Context.IsMainPlayer)
-                            {
-                                mate.Npc.HideShadow = false;
-                                _spriteManager?.RestoreOriginalTexture(mate.Npc, mate);
-                                mate.Npc.Sprite.StopAnimation();
-                                mate.Npc.flip = false;
-                                mate.Halt();
-                                // Riding-dismount cleanup doesn't go through ClearMateTask; broadcast directly.
-                                this._dispatcher?.BroadcastClearTaskAnim(mate);
-                            }
+                        // Per-screen: reset cosmetic state on every live duplicate visible to this
+                        // screen. NO warp here: UpdateRidingMember has been pinning each screen's
+                        // local NPC to rider.currentLocation per tick during riding, so currentLocation
+                        // already matches the rider at dismount. Issuing Game1.warpCharacter from a
+                        // non-host (IsClient) screen routes through Multiplayer.requestCharacterWarp,
+                        // which sends a server message resolved by GUID; in splitscreen that message
+                        // can land on the wrong NPC instance and write a stale (-1, 0) tile (drove
+                        // the dismount-disappears bug). HandleLocationAndSpeed runs host-side in the
+                        // normal squad iteration and will issue a real warp later if any residual
+                        // location mismatch slips through.
+                        foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                        {
+                            live.drawOffset = Vector2.Zero;
+                            live.HideShadow = false;
+                            live.Sprite?.StopAnimation();
+                            live.flip = false;
+                            _spriteManager?.RestoreOriginalTexture(live, mate);
                         }
+
+                        if (Context.IsMainPlayer)
+                        {
+                            mate.Halt();
+                            _dispatcher?.BroadcastClearTaskAnim(mate);
+                        }
+
+                        perScreenRidingMate.Remove(farmerId);
                     }
                 }
 
-                _wasFarmerRiding[farmerId] = isFarmerRiding;
+                perScreenState[farmerId] = isFarmerRiding;
             }
         }
 
         /// <summary>
-        /// Updates a squad member that is riding on the horse behind the player.
-        /// Aligns the NPC to the player's visual riding position using drawOffset,
-        /// applies sitting sprite, and syncs the horse wobble animation.
+        /// Per-tick riding-mate maintenance. Runs on every screen so the active screen's
+        /// local NPC instances are pinned to the rider's saddle position and stay on the
+        /// sitting sprite (vanilla animation otherwise drifts the sprite forward as the
+        /// netfielded Position changes). Iterates ResolveAllLiveNpcs because mate.Npc may
+        /// be the orphan (per pattern-mp-npc-duplication) and because in splitscreen each
+        /// Game1 instance has its own NPC object that must be driven locally.
         /// </summary>
         private void UpdateRidingMember(ISquadMate mate)
         {
-            var npc = mate.Npc;
-            // Anchor to the recruiter (the farmer this NPC is riding behind), not the local
-            // screen's player. In MP a farmhand's recruited mate rides behind the farmhand;
-            // their mount.Position is the most current position via netfield sync.
             if (!mate.TryGetRecruiter(out var rider))
                 return;
 
-            // Ensure the NPC is in the same location as the rider
-            if (npc.currentLocation != rider.currentLocation)
-            {
-                Game1.warpCharacter(npc, rider.currentLocation.NameOrUniqueName, rider.TilePoint);
-            }
-
-            // +Y offset layers the NPC in front of the rider for Up/Left/Right.
-            // For Down, HarmonyPatches.AdjustSittingNpcDepth overrides depth to slot the NPC behind the rider.
-            // Use mount.Position when available — Horse.SyncPositionToRider keeps it current
-            // and the netfield replication is more reliable than reading rider.Position directly
-            // for remote farmhands.
             var anchorPos = rider.mount?.Position ?? rider.Position;
-            npc.Position = new Vector2(anchorPos.X, anchorPos.Y + 8f);
+            var anchorTile = new Vector2(rider.TilePoint.X, rider.TilePoint.Y);
 
-            npc.faceDirection(rider.FacingDirection);
-
-            bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(npc, mate, rider.FacingDirection) ?? false;
-            if (!usedCustomSprite)
+            foreach (var npc in ResolveAllLiveNpcs(mate.Npc))
             {
-                _spriteManager?.ForceApplyTaskAnimation(npc, "Sitting");
+                if (npc.currentLocation != rider.currentLocation)
+                    Game1.warpCharacter(npc, rider.currentLocation, anchorTile);
+
+                // +Y offset layers the NPC in front of the rider for Up/Left/Right.
+                // For Down, HarmonyPatches.AdjustSittingNpcDepth overrides depth to slot the NPC behind the rider.
+                npc.Position = new Vector2(anchorPos.X, anchorPos.Y + 8f);
+                npc.faceDirection(rider.FacingDirection);
+                npc.HideShadow = true;
+
+                bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(npc, mate, rider.FacingDirection) ?? false;
+                if (!usedCustomSprite)
+                    _spriteManager?.ForceApplyTaskAnimation(npc, "Sitting");
             }
         }
 

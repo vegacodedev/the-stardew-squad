@@ -35,6 +35,13 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         private readonly ConcurrentQueue<QueuedMessage> _inbox = new();
 
+        // Splitscreen result delivery. Helper.Multiplayer.SendMessage does not bridge
+        // local splitscreen players, so when the host (or a peer screen) wants to send
+        // a *Result back to a specific player in the same process, we route it here
+        // instead. Each screen drains entries targeting its own Game1.player on its
+        // own UpdateTicked. Empty in network MP and SP.
+        private readonly ConcurrentDictionary<long, ConcurrentQueue<QueuedMessage>> _localResultInbox = new();
+
         public MessageDispatcher(
             IModHelper helper,
             IMonitor monitor,
@@ -73,6 +80,11 @@ namespace TheStardewSquad.Framework.Multiplayer
         /// </summary>
         public void OnUpdateTicked(object? sender, UpdateTickedEventArgs e)
         {
+            // Splitscreen: each screen drains *Results targeting its own player BEFORE
+            // the host-only gate, so farmhand-screen receives recruit/dismiss/wait HUD
+            // toasts. No-op in network MP / SP.
+            DrainLocalResults();
+
             if (!Context.IsMainPlayer) return;
             while (_inbox.TryDequeue(out var msg))
                 DispatchHostHandler(msg);
@@ -324,6 +336,66 @@ namespace TheStardewSquad.Framework.Multiplayer
             BroadcastSnapshot(toPeerId: e.Peer.PlayerID);
         }
 
+        /// <summary>
+        /// Splitscreen-only: enqueue a host-bound request directly into the local
+        /// host inbox. Bypasses SMAPI's network layer (which silently drops
+        /// targeted sends between local screens). The host-screen tick drains
+        /// the inbox via OnUpdateTicked, same as in network MP.
+        /// </summary>
+        private void RouteRequestLocally<TPayload>(string type, TPayload payload, long fromPlayerId) where TPayload : class
+        {
+            _inbox.Enqueue(new QueuedMessage(type, payload, fromPlayerId));
+        }
+
+        /// <summary>
+        /// Splitscreen-only: enqueue a *Result for a specific local screen. Each
+        /// Game1 instance drains its own queue on its UpdateTicked tick (see
+        /// DrainLocalResults), so the result handler runs with Game1.player ==
+        /// the original requester (matching the network-MP invariant).
+        /// </summary>
+        private void RouteResultLocally<TPayload>(string type, TPayload payload, long toPlayerId) where TPayload : class
+        {
+            var q = _localResultInbox.GetOrAdd(toPlayerId, _ => new ConcurrentQueue<QueuedMessage>());
+            q.Enqueue(new QueuedMessage(type, payload, toPlayerId));
+        }
+
+        /// <summary>
+        /// Splitscreen-only: drain locally-routed results targeting the current
+        /// screen's player. No-op in network MP / SP.
+        /// </summary>
+        private void DrainLocalResults()
+        {
+            if (_localResultInbox.IsEmpty) return;
+            long localId = Game1.player.UniqueMultiplayerID;
+            if (!_localResultInbox.TryGetValue(localId, out var q)) return;
+            while (q.TryDequeue(out var msg))
+                DispatchResultHandler(msg);
+        }
+
+        /// <summary>
+        /// Mirrors DispatchHostHandler but for *Result types. Used only by the
+        /// splitscreen local-results path; network MP routes results through
+        /// OnModMessageReceived directly.
+        /// </summary>
+        private void DispatchResultHandler(QueuedMessage msg)
+        {
+            switch (msg.Type)
+            {
+                case nameof(RecruitResult):
+                    HandleRecruitResult((RecruitResult)msg.Payload);
+                    break;
+                case nameof(DismissResult):
+                    HandleDismissResult((DismissResult)msg.Payload);
+                    break;
+                case nameof(WaitResult):
+                    HandleWaitResult((WaitResult)msg.Payload);
+                    break;
+                case nameof(TaskAssignResult):
+                    HandleTaskAssignResult((TaskAssignResult)msg.Payload);
+                    break;
+            }
+        }
+
         #endregion
 
         #region Host Authority Handlers
@@ -434,8 +506,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         private void SendRecruitResult(long toPlayerId, string npcName, bool success, string reasonKey)
         {
+            var res = new RecruitResult(MessageVersion.Current, toPlayerId, npcName, success, reasonKey);
+            if (Context.IsSplitScreen)
+            {
+                RouteResultLocally(nameof(RecruitResult), res, toPlayerId);
+                return;
+            }
             _helper.Multiplayer.SendMessage(
-                new RecruitResult(MessageVersion.Current, toPlayerId, npcName, success, reasonKey),
+                res,
                 nameof(RecruitResult),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { toPlayerId });
@@ -541,8 +619,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         private void SendDismissResult(long toPlayerId, string npcName, bool success, string reasonKey)
         {
+            var res = new DismissResult(MessageVersion.Current, toPlayerId, npcName, success, reasonKey);
+            if (Context.IsSplitScreen)
+            {
+                RouteResultLocally(nameof(DismissResult), res, toPlayerId);
+                return;
+            }
             _helper.Multiplayer.SendMessage(
-                new DismissResult(MessageVersion.Current, toPlayerId, npcName, success, reasonKey),
+                res,
                 nameof(DismissResult),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { toPlayerId });
@@ -550,8 +634,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         private void SendWaitResult(long toPlayerId, string npcName, bool success, string reasonKey)
         {
+            var res = new WaitResult(MessageVersion.Current, toPlayerId, npcName, success, reasonKey);
+            if (Context.IsSplitScreen)
+            {
+                RouteResultLocally(nameof(WaitResult), res, toPlayerId);
+                return;
+            }
             _helper.Multiplayer.SendMessage(
-                new WaitResult(MessageVersion.Current, toPlayerId, npcName, success, reasonKey),
+                res,
                 nameof(WaitResult),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { toPlayerId });
@@ -559,8 +649,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         private void SendTaskAssignResult(long toPlayerId, bool success, string reasonKey)
         {
+            var res = new TaskAssignResult(MessageVersion.Current, toPlayerId, success, reasonKey);
+            if (Context.IsSplitScreen)
+            {
+                RouteResultLocally(nameof(TaskAssignResult), res, toPlayerId);
+                return;
+            }
             _helper.Multiplayer.SendMessage(
-                new TaskAssignResult(MessageVersion.Current, toPlayerId, success, reasonKey),
+                res,
                 nameof(TaskAssignResult),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { toPlayerId });
@@ -787,8 +883,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         public void SendRecruitRequest(string npcName, string locationName, int maxSquadSize)
         {
+            var req = new RecruitRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, npcName, locationName, maxSquadSize);
+            if (Context.IsSplitScreen)
+            {
+                RouteRequestLocally(nameof(RecruitRequest), req, Game1.player.UniqueMultiplayerID);
+                return;
+            }
             _helper.Multiplayer.SendMessage(
-                new RecruitRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, npcName, locationName, maxSquadSize),
+                req,
                 nameof(RecruitRequest),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
@@ -796,8 +898,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         public void SendDismissRequest(string npcName)
         {
+            var req = new DismissRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, npcName);
+            if (Context.IsSplitScreen)
+            {
+                RouteRequestLocally(nameof(DismissRequest), req, Game1.player.UniqueMultiplayerID);
+                return;
+            }
             _helper.Multiplayer.SendMessage(
-                new DismissRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, npcName),
+                req,
                 nameof(DismissRequest),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
@@ -805,8 +913,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         public void SendWaitRequest(string npcName)
         {
+            var req = new WaitRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, npcName);
+            if (Context.IsSplitScreen)
+            {
+                RouteRequestLocally(nameof(WaitRequest), req, Game1.player.UniqueMultiplayerID);
+                return;
+            }
             _helper.Multiplayer.SendMessage(
-                new WaitRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, npcName),
+                req,
                 nameof(WaitRequest),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
@@ -814,8 +928,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         public void SendTaskAssignRequest(Microsoft.Xna.Framework.Vector2 tile, string locationName)
         {
+            var req = new TaskAssignRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, tile, locationName);
+            if (Context.IsSplitScreen)
+            {
+                RouteRequestLocally(nameof(TaskAssignRequest), req, Game1.player.UniqueMultiplayerID);
+                return;
+            }
             _helper.Multiplayer.SendMessage(
-                new TaskAssignRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID, tile, locationName),
+                req,
                 nameof(TaskAssignRequest),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
@@ -823,8 +943,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         public void SendMimickingRequest(long farmerId, TaskType type, string locationName)
         {
+            var req = new MimickingRequest(MessageVersion.Current, farmerId, type, locationName);
+            if (Context.IsSplitScreen)
+            {
+                RouteRequestLocally(nameof(MimickingRequest), req, farmerId);
+                return;
+            }
             _helper.Multiplayer.SendMessage(
-                new MimickingRequest(MessageVersion.Current, farmerId, type, locationName),
+                req,
                 nameof(MimickingRequest),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
@@ -832,8 +958,14 @@ namespace TheStardewSquad.Framework.Multiplayer
 
         public void SendCutsceneEnded(long farmerId)
         {
+            var msg = new CutsceneEnded(MessageVersion.Current, farmerId);
+            if (Context.IsSplitScreen)
+            {
+                RouteRequestLocally(nameof(CutsceneEnded), msg, farmerId);
+                return;
+            }
             _helper.Multiplayer.SendMessage(
-                new CutsceneEnded(MessageVersion.Current, farmerId),
+                msg,
                 nameof(CutsceneEnded),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
@@ -889,6 +1021,15 @@ namespace TheStardewSquad.Framework.Multiplayer
         /// </summary>
         private void ApplySnapshot(SquadSnapshot snap)
         {
+            // Splitscreen: SquadManager is shared across local screens, so the host's
+            // mutations are already visible. SMAPI's sendToSelf delivery fires
+            // OnModMessageReceived on the farmhand-screen tick too, which would land
+            // here with IsMainPlayer=false and CLEAR the shared squad, dropping
+            // formation slots assigned at recruit time. Per-screen NPC state
+            // (Sprite, farmerPassesThrough, controller) is re-asserted each tick by
+            // the MaintainControl pass, so we don't need ApplySnapshot to run.
+            if (Context.IsSplitScreen) return;
+
             if (snap.Version != MessageVersion.Current)
             {
                 ShowVersionToast();
