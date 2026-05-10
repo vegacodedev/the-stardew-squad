@@ -249,6 +249,49 @@ namespace TheStardewSquad.Framework
             }
         }
 
+        // Splitscreen walk-cycle stilted issue. Vanilla isMoving() reads position.IsInterpolating,
+        // which has 1-tick gaps in splitscreen (Multiplayer.interpolationTicks() = 4 vs 15 in
+        // network MP) that snap the walk cycle to the idle frame mid-stride.
+        private sealed class NpcWalkState
+        {
+            public Vector2 LastPosition;
+            public int StoppedTicks;
+        }
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<NPC, NpcWalkState> _walkStates = new();
+        private const int StationaryGraceTicks = 6; // ~100ms; covers the gap without delaying actual stops perceptibly.
+
+        private static bool IsRecentlyMovingByPositionDelta(NPC npc)
+        {
+            var state = _walkStates.GetValue(npc, _ => new NpcWalkState { LastPosition = npc.Position });
+            if (npc.Position != state.LastPosition)
+            {
+                state.StoppedTicks = 0;
+                state.LastPosition = npc.Position;
+            }
+            else
+            {
+                state.StoppedTicks++;
+            }
+            return state.StoppedTicks < StationaryGraceTicks;
+        }
+
+        // Farmhand-only. Toggles Sprite.ignoreStopAnimation so vanilla's updateSlaveAnimation
+        // skips its StopAnimation snap-back while the NPC is mid-walk. AnimateUp/Down/Left/Right
+        // (the cycle drivers) don't honor the flag, so they keep advancing.
+        private void DriveFarmhandVillagerAnimation()
+        {
+            foreach (var mate in this._squadManager.Members)
+            {
+                if (mate.Npc is Pet) continue;
+                foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                {
+                    if (live is Pet) continue;
+                    if (live.Sprite == null) continue;
+                    live.Sprite.ignoreStopAnimation = IsRecentlyMovingByPositionDelta(live);
+                }
+            }
+        }
+
         /// <summary>
         /// Farmhand-only per-tick sprite animation drive for pets.
         /// </summary>
@@ -273,7 +316,7 @@ namespace TheStardewSquad.Framework
 
                     pet.Sprite.CurrentAnimation = null;
                     pet.faceDirection(pet.FacingDirection);
-                    if (pet.isMoving())
+                    if (IsRecentlyMovingByPositionDelta(pet))
                     {
                         pet.animateInFacingDirection(time);
                     }
@@ -498,6 +541,7 @@ namespace TheStardewSquad.Framework
             {
                 this.TickFarmhandIdleAnimationCooldowns();
                 this.DriveFarmhandPetAnimation(Game1.currentGameTime);
+                this.DriveFarmhandVillagerAnimation();
             }
 
             this.HandleFriendshipGain();
