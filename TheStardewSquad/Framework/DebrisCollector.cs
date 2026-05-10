@@ -55,6 +55,7 @@ namespace TheStardewSquad.Framework.Gathering
                 if (!mates.Any()) continue;
 
                 int magneticRadius = rec.GetAppliedMagneticRadius();
+                int magneticRadiusSq = magneticRadius * magneticRadius;
                 Vector2 playerPosition = rec.Position;
 
                 // Iterate through all debris in this farmer's location.
@@ -104,8 +105,8 @@ namespace TheStardewSquad.Framework.Gathering
                         }
                     }
 
-                    // If a suitable mate was found within a reasonable range, assign the debris to them.
-                    if (closestMate != null && closestDist < 150000)
+                    // Mates use the same magnet radius as their recruiter (buffs/gear included).
+                    if (closestMate != null && closestDist < magneticRadiusSq)
                     {
                         this._targetedDebris[debris] = closestMate;
                     }
