@@ -318,33 +318,37 @@ namespace TheStardewSquad.Framework
 
         public (string, Point) GetSpouseDismissalTarget(NPC npc)
         {
-            const string farmHouseName = "FarmHouse";
-            var farmHouse = Game1.getLocationFromName(farmHouseName) as FarmHouse;
+            // Resolve the spouse-farmer's actual home. In MP/splitscreen each player has
+            // their own farmhouse/cabin; vanilla uses Utility.getHomeOfFarmer(npc.getSpouse()).
+            Farmer spouseFarmer = npc.getSpouse();
+            FarmHouse spouseHome = spouseFarmer != null
+                ? Utility.getHomeOfFarmer(spouseFarmer)
+                : null;
 
-            if (farmHouse == null)
+            if (spouseHome == null)
             {
-                var (map, tile) = GetTargetLocationForNow(npc);
-                return (map, tile);
+                return GetTargetLocationForNow(npc);
             }
+
+            string homeName = spouseFarmer.homeLocation.Value;
 
             if (Game1.timeOfDay >= 2200)
             {
-                Point bedSpot = farmHouse.getSpouseBedSpot(npc.Name);
+                Point bedSpot = spouseHome.getSpouseBedSpot(npc.Name);
                 if (bedSpot.X != -1000)
                 {
                     npc.playSleepingAnimation();
-                    return (farmHouseName, bedSpot);
+                    return (homeName, bedSpot);
                 }
             }
 
-            Point kitchenSpot = farmHouse.getKitchenStandingSpot();
-            if (farmHouse.isTileOnMap(kitchenSpot.X, kitchenSpot.Y))
+            Point kitchenSpot = spouseHome.getKitchenStandingSpot();
+            if (spouseHome.isTileOnMap(kitchenSpot.X, kitchenSpot.Y))
             {
-                return (farmHouseName, kitchenSpot);
+                return (homeName, kitchenSpot);
             }
 
-            var (defaultMap, defaultTile) = GetTargetLocationForNow(npc);
-            return (defaultMap, defaultTile);
+            return GetTargetLocationForNow(npc);
         }
         
         public (string, Point) GetTargetLocationForNow(NPC npc)
