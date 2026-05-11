@@ -21,9 +21,20 @@ namespace TheStardewSquad.Framework.Wrappers
             }
             npc.isSleeping.Value = false;
 
+            // Clear end-of-route schedule state.
+            npc.doingEndOfRouteAnimation.Value = false;
+            npc.goingToDoEndOfRouteAnimation.Value = false;
+            npc.endOfRouteMessage.Value = null;
+            npc.nextEndOfRouteMessage = null;
+            npc.shouldPlayRobinHammerAnimation.Value = false;
+            npc.shouldPlaySpousePatioAnimation.Value = false;
+
             // Clear any active animations or dialogue.
             npc.Sprite.ClearAnimation();
             npc.clearTextAboveHead();
+
+            // Drop schedule-queued dialogue; CheckAction_Prefix lets vanilla pop it otherwise.
+            npc.CurrentDialogue.Clear();
 
             // Reset sprite size to default (fixes bug where NPCs recruited during schedule animations retain enlarged sprites)
             var data = npc.GetData();

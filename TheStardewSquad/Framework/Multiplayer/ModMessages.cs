@@ -22,6 +22,10 @@ namespace TheStardewSquad.Framework.Multiplayer
 
     public record DismissResult(int Version, long RequesterId, string NpcName, bool Success, string ReasonKey);
 
+    /// <summary>Farmhand asks the host to dismiss every mate they recruited. Host filters
+    /// by <see cref="RequesterId"/>; success is signaled via <see cref="SquadSnapshot"/>.</summary>
+    public record DismissAllRequest(int Version, long RequesterId);
+
     /// <summary>
     /// Farmhand asks the host to put one of their squad mates into the "waiting" state
     /// (the "Stay here" UI action). Authority + waiting list mutation lives on the host;

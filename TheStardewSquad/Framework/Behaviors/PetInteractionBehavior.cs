@@ -53,8 +53,7 @@ namespace TheStardewSquad.Framework.Behaviors
                 }
                 else if (action == "dismissAll")
                 {
-                    // Immediately dismiss all squad members
-                    this._recruitmentManager.DismissAll(useFade: true, npcWarp: DismissalWarpBehavior.GoHome, petWarp: DismissalWarpBehavior.GoHome);
+                    this._recruitmentManager.DismissAll(useFade: true, requesterId: Game1.player.UniqueMultiplayerID, npcWarp: DismissalWarpBehavior.GoHome, petWarp: DismissalWarpBehavior.GoHome);
                 }
                 else if (action == "wait")
                 {

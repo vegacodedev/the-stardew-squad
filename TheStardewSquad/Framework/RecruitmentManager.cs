@@ -73,21 +73,45 @@ namespace TheStardewSquad.Framework
             this._dispatcher?.BroadcastSnapshot();
         }
 
-        /// <summary>Dismisses all squad mates.</summary>
-        public void DismissAll(bool useFade = true, DismissalWarpBehavior npcWarp = DismissalWarpBehavior.GoHome, DismissalWarpBehavior petWarp = DismissalWarpBehavior.GoHome)
+        /// <summary>Dismisses all squad mates. <paramref name="requesterId"/> filters by recruiter
+        /// (UI button path); null means global (day-end cleanup).</summary>
+        public void DismissAll(bool useFade = true, long? requesterId = null, DismissalWarpBehavior npcWarp = DismissalWarpBehavior.GoHome, DismissalWarpBehavior petWarp = DismissalWarpBehavior.GoHome)
         {
-            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
-            if (this._squadManager.Count == 0)
+            // Farmhand forwards to host; show the fade locally first so the dismissing screen
+            // sees feedback while the host processes the request.
+            if (Context.IsMultiplayer && !Context.IsMainPlayer)
+            {
+                long localId = Game1.player.UniqueMultiplayerID;
+                if (!this._squadManager.Members.Any(m => m.RecruiterUniqueId == localId))
+                    return;
+
+                if (useFade)
+                {
+                    Game1.globalFadeToBlack(() =>
+                    {
+                        Game1.globalFadeToClear();
+                        Game1.showGlobalMessage(this._helper.Translation.Get("recruitment.dismiss.allDone"));
+                    });
+                }
+                this._dispatcher?.SendDismissAllRequest();
                 return;
+            }
 
             void perform()
             {
                 // Iterate a snapshot to avoid modifying the collection during enumeration.
                 // Suppress per-mate broadcasts; we'll send one snapshot at the end of the loop.
-                foreach (var mate in this._squadManager.Members.ToList())
+                var members = requesterId.HasValue
+                    ? this._squadManager.Members.Where(m => m.RecruiterUniqueId == requesterId.Value).ToList()
+                    : this._squadManager.Members.ToList();
+
+                if (members.Count == 0)
+                    return;
+
+                foreach (var mate in members)
                 {
                     var warp = (mate.Npc is Pet) ? petWarp : npcWarp;
-                    this.Dismiss(mate, isSilent: true, warpBehavior: warp, broadcast: false);
+                    this.Dismiss(mate, isSilent: true, warpBehavior: warp, broadcast: false, requesterId: requesterId);
                 }
 
                 // Single snapshot covering every dismissal in this batch.
@@ -318,8 +342,7 @@ namespace TheStardewSquad.Framework
 
         public (string, Point) GetSpouseDismissalTarget(NPC npc)
         {
-            // Resolve the spouse-farmer's actual home. In MP/splitscreen each player has
-            // their own farmhouse/cabin; vanilla uses Utility.getHomeOfFarmer(npc.getSpouse()).
+            // Each player has their own farmhouse/cabin; resolve via the spouse-farmer.
             Farmer spouseFarmer = npc.getSpouse();
             FarmHouse spouseHome = spouseFarmer != null
                 ? Utility.getHomeOfFarmer(spouseFarmer)
@@ -409,10 +432,11 @@ namespace TheStardewSquad.Framework
         {
             if (scheduleEntry == null) return;
 
-            // endOfRouteMessage is netfielded; host-side writes propagate to peers. Setting
-            // it here on the host is the canonical path; on farmhand it's a defensive no-op.
+            // endOfRouteMessage is netfielded; host-side writes propagate to peers. Strip
+            // surrounding quotes because vanilla's message-only schedule parse (NPC.cs:5677)
+            // doesn't, and _PushTemporaryDialogue treats the value as a content asset path.
             if (!string.IsNullOrEmpty(scheduleEntry.endOfRouteMessage))
-                npc.endOfRouteMessage.Value = scheduleEntry.endOfRouteMessage;
+                npc.endOfRouteMessage.Value = scheduleEntry.endOfRouteMessage.Replace("\"", "");
 
             string behavior = scheduleEntry.endOfRouteBehavior;
             if (string.IsNullOrEmpty(behavior))

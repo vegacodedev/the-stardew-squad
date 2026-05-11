@@ -87,8 +87,7 @@ namespace TheStardewSquad.Framework.Behaviors
                 }
                 else if (action == "dismissAll")
                 {
-                    // Immediately dismiss all squad members
-                    this._recruitmentManager.DismissAll(useFade: true);
+                    this._recruitmentManager.DismissAll(useFade: true, requesterId: Game1.player.UniqueMultiplayerID);
                 }
             });
         }

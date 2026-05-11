@@ -112,6 +112,10 @@ namespace TheStardewSquad.Framework.Multiplayer
                     if (!Context.IsMainPlayer)
                         HandleDismissResult(e.ReadAs<DismissResult>());
                     break;
+                case nameof(DismissAllRequest):
+                    if (Context.IsMainPlayer)
+                        _inbox.Enqueue(new QueuedMessage(e.Type, e.ReadAs<DismissAllRequest>(), e.FromPlayerID));
+                    break;
                 case nameof(WaitRequest):
                     if (Context.IsMainPlayer)
                         _inbox.Enqueue(new QueuedMessage(e.Type, e.ReadAs<WaitRequest>(), e.FromPlayerID));
@@ -410,6 +414,9 @@ namespace TheStardewSquad.Framework.Multiplayer
                 case nameof(DismissRequest):
                     OnDismissRequest((DismissRequest)msg.Payload);
                     break;
+                case nameof(DismissAllRequest):
+                    OnDismissAllRequest((DismissAllRequest)msg.Payload);
+                    break;
                 case nameof(WaitRequest):
                     OnWaitRequest((WaitRequest)msg.Payload);
                     break;
@@ -544,6 +551,19 @@ namespace TheStardewSquad.Framework.Multiplayer
             // Dismiss broadcasts a SquadSnapshot itself, so we don't duplicate here.
             _recruitment.Dismiss(mate, requesterId: req.RequesterId);
             SendDismissResult(req.RequesterId, req.NpcName, true, "ok");
+        }
+
+        /// <summary>Host handler for farmhand "Dismiss All". useFade is false because the
+        /// farmhand already showed the fade on send.</summary>
+        private void OnDismissAllRequest(DismissAllRequest req)
+        {
+            if (req.Version != MessageVersion.Current)
+            {
+                _monitor.Log($"DismissAllRequest version mismatch from {req.RequesterId}: got {req.Version}, expected {MessageVersion.Current}.", LogLevel.Warn);
+                return;
+            }
+
+            _recruitment.DismissAll(useFade: false, requesterId: req.RequesterId);
         }
 
         /// <summary>
@@ -907,6 +927,21 @@ namespace TheStardewSquad.Framework.Multiplayer
             _helper.Multiplayer.SendMessage(
                 req,
                 nameof(DismissRequest),
+                modIDs: new[] { _modUniqueId },
+                playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
+        }
+
+        public void SendDismissAllRequest()
+        {
+            var req = new DismissAllRequest(MessageVersion.Current, Game1.player.UniqueMultiplayerID);
+            if (Context.IsSplitScreen)
+            {
+                RouteRequestLocally(nameof(DismissAllRequest), req, Game1.player.UniqueMultiplayerID);
+                return;
+            }
+            _helper.Multiplayer.SendMessage(
+                req,
+                nameof(DismissAllRequest),
                 modIDs: new[] { _modUniqueId },
                 playerIDs: new[] { Game1.MasterPlayer.UniqueMultiplayerID });
         }
