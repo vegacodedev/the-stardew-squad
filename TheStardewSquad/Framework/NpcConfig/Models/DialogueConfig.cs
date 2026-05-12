@@ -32,7 +32,13 @@ namespace TheStardewSquad.Framework.NpcConfig.Models
         public List<object> Idle { get; set; }
         public List<object> Attacking { get; set; }
         public List<object> Mining { get; set; }
-        public List<object> Fishing { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Fishing_Waiting")]
+        public List<object> FishingWaiting { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Fishing_Caught")]
+        public List<object> FishingCaught { get; set; }
+
         public List<object> Watering { get; set; }
         public List<object> Lumbering { get; set; }
         public List<object> Harvesting { get; set; }

@@ -20,6 +20,7 @@ namespace TheStardewSquad.Framework.NpcConfig
         private readonly IGameStateChecker _gameStateChecker;
         private readonly IGameContext _gameContext;
         private readonly VanillaSpriteDetector _vanillaSpriteDetector;
+        private Multiplayer.MessageDispatcher? _dispatcher;
 
         public SpriteManager(
             NpcConfigManager configManager,
@@ -34,6 +35,14 @@ namespace TheStardewSquad.Framework.NpcConfig
             _gameContext = gameContext;
             _vanillaSpriteDetector = vanillaSpriteDetector;
         }
+
+        /// <summary>
+        /// Post-construction injection of MessageDispatcher (constructed after SpriteManager).
+        /// Required so host-side ApplyTaskAnimation / TryApplyTaskSpriteSheet calls can broadcast
+        /// to peers; vanilla doesn't propagate Sprite.CurrentAnimation, currentFrame, flip, or
+        /// the texture-swap state, so peers need an explicit replay.
+        /// </summary>
+        public void AttachDispatcher(Multiplayer.MessageDispatcher dispatcher) => _dispatcher = dispatcher;
 
         /// <summary>
         /// Gets the sprite animation configuration for a specific task type.
@@ -247,8 +256,13 @@ namespace TheStardewSquad.Framework.NpcConfig
         /// <param name="npc">The NPC to animate</param>
         /// <param name="taskType">The task type (Attacking, Mining, etc.)</param>
         /// <param name="frameDuration">Default frame duration in milliseconds (used for fallback)</param>
-        public void ApplyTaskAnimation(NPC npc, string taskType, int frameDuration = 400)
+        /// <param name="mate">Optional mate context. When non-null and called on the host, broadcasts a PlayTaskAnim so peers replay the same animation locally.</param>
+        public void ApplyTaskAnimation(NPC npc, string taskType, int frameDuration = 400, Squad.ISquadMate? mate = null)
         {
+            // Host broadcasts so peers replay; vanilla doesn't propagate Sprite.CurrentAnimation.
+            if (mate != null && Context.IsMainPlayer)
+                _dispatcher?.BroadcastPlayTaskAnim(mate, taskType, npc.FacingDirection, mate.AppliedTaskTexture);
+
             // Try to get custom sprite configuration
             var spriteConfig = GetTaskSpriteConfig(npc, taskType);
 
@@ -294,7 +308,8 @@ namespace TheStardewSquad.Framework.NpcConfig
                                     npc.Sprite.StopAnimation();
                                     npc.Sprite.currentFrame = freezeFrame;
                                     npc.Sprite.CurrentFrame = freezeFrame;
-                                }
+                                },
+                                behaviorAtEndOfFrame: true
                             ));
                         }
                         else
@@ -321,6 +336,11 @@ namespace TheStardewSquad.Framework.NpcConfig
                 new(baseFrame, frameDuration),
                 new(baseFrame - 1, frameDuration)
             });
+            // Vanilla setCurrentAnimation does not reset Sprite.loop (default true). Without
+            // this, the [walk, stand] fallback loops forever on peers; with ClearTaskAnim
+            // no longer broadcast for non-sustained tasks, the animation must self-terminate
+            // so the NPC reverts to its prior frame.
+            npc.Sprite.loop = false;
         }
 
         /// <summary>
@@ -511,6 +531,11 @@ namespace TheStardewSquad.Framework.NpcConfig
 
                 // Set the correct frame based on direction using NpcConfig
                 SetTaskFrame(npc, taskType, facingDirection);
+
+                // Host broadcasts the texture swap so peers load the same sheet locally.
+                if (Context.IsMainPlayer)
+                    _dispatcher?.BroadcastPlayTaskAnim(mate, taskType, facingDirection, assetPath);
+
                 return true;
             }
             else

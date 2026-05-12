@@ -21,7 +21,7 @@ public class TaskPriorityManagerTests
         var tasks = TaskPriorityManager.GetTasksInPriorityOrder();
 
         // Assert
-        tasks.Should().HaveCount(8, "there are 8 regular priority tasks (excluding Attacking and Following)");
+        tasks.Should().HaveCount(10, "there are 10 regular priority tasks (excluding Attacking and Following)");
     }
 
     [Fact]
@@ -54,13 +54,15 @@ public class TaskPriorityManagerTests
         tasks.Should().BeEquivalentTo(new[]
         {
             TaskType.Harvesting,  // #1
-            TaskType.Lumbering,   // #2
-            TaskType.Watering,    // #3
-            TaskType.Petting,     // #4
-            TaskType.Foraging,    // #5
-            TaskType.Mining,      // #6
-            TaskType.Fishing,     // #7
-            TaskType.Sitting      // #8
+            TaskType.Shearing,    // #2
+            TaskType.Milking,     // #3
+            TaskType.Lumbering,   // #4
+            TaskType.Watering,    // #5
+            TaskType.Petting,     // #6
+            TaskType.Foraging,    // #7
+            TaskType.Mining,      // #8
+            TaskType.Fishing,     // #9
+            TaskType.Sitting      // #10
         }, options => options.WithStrictOrdering(), "the priority order should match the documented design");
     }
 
@@ -90,13 +92,15 @@ public class TaskPriorityManagerTests
 
     [Theory]
     [InlineData(TaskType.Harvesting, 0)]
-    [InlineData(TaskType.Lumbering, 1)]
-    [InlineData(TaskType.Watering, 2)]
-    [InlineData(TaskType.Petting, 3)]
-    [InlineData(TaskType.Foraging, 4)]
-    [InlineData(TaskType.Mining, 5)]
-    [InlineData(TaskType.Fishing, 6)]
-    [InlineData(TaskType.Sitting, 7)]
+    [InlineData(TaskType.Shearing, 1)]
+    [InlineData(TaskType.Milking, 2)]
+    [InlineData(TaskType.Lumbering, 3)]
+    [InlineData(TaskType.Watering, 4)]
+    [InlineData(TaskType.Petting, 5)]
+    [InlineData(TaskType.Foraging, 6)]
+    [InlineData(TaskType.Mining, 7)]
+    [InlineData(TaskType.Fishing, 8)]
+    [InlineData(TaskType.Sitting, 9)]
     public void GetPriority_ShouldReturnCorrectPriorityIndex(TaskType taskType, int expectedPriority)
     {
         // Act

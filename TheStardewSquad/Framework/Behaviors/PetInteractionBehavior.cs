@@ -1,8 +1,8 @@
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
-using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Framework.Squad;
+using TheStardewSquad.Framework.Wrappers;
 using TheStardewSquad.Framework.UI;
 
 namespace TheStardewSquad.Framework.Behaviors
@@ -13,10 +13,10 @@ namespace TheStardewSquad.Framework.Behaviors
         private readonly RecruitmentManager _recruitmentManager;
         private readonly SquadManager _squadManager;
         private readonly InteractionManager _interactionManager;
-        private readonly ISquadMateStateHelper _stateHelper;
+        private readonly SquadMateStateHelper _stateHelper;
         private readonly SquadMemberPrompt _memberPrompt;
 
-        public PetInteractionBehavior(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, ISquadMateStateHelper stateHelper, SquadMemberPrompt memberPrompt)
+        public PetInteractionBehavior(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, SquadMateStateHelper stateHelper, SquadMemberPrompt memberPrompt)
         {
             this._helper = helper;
             this._recruitmentManager = recruitmentManager;
@@ -32,7 +32,7 @@ namespace TheStardewSquad.Framework.Behaviors
 
             _memberPrompt.PromptForRecruitment(mate, player, () =>
             {
-                this._recruitmentManager.Recruit(mate);
+                this._recruitmentManager.Recruit(mate, player);
                 var message = _helper.Translation.Get("recruitment.petRecruited", new { name = npc.Name });
                 Game1.showGlobalMessage(message);
             });
@@ -53,8 +53,7 @@ namespace TheStardewSquad.Framework.Behaviors
                 }
                 else if (action == "dismissAll")
                 {
-                    // Immediately dismiss all squad members
-                    this._recruitmentManager.DismissAll(useFade: true, npcWarp: DismissalWarpBehavior.GoHome, petWarp: DismissalWarpBehavior.GoHome);
+                    this._recruitmentManager.DismissAll(useFade: true, requesterId: Game1.player.UniqueMultiplayerID, npcWarp: DismissalWarpBehavior.GoHome, petWarp: DismissalWarpBehavior.GoHome);
                 }
                 else if (action == "wait")
                 {
@@ -64,15 +63,19 @@ namespace TheStardewSquad.Framework.Behaviors
             });
         }
 
-        public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior)
+        public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior, bool suppressVisual = false)
         {
             var npc = mate.Npc;
+
+            // Remove from SquadManager synchronously so RecruitmentManager.Dismiss's subsequent
+            // BroadcastSnapshot captures the post-remove state, and so the warpToFarmHouse
+            // Harmony block (which gates on recruited status) doesn't reject the warp inside
+            // the fade callback below.
+            this._squadManager.Remove(npc);
+
             Game1.afterFadeFunction onDismiss = () =>
             {
                 _stateHelper.PrepareForDismissal(npc);
-
-                // Remove the pet BEFORE warping it away. This is due to the fact that we block warpToFarmHouse with Harmony as long as it is recruited.
-                this._squadManager.Remove(npc);
 
                 if (npc is Pet pet)
                 {
@@ -81,7 +84,10 @@ namespace TheStardewSquad.Framework.Behaviors
                         bool sendToHouse = Game1.isRaining || Game1.isLightning || Game1.timeOfDay >= 2000;
                         if (sendToHouse)
                         {
-                            pet.warpToFarmHouse(Game1.player);
+                            // Route to the pet's actual owner (resolved via Pet.homeLocationName)
+                            // so a farmhand-owned pet warps to their cabin, not the local screen's
+                            // farmhouse.
+                            pet.warpToFarmHouse(PetOwnerResolver.ResolveOwner(pet));
                         }
                         else
                         {
@@ -94,14 +100,18 @@ namespace TheStardewSquad.Framework.Behaviors
                     }
                 }
 
-                if (!isSilent)
+                // Suppress the local HUD when proxying for a remote farmhand - the farmhand
+                // fires it optimistically on their own screen (see RecruitmentManager.Dismiss).
+                // Game1.showGlobalMessage isn't peer-propagated, so without this gate the
+                // host sees the HUD for someone else's dismiss and the farmhand sees nothing.
+                if (!isSilent && !suppressVisual)
                 {
                     var message = _helper.Translation.Get("recruitment.petDismissed", new { name = mate.Name });
                     Game1.showGlobalMessage(message);
                 }
             };
 
-            if (isSilent || warpBehavior == DismissalWarpBehavior.RoamHere)
+            if (isSilent || suppressVisual || warpBehavior == DismissalWarpBehavior.RoamHere)
             {
                 onDismiss();
             }

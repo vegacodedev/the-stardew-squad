@@ -1,5 +1,6 @@
 using StardewModdingAPI;
 using StardewValley;
+using TheStardewSquad.Framework.Multiplayer;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.Squad;
 
@@ -11,6 +12,7 @@ namespace TheStardewSquad.Framework.Behaviors
         private readonly DialogueManager _dialogueManager;
         private readonly SquadManager _squadManager;
         private readonly IMonitor _monitor;
+        private MessageDispatcher? _dispatcher;
 
         public NpcCommunicationBehavior(ModConfig config, DialogueManager dialogueManager, SquadManager squadManager, IMonitor monitor)
         {
@@ -20,13 +22,22 @@ namespace TheStardewSquad.Framework.Behaviors
             this._monitor = monitor;
         }
 
+        public void AttachDispatcher(MessageDispatcher dispatcher)
+        {
+            this._dispatcher = dispatcher;
+        }
+
         public void Communicate(ISquadMate mate, string dialogueKey)
         {
             NPC npc = mate.Npc;
 
             _monitor.Log($"[Communication] {npc.Name} attempting to communicate: {dialogueKey}", LogLevel.Trace);
 
-            string dialogueText = _dialogueManager.GetDialogue(npc, dialogueKey);
+            // Resolve dialogue using the recruiter's context
+            GameLocation contextLocation = npc.currentLocation;
+            Farmer contextPlayer = mate.TryGetRecruiter(out var rec) ? rec : null;
+
+            string dialogueText = _dialogueManager.GetDialogue(npc, dialogueKey, contextLocation, contextPlayer);
 
             if (string.IsNullOrEmpty(dialogueText))
             {
@@ -74,6 +85,13 @@ namespace TheStardewSquad.Framework.Behaviors
                 _monitor.Log($"[Communication] {npc.Name}: Showing dialogue bubble for {dialogueKey}: \"{dialogueText}\"", LogLevel.Trace);
                 _dialogueManager.ShowDialogueBubble(npc, dialogueText);
                 mate.LastCommunicationTick = currentTick;
+
+                // Broadcast to peers so every screen renders the bubble — vanilla
+                // showTextAboveHead writes to local protected fields only (no NetField).
+                _dispatcher?.BroadcastBubble(
+                    npc.Name,
+                    npc.currentLocation?.NameOrUniqueName ?? string.Empty,
+                    dialogueText);
             }
         }
     }

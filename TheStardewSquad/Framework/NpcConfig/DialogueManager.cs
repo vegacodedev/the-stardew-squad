@@ -48,10 +48,24 @@ namespace TheStardewSquad.Framework.NpcConfig
         /// </summary>
         /// <param name="npc">The NPC</param>
         /// <param name="dialogueType">Type of dialogue (Recruit, Idle, Attacking, etc.)</param>
+        /// <param name="contextLocation">
+        /// Location used to evaluate location-dependent dialogue conditions. In MP, callers
+        /// should pass the NPC's <c>currentLocation</c> (where the recruiter actually is) so
+        /// the host doesn't resolve dialogue against its own local screen for farmhand-recruited
+        /// mates. Falls back to <see cref="IGameContext.CurrentLocation"/> when null.
+        /// </param>
+        /// <param name="contextPlayer">
+        /// Player used for condition checks and <c>{{name}}</c> token replacement. Should be
+        /// the recruiter, not <c>Game1.player</c>, so farmhand-recruited dialogue references
+        /// the right name. Falls back to <see cref="IGameContext.Player"/> when null.
+        /// </param>
         /// <returns>Dialogue string with tokens replaced, or null if no dialogue found</returns>
-        public string GetDialogue(NPC npc, string dialogueType)
+        public string GetDialogue(NPC npc, string dialogueType, GameLocation contextLocation = null, Farmer contextPlayer = null)
         {
             _monitor.Log($"[Dialogue] Getting {dialogueType} dialogue for {npc.Name}", LogLevel.Trace);
+
+            var location = contextLocation ?? _gameContext.CurrentLocation;
+            var player = contextPlayer ?? _gameContext.Player;
 
             var genericConfig = _configManager.GetGenericConfig();
             var npcConfig = _configManager.GetConfig(npc);
@@ -63,7 +77,7 @@ namespace TheStardewSquad.Framework.NpcConfig
             // If yes, use ONLY NPC dialogue (completely overrides Generic)
             if (npcConfig.Dialogue != null)
             {
-                var npcKeys = GetDialogueKeysForType(npcConfig.Dialogue, dialogueType, npc);
+                var npcKeys = GetDialogueKeysForType(npcConfig.Dialogue, dialogueType, npc, location, player);
                 if (npcKeys.Any())
                 {
                     allDialogueKeys.AddRange(npcKeys);
@@ -74,7 +88,7 @@ namespace TheStardewSquad.Framework.NpcConfig
             // If NPC has no dialogue for this type, use Generic as fallback
             if (!allDialogueKeys.Any() && genericConfig.Dialogue != null)
             {
-                var genericKeys = GetDialogueKeysForType(genericConfig.Dialogue, dialogueType, npc);
+                var genericKeys = GetDialogueKeysForType(genericConfig.Dialogue, dialogueType, npc, location, player);
                 allDialogueKeys.AddRange(genericKeys);
                 usingGeneric = true;
 
@@ -95,7 +109,7 @@ namespace TheStardewSquad.Framework.NpcConfig
             var chosenKey = _randomSelector.ChooseFrom(allDialogueKeys);
             _monitor.Log($"[Dialogue] Selected dialogue: '{chosenKey}' from pool of {allDialogueKeys.Count} option(s) {(usingGeneric ? "(Generic)" : "(NPC-specific)")}", LogLevel.Trace);
 
-            return ParseText(chosenKey, npc);
+            return ParseText(chosenKey, npc, player);
         }
 
         /// <summary>
@@ -107,7 +121,7 @@ namespace TheStardewSquad.Framework.NpcConfig
         /// <param name="dialogueType">The dialogue type to extract</param>
         /// <param name="npc">The NPC being evaluated (used for {CurrentNpc} placeholder replacement)</param>
         /// <returns>List of dialogue keys that match current conditions</returns>
-        private List<string> GetDialogueKeysForType(DialogueConfig dialogueConfig, string dialogueType, NPC npc)
+        private List<string> GetDialogueKeysForType(DialogueConfig dialogueConfig, string dialogueType, NPC npc, GameLocation location, Farmer player)
         {
             List<object> dialogueArray = dialogueType switch
             {
@@ -116,7 +130,8 @@ namespace TheStardewSquad.Framework.NpcConfig
                 "Idle" => dialogueConfig.Idle,
                 "Attacking" => dialogueConfig.Attacking,
                 "Mining" => dialogueConfig.Mining,
-                "Fishing" => dialogueConfig.Fishing,
+                "Fishing_Waiting" => dialogueConfig.FishingWaiting,
+                "Fishing_Caught" => dialogueConfig.FishingCaught,
                 "Watering" => dialogueConfig.Watering,
                 "Lumbering" => dialogueConfig.Lumbering,
                 "Harvesting" => dialogueConfig.Harvesting,
@@ -160,7 +175,7 @@ namespace TheStardewSquad.Framework.NpcConfig
 
                         // If no condition, always include (default/fallback)
                         bool conditionMet = string.IsNullOrWhiteSpace(condition) ||
-                                           _gameStateChecker.CheckConditions(condition, _gameContext.CurrentLocation, _gameContext.Player);
+                                           _gameStateChecker.CheckConditions(condition, location, player);
 
                         if (conditionMet && linesToken != null)
                         {
@@ -201,13 +216,14 @@ namespace TheStardewSquad.Framework.NpcConfig
         /// Replaces standard tokens in a dialogue string.
         /// Supported tokens:
         /// - {{endearment}}: Term of spousal endearment (e.g., "honey", "dear")
-        /// - {{name}}: Player's name
+        /// - {{name}}: Player's name (the player whose context the dialogue is being resolved
+        ///   for, typically the recruiter in MP)
         /// </summary>
-        private string ParseText(string text, NPC npc)
+        private string ParseText(string text, NPC npc, Farmer player)
         {
             if (text is null) return null;
             text = text.Replace("{{endearment}}", _npcDialogueService.GetTermOfSpousalEndearment(npc));
-            text = text.Replace("{{name}}", _gameContext.Player?.Name ?? "");
+            text = text.Replace("{{name}}", player?.Name ?? "");
             return text;
         }
     }

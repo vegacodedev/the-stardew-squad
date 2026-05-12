@@ -919,19 +919,23 @@ public class UnifiedTaskManagerTests
     {
         // This test documents the expected priority order as a regression test
         // Priority order from TaskPriorityManager:
-        // 1. Harvesting (highest priority)
-        // 2. Lumbering
-        // 3. Watering
-        // 4. Petting
-        // 5. Foraging
-        // 6. Mining
-        // 7. Fishing
-        // 8. Sitting (lowest priority)
+        //  1. Harvesting (highest priority)
+        //  2. Shearing
+        //  3. Milking
+        //  4. Lumbering
+        //  5. Watering
+        //  6. Petting
+        //  7. Foraging
+        //  8. Mining
+        //  9. Fishing
+        // 10. Sitting (lowest priority)
         // Note: Attacking is handled separately and not part of unified priority
 
         var expectedOrder = new[]
         {
             TaskType.Harvesting,
+            TaskType.Shearing,
+            TaskType.Milking,
             TaskType.Lumbering,
             TaskType.Watering,
             TaskType.Petting,

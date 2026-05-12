@@ -1,12 +1,12 @@
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Characters;
-using TheStardewSquad.Abstractions.Character;
+using TheStardewSquad.Framework.Squad;
 
 namespace TheStardewSquad.Framework.Wrappers
 {
     /// <summary>A helper class to manage the state transitions of squad members.</summary>
-    internal class SquadMateStateHelper : ISquadMateStateHelper
+    public class SquadMateStateHelper
     {
         /// <summary>Resets an NPC's state to prepare them for following the player.</summary>
         public void PrepareForRecruitment(NPC npc)
@@ -21,9 +21,20 @@ namespace TheStardewSquad.Framework.Wrappers
             }
             npc.isSleeping.Value = false;
 
+            // Clear end-of-route schedule state.
+            npc.doingEndOfRouteAnimation.Value = false;
+            npc.goingToDoEndOfRouteAnimation.Value = false;
+            npc.endOfRouteMessage.Value = null;
+            npc.nextEndOfRouteMessage = null;
+            npc.shouldPlayRobinHammerAnimation.Value = false;
+            npc.shouldPlaySpousePatioAnimation.Value = false;
+
             // Clear any active animations or dialogue.
             npc.Sprite.ClearAnimation();
             npc.clearTextAboveHead();
+
+            // Drop schedule-queued dialogue; CheckAction_Prefix lets vanilla pop it otherwise.
+            npc.CurrentDialogue.Clear();
 
             // Reset sprite size to default (fixes bug where NPCs recruited during schedule animations retain enlarged sprites)
             var data = npc.GetData();
@@ -72,6 +83,10 @@ namespace TheStardewSquad.Framework.Wrappers
             npc.Sprite.StopAnimation();
             npc.farmerPassesThrough = false;
             npc.controller = null;
+            // Clear persistent modData so ModEntry.OnSaveLoaded doesn't rehydrate this
+            // dismissed NPC back into the squad on the next day load.
+            npc.modData.Remove(SquadMate.RecruiterIdKey);
+            npc.modData.Remove(SquadMate.SchemaVersionKey);
         }
 
         /// <summary>Continuously ensures the mod retains control over the squad mate during updates.</summary>
@@ -92,8 +107,7 @@ namespace TheStardewSquad.Framework.Wrappers
             // Ensure pacing behavior stays disabled during recruitment
             if (npc.IsWalkingInSquare) npc.IsWalkingInSquare = false;
 
-            // For pets, ensure they stay in their passive "recruited" state.
-            // The vanilla game constantly tries to make them wander, so this override is crucial.
+            // For pets, pin CurrentBehavior to "Sleep" while recruited.
             if (npc is Pet pet && pet.CurrentBehavior != Pet.behavior_Sleep)
             {
                 pet.CurrentBehavior = Pet.behavior_Sleep;

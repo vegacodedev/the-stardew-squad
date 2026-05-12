@@ -2,8 +2,8 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Extensions;
 using StardewValley.Pathfinding;
-using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Framework.NpcConfig;
+using TheStardewSquad.Framework.Wrappers;
 using TheStardewSquad.Framework.Squad;
 using TheStardewSquad.Framework.UI;
 
@@ -17,12 +17,12 @@ namespace TheStardewSquad.Framework.Behaviors
         private readonly SquadManager _squadManager;
         private readonly InteractionManager _interactionManager;
         private readonly BehaviorManager _behaviorManager;
-        private readonly ISquadMateStateHelper _stateHelper;
+        private readonly SquadMateStateHelper _stateHelper;
         private readonly DialogueManager _dialogueManager;
         private readonly ModConfig _config;
         private readonly SquadMemberPrompt _memberPrompt;
 
-        public NpcInteractionBehavior(IModHelper helper, IMonitor monitor, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, BehaviorManager behaviorManager, ISquadMateStateHelper stateHelper, DialogueManager dialogueManager, ModConfig config, SquadMemberPrompt memberPrompt)
+        public NpcInteractionBehavior(IModHelper helper, IMonitor monitor, RecruitmentManager recruitmentManager, SquadManager squadManager, InteractionManager interactionManager, BehaviorManager behaviorManager, SquadMateStateHelper stateHelper, DialogueManager dialogueManager, ModConfig config, SquadMemberPrompt memberPrompt)
         {
             this._helper = helper;
             this._monitor = monitor;
@@ -58,7 +58,7 @@ namespace TheStardewSquad.Framework.Behaviors
                 // Check friendship requirement
                 if (npc.isMarried() || player.getFriendshipHeartLevelForNPC(npc.Name) >= _config.FriendshipRequirement)
                 {
-                    this._recruitmentManager.Recruit(mate);
+                    this._recruitmentManager.Recruit(mate, player);
                 }
                 else
                 {
@@ -87,20 +87,24 @@ namespace TheStardewSquad.Framework.Behaviors
                 }
                 else if (action == "dismissAll")
                 {
-                    // Immediately dismiss all squad members
-                    this._recruitmentManager.DismissAll(useFade: true);
+                    this._recruitmentManager.DismissAll(useFade: true, requesterId: Game1.player.UniqueMultiplayerID);
                 }
             });
         }
 
-        public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior)
+        public void HandleDismissal(ISquadMate mate, bool isSilent, DismissalWarpBehavior warpBehavior, bool suppressVisual = false)
         {
             var npc = mate.Npc;
+
+            // Remove from SquadManager synchronously so RecruitmentManager.Dismiss's subsequent
+            // BroadcastSnapshot captures the post-remove state. If this stayed in the fade
+            // closure, the snapshot would race ahead with the mate still present and farmhands
+            // would re-apply a stale entry.
+            this._squadManager.Remove(npc);
 
             Game1.afterFadeFunction onDismiss = () =>
             {
                 _stateHelper.PrepareForDismissal(npc);
-                this._squadManager.Remove(npc);
 
                 SchedulePathDescription scheduleEntry = _recruitmentManager.GetCurrentScheduleEntryFor(npc);
 
@@ -119,14 +123,14 @@ namespace TheStardewSquad.Framework.Behaviors
                     Game1.warpCharacter(npc, defaultMap, defaultTile);
                 }
 
-                if (!isSilent)
+                if (!isSilent && !suppressVisual)
                 {
                     mate.Communicate(DialogueKeys.Dismiss);
                     Game1.globalFadeToClear();
                 }
             };
 
-            if (isSilent)
+            if (isSilent || suppressVisual)
             {
                 onDismiss();
             }
@@ -140,23 +144,9 @@ namespace TheStardewSquad.Framework.Behaviors
         {
             Game1.warpCharacter(npc, scheduleEntry.targetLocationName, scheduleEntry.targetTile);
             npc.faceDirection(scheduleEntry.facingDirection);
-            npc.endOfRouteMessage.Value = scheduleEntry.endOfRouteMessage;
-
-            if (!string.IsNullOrEmpty(scheduleEntry.endOfRouteBehavior))
-            {
-                this._helper.Reflection.GetMethod(npc, "startRouteBehavior").Invoke(scheduleEntry.endOfRouteBehavior);
-
-                try
-                {
-                    this._helper.Reflection.GetMethod(npc, "reallyDoAnimationAtEndOfScheduleRoute").Invoke();
-                }
-                catch (System.Exception ex)
-                {
-                    // Animation method expects pathfinding state that doesn't exist after teleport
-                    // This is safe to ignore - startRouteBehavior already set up the behavior
-                    this._monitor.Log($"Ignored animation error for {npc.Name} at dismissal (expected after teleport): {ex.Message}", LogLevel.Debug);
-                }
-            }
+            // Reflection-based animation setup. Extracted so the farmhand-side ApplySnapshot
+            // dismiss replay can run the same animation logic without re-doing the warp.
+            _recruitmentManager.PlayScheduleEntryAnimation(npc, scheduleEntry);
         }
     }
 }

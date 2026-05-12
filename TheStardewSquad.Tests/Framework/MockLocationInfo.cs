@@ -732,6 +732,18 @@ namespace TheStardewSquad.Tests.Framework
             return null;
         }
 
+        public IEnumerable<(Character animal, Point tile)> GetShearableAnimals(Point searchCenter, int radius)
+        {
+            // Stub implementation - can be extended as needed for shearing tests
+            return Enumerable.Empty<(Character, Point)>();
+        }
+
+        public IEnumerable<(Character animal, Point tile)> GetMilkableAnimals(Point searchCenter, int radius)
+        {
+            // Stub implementation - can be extended as needed for milking tests
+            return Enumerable.Empty<(Character, Point)>();
+        }
+
         #endregion
     }
 }

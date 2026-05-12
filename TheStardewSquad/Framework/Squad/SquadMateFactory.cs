@@ -1,8 +1,9 @@
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
-using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Framework.Behaviors;
+using TheStardewSquad.Framework.Wrappers;
+using TheStardewSquad.Framework.Multiplayer;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.UI;
 
@@ -20,7 +21,7 @@ namespace TheStardewSquad.Framework.Squad
         private readonly ICommunicationBehavior _petCommunicationBehavior;
         private readonly IInteractionBehavior _petInteractionBehavior;
 
-        public SquadMateFactory(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, ModConfig config, InteractionManager interactionManager, BehaviorManager behaviorManager, ISquadMateStateHelper stateHelper, DialogueManager dialogueManager, IMonitor monitor)
+        public SquadMateFactory(IModHelper helper, RecruitmentManager recruitmentManager, SquadManager squadManager, ModConfig config, InteractionManager interactionManager, BehaviorManager behaviorManager, SquadMateStateHelper stateHelper, DialogueManager dialogueManager, IMonitor monitor)
         {
             // Shared presenter routes between custom menu and vanilla dialogue based on config
             var memberPrompt = new SquadMemberPrompt(helper, config, squadManager);
@@ -34,6 +35,16 @@ namespace TheStardewSquad.Framework.Squad
             this._petTaskBehavior = new PetTaskBehavior();
             this._petCommunicationBehavior = new PetCommunicationBehavior(config);
             this._petInteractionBehavior = new PetInteractionBehavior(helper, recruitmentManager, squadManager, interactionManager, stateHelper, memberPrompt);
+        }
+
+        /// <summary>
+        /// Wires the multiplayer dispatcher into behaviors that need to broadcast cosmetic
+        /// updates (e.g., speech bubbles aren't netfielded by vanilla SDV). Called by
+        /// ModEntry after MessageDispatcher is constructed.
+        /// </summary>
+        public void AttachDispatcher(MessageDispatcher dispatcher)
+        {
+            (this._npcCommunicationBehavior as NpcCommunicationBehavior)?.AttachDispatcher(dispatcher);
         }
 
         /// <summary>Creates a new squad mate instance for a given character.</summary>

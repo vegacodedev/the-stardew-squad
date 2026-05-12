@@ -9,9 +9,13 @@ namespace TheStardewSquad.Framework.UI
 {
     internal class SquadInventoryMenu : ItemGrabMenu
     {
+        // The opening player always sees their own squad chest. In MP each farmhand opens their own
+        // pool, so two farmhands looking at "Squad Inventory" see different inventories,
+        // matching the per-recruiter deposit behavior in DebrisCollector / TaskManager.
         private static IList<Item> GetAndPrepareInventory()
         {
-            var inventory = Game1.player.team.GetOrCreateGlobalInventory("TheStardewSquad_SquadInventory");
+            var inventoryId = TaskManager.GetSquadInventoryId(Game1.player);
+            var inventory = Game1.player.team.GetOrCreateGlobalInventory(inventoryId);
 
             if (inventory.Count != 36)
             {
@@ -32,7 +36,7 @@ namespace TheStardewSquad.Framework.UI
         private static Chest GetSquadChest()
         {
             var chest = new Chest();
-            chest.GlobalInventoryId = "TheStardewSquad_SquadInventory";
+            chest.GlobalInventoryId = TaskManager.GetSquadInventoryId(Game1.player);
             return chest;
         }
 

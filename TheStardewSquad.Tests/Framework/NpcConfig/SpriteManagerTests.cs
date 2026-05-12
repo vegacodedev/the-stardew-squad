@@ -29,19 +29,25 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
             Mock<IGameContext> mockGameContext
         ) CreateTestContext()
         {
+            var mockMonitor = new Mock<IMonitor>();
+            var mockHelper = new Mock<IModHelper>();
+            mockHelper.Setup(h => h.DirectoryPath).Returns(System.IO.Path.GetTempPath());
+            var baselineLoader = new BaselineContentLoader(mockHelper.Object, mockMonitor.Object);
             var mockConfigManager = new Mock<NpcConfigManager>(
                 Mock.Of<INpcConfigDataProvider>(),
+                baselineLoader,
                 Mock.Of<IMonitor>()
             );
-            var mockMonitor = new Mock<IMonitor>();
             var mockGameStateChecker = new Mock<IGameStateChecker>();
             var mockGameContext = new Mock<IGameContext>();
+            var vanillaSpriteDetector = new VanillaSpriteDetector(mockMonitor.Object);
 
             var manager = new SpriteManager(
                 mockConfigManager.Object,
                 mockMonitor.Object,
                 mockGameStateChecker.Object,
-                mockGameContext.Object
+                mockGameContext.Object,
+                vanillaSpriteDetector
             );
 
             return (manager, mockConfigManager, mockMonitor, mockGameStateChecker, mockGameContext);
@@ -122,7 +128,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert
             result.Should().NotBeNull();
-            result.FrameDuration.Should().Be(300);
+            result.FrameDuration.Should().Equal(new[] { 300 });
             result.Loop.Should().BeTrue();
             result.FramesByDirection.Should().ContainKey("Down");
             result.FramesByDirection["Down"].Should().BeEquivalentTo(new[] { 16, 17 });
@@ -164,7 +170,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert
             result.Should().NotBeNull();
-            result.FrameDuration.Should().Be(400);
+            result.FrameDuration.Should().Equal(new[] { 400 });
             result.Loop.Should().BeFalse();
             result.FramesByDirection["Down"].Should().BeEquivalentTo(new[] { 1, 0 });
         }
@@ -206,7 +212,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert - Should use NPC-specific (250ms), not Generic (400ms)
             result.Should().NotBeNull();
-            result.FrameDuration.Should().Be(250);
+            result.FrameDuration.Should().Equal(new[] { 250 });
             result.FramesByDirection["Down"].Should().BeEquivalentTo(new[] { 99, 100 });
         }
 
@@ -254,7 +260,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert
             result.Should().NotBeNull($"task type '{taskType}' should be supported");
-            result.FrameDuration.Should().Be(400);
+            result.FrameDuration.Should().Equal(new[] { 400 });
         }
 
         [Fact]
@@ -328,7 +334,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert - First match wins, even if second condition might also match
             result.Should().NotBeNull();
-            result.FrameDuration.Should().Be(300);
+            result.FrameDuration.Should().Equal(new[] { 300 });
             result.FramesByDirection["Down"].Should().BeEquivalentTo(new[] { 20, 21 });
 
             // Verify second condition was never evaluated (first-match-wins)
@@ -390,7 +396,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert
             result.Should().NotBeNull();
-            result.FrameDuration.Should().Be(600);
+            result.FrameDuration.Should().Equal(new[] { 600 });
             result.FramesByDirection["Down"].Should().BeEquivalentTo(new[] { 40, 41 });
         }
 
@@ -439,7 +445,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert - Should use fallback (no condition)
             result.Should().NotBeNull();
-            result.FrameDuration.Should().Be(400);
+            result.FrameDuration.Should().Equal(new[] { 400 });
             result.FramesByDirection["Down"].Should().BeEquivalentTo(new[] { 1, 0 });
         }
 
@@ -481,7 +487,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert - Should use spouse sprite because {CurrentNpc} was replaced with "Penny"
             result.Should().NotBeNull();
-            result.FrameDuration.Should().Be(350);
+            result.FrameDuration.Should().Equal(new[] { 350 });
 
             // Verify the condition was checked with "Penny" substituted
             mockGameStateChecker.Verify(g => g.CheckConditions(
@@ -520,7 +526,11 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(config.FramesByDirection[expectedKey]);
+            var expectedFrames = config.FramesByDirection[expectedKey]
+                .Cast<int>()
+                .Select(frame => (frameIndex: frame, flip: false))
+                .ToList();
+            result.Should().BeEquivalentTo(expectedFrames);
         }
 
         [Fact]
@@ -543,7 +553,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert - Should fallback to Down
             result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(new[] { 1, 0 });
+            result.Should().BeEquivalentTo(new[] { (frameIndex: 1, flip: false), (frameIndex: 0, flip: false) });
         }
 
         [Fact]
@@ -620,7 +630,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert - Should fallback to Down
             result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(new[] { 1, 0 });
+            result.Should().BeEquivalentTo(new[] { (frameIndex: 1, flip: false), (frameIndex: 0, flip: false) });
         }
 
         #endregion
@@ -780,7 +790,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Assert - Should use second entry
             result.Should().NotBeNull();
-            result.FrameDuration.Should().Be(300);
+            result.FrameDuration.Should().Equal(new[] { 300 });
             result.FramesByDirection["Down"].Should().BeEquivalentTo(new[] { 20, 21 });
             result.ExtensionSheet.Should().BeNullOrEmpty();
         }

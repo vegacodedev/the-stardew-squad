@@ -5,6 +5,7 @@ using StardewModdingAPI;
 using StardewValley;
 using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Abstractions.Core;
+using TheStardewSquad.Abstractions.Data;
 using TheStardewSquad.Abstractions.Utilities;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.NpcConfig.Models;
@@ -33,12 +34,19 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
             Mock<IGameContext> mockGameContext
         ) CreateTestContext()
         {
-            var mockConfigManager = new Mock<NpcConfigManager>(null, null);
+            var mockMonitor = new Mock<IMonitor>();
+            var mockHelper = new Mock<IModHelper>();
+            mockHelper.Setup(h => h.DirectoryPath).Returns(System.IO.Path.GetTempPath());
+            var baselineLoader = new BaselineContentLoader(mockHelper.Object, mockMonitor.Object);
+            var mockConfigManager = new Mock<NpcConfigManager>(
+                Mock.Of<INpcConfigDataProvider>(),
+                baselineLoader,
+                Mock.Of<IMonitor>()
+            );
             var mockRandomSelector = new Mock<IRandomSelector>();
             var mockGameStateChecker = new Mock<IGameStateChecker>();
             var mockNpcDialogueService = new Mock<INpcDialogueService>();
             var mockGameContext = new Mock<IGameContext>();
-            var mockMonitor = new Mock<IMonitor>();
 
             var manager = new DialogueManager(
                 mockConfigManager.Object,

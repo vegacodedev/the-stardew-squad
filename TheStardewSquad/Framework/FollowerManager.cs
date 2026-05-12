@@ -1,23 +1,27 @@
-﻿using TheStardewSquad.Pathfinding;
+﻿using System.Reflection;
+using TheStardewSquad.Pathfinding;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Monsters;
+using StardewModdingAPI.Utilities;
 using TheStardewSquad.Framework.Squad;
 using StardewValley.Characters;
+using TheStardewSquad.Framework.Multiplayer;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.Behaviors;
 using TheStardewSquad.Framework.Gathering;
 using TheStardewSquad.Framework.Tasks;
-using TheStardewSquad.Abstractions.Character;
 using TheStardewSquad.Abstractions.Core;
-using TheStardewSquad.Abstractions.Tasks;
 using TheStardewSquad.Framework.Wrappers;
 
 namespace TheStardewSquad.Framework
 {
     public class FollowerManager
     {
+        #region Construction & Dependencies
+
+        // Service injections
         private readonly IMonitor _monitor;
         private readonly SquadManager _squadManager;
         private readonly WaitingNpcsManager _waitingNpcsManager;
@@ -26,18 +30,65 @@ namespace TheStardewSquad.Framework
         private readonly UnifiedTaskManager _unifiedTaskManager;
         private readonly FormationManager _formationManager;
         private readonly BehaviorManager _behaviorManager;
-        private readonly IGameStateService _gameStateService;
-        private readonly IWarpService _warpService;
         private readonly IRandomService _randomService;
-        private readonly ITaskService _taskService;
-        private readonly IPlayerService _playerService;
         private SpriteManager? _spriteManager;
+        private MessageDispatcher? _dispatcher;
+        private RecruitmentManager? _recruitment;
+
+        // Tick-loop counters and intervals
+        private const int SlowTickInterval = 15;
+        private const int FastTickInterval = 2;
+        private const int MimickingTaskDurationTicks = 40; // 40 slow ticks = 10 seconds (40 * 15 frames / 60 FPS)
+        private int _updateCounter = 0;
+        private int _lastFriendshipGainHour = -1;
+
+        // Per-mate task-claim sets (host-side path planning).
         private readonly HashSet<Vector2> _claimedInteractionSpots = new();
         private readonly HashSet<Point> _claimedTaskTargets = new();
 
-        // Tick interval constants for update loop timing
-        private const int SlowTickInterval = 15;
-        private const int FastTickInterval = 2;
+        // Festival latch — `true` while a festival is running so we re-dismiss only on entry.
+        private bool _wasInFestival = false;
+
+        // Per-screen cutscene detection so each peer (and each split-screen player) tracks its
+        // own cutscene state. The host warps its own mates directly when its local cutscene ends;
+        // a farmhand fires a CutsceneEnded notify message which the host receives and re-warps
+        // the farmhand's mates only.
+        private readonly PerScreen<bool> _wasInCutscene = new(() => false);
+
+        // Per-farmer fishing state, keyed by UniqueMultiplayerID. The host iterates online
+        // farmers each slow tick to detect fishing transitions per peer — needed because in MP
+        // a farmhand reeling in must clear that recruiter's mates' fishing tasks.
+        private readonly Dictionary<long, bool> _wasFarmerFishing = new();
+
+        // Per-screen per-farmer riding state. Each screen detects mount/dismount transitions
+        // independently so it can write to its own local NPC instance via ResolveAllLiveNpcs.
+        // (In splitscreen each Game1 instance has its own _locations and NPC objects; netfield
+        // writes don't propagate between instances, so per-screen visuals must be applied locally.)
+        private readonly PerScreen<Dictionary<long, bool>> _wasFarmerRiding =
+            new(() => new Dictionary<long, bool>());
+
+        // Per-screen record of which mate is riding behind each farmer. Needed at dismount so
+        // the second screen to detect the transition can clean up the right mate even after
+        // mate.IsRidingWithPlayer was cleared by the first screen's tick.
+        private readonly PerScreen<Dictionary<long, ISquadMate>> _ridingMate =
+            new(() => new Dictionary<long, ISquadMate>());
+
+        // Per-mate IsAnimating from the previous host tick, keyed by (NpcName, RecruiterId).
+        // Used to detect IsAnimating true→false transitions and broadcast a ClearIdleAnim
+        // so peers stop the animation. Host-only; farmhand never populates this.
+        private readonly Dictionary<(string, long), bool> _wasAnimating = new();
+
+        // Wall-clock timestamp per auto-parked recruiter id (offline-recruiter handling).
+        private readonly Dictionary<long, DateTime> _autoParkedAt = new();
+
+        // Per-screen smoothed riding anchor per recruiter. In MP the NPC's Position netfield
+        // can lag the rider's Position by 1-2 ticks on remote screens, producing a visible gap
+        // between the riding NPC and the horse. We compensate by computing the draw offset
+        // against the recruiter's CURRENT position (rather than the lagged npc.Position) and
+        // exponentially smoothing across frames to absorb any per-frame jitter.
+        // Keyed by recruiter UniqueMultiplayerID so multiple riders smooth independently.
+        private readonly PerScreen<Dictionary<long, Vector2>> _smoothedRiderAnchor =
+            new(() => new Dictionary<long, Vector2>());
 
         /// <summary>
         /// Per-direction saddle anchor for the Riding task.
@@ -46,20 +97,11 @@ namespace TheStardewSquad.Framework
         /// </summary>
         private static readonly Dictionary<int, Vector2> RidingSaddleAnchorByDirection = new()
         {
-            { 0, new Vector2(50f,  24f) }, // Up
+            { 0, new Vector2(50f,  28f) }, // Up
             { 1, new Vector2(24f, 16f) }, // Right
             { 2, new Vector2(50f, -4f) }, // Down
             { 3, new Vector2(88f, 16f) }, // Left
         };
-
-        private const int MimickingTaskDurationTicks = 40; // 40 slow ticks = 10 seconds (40 * 15 frames / 60 FPS)
-
-        private bool _wasInFestival = false;
-        private bool _wasInCutscene = false;
-        private bool _wasPlayerFishing = false;
-        private bool _wasPlayerRiding = false;
-        private int _updateCounter = 0;
-        private int _lastFriendshipGainHour = -1;
 
         public FollowerManager(
             IMonitor monitor,
@@ -70,11 +112,7 @@ namespace TheStardewSquad.Framework
             UnifiedTaskManager unifiedTaskManager,
             FormationManager formationManager,
             BehaviorManager behaviorManager,
-            IGameStateService gameStateService,
-            IWarpService warpService,
-            IRandomService randomService,
-            ITaskService taskService,
-            IPlayerService playerService)
+            IRandomService randomService)
         {
             this._monitor = monitor;
             this._squadManager = squadManager;
@@ -84,11 +122,7 @@ namespace TheStardewSquad.Framework
             this._unifiedTaskManager = unifiedTaskManager;
             this._formationManager = formationManager;
             this._behaviorManager = behaviorManager;
-            this._gameStateService = gameStateService;
-            this._warpService = warpService;
             this._randomService = randomService;
-            this._taskService = taskService;
-            this._playerService = playerService;
         }
 
         /// <summary>Sets the SpriteManager dependency (called after construction due to initialization order).</summary>
@@ -97,328 +131,278 @@ namespace TheStardewSquad.Framework
             this._spriteManager = spriteManager;
         }
 
-        public void ResetStateForNewSession()
+        public void AttachDispatcher(MessageDispatcher dispatcher)
         {
-            this._claimedInteractionSpots.Clear();
-            this._claimedTaskTargets.Clear();
+            this._dispatcher = dispatcher;
+        }
+
+        public void SetRecruitmentManager(RecruitmentManager recruitment)
+        {
+            this._recruitment = recruitment;
+        }
+
+        /// <summary>
+        /// Resolves the recruiter for a mate, falling back to <see cref="Game1.MasterPlayer"/>
+        /// (or local <see cref="Game1.player"/> if even that's null in tests) when the recruiter
+        /// is offline.
+        /// </summary>
+        private static Farmer ResolveRecruiterOrFallback(ISquadMate mate)
+        {
+            if (mate.TryGetRecruiter(out var rec))
+                return rec;
+            return Game1.MasterPlayer ?? Game1.player;
+        }
+
+        #endregion
+
+        #region Multiplayer Coordination
+        // MP-specific helpers for state vanilla SDV doesn't netfield (Sprite animations,
+        // farmerPassesThrough, controller, behavior cache, etc.). See pattern-mp-npc-duplication
+        // and pattern-non-netfield-mp-state in /memory for the design rationale. Each method
+        // notes whether it runs host-only, farmhand-only, or both.
+
+        /// <summary>
+        /// Returns ALL live NPC instances the player could collide with that share the captured
+        /// NPC's name, across all loaded locations including building interiors AND generated
+        /// levels. In MP the farmhand process can hold multiple same-name NPC instances:
+        /// a. the captured reference from <see cref="MessageDispatcher.ApplySnapshot"/>,
+        ///     which can be orphaned by vanilla netcode replacing it on warp/location-load;
+        /// b. a vanilla-spawned instance at the NPC's home location (no recruiter modData);
+        /// c. the host's recruited instance replicated into the host's current location.
+        /// We must apply per-process state maintenance to all of them. Vanilla collision
+        /// only checks the instance currently in <c>location.characters</c>, but we don't
+        /// know which one that is from any single screen's perspective. Side effect: any
+        /// non-recruited modded duplicates sharing a recruit's name will also be marked
+        /// walk-through; accepted as the lesser evil.
+        /// </summary>
+        public static IEnumerable<NPC> ResolveAllLiveNpcs(NPC captured)
+        {
+            string name = captured.Name;
+            var found = new List<NPC>();
+            Utility.ForEachLocation(loc =>
+            {
+                foreach (var c in loc.characters)
+                {
+                    if (c is NPC npc && npc.Name == name)
+                        found.Add(npc);
+                }
+                return true;
+            }, includeInteriors: true, includeGenerated: true);
+            return found;
+        }
+
+        /// <summary>
+        /// Farmhand-only: tick down per-mate animation cooldowns set by
+        /// <see cref="MessageDispatcher.OnPlayIdleAnim"/>, and clear the animation when a
+        /// non-looping idle finishes.
+        /// </summary>
+        private void TickFarmhandIdleAnimationCooldowns()
+        {
+            foreach (var mate in this._squadManager.Members.ToList())
+            {
+                if (!mate.IsAnimating) continue;
+                if (mate.ActionCooldown == int.MaxValue) continue;
+                if (!mate.IsOnCooldown()) continue;
+
+                if (mate.DecrementCooldown())
+                {
+                    mate.Halt();
+                    // mate.Halt() clears Sprite.CurrentAnimation on mate.Npc, but per
+                    // pattern-mp-npc-duplication mate.Npc may be orphaned; clear all live
+                    // same-name instances too so the visible NPC stops animating.
+                    foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                    {
+                        if (ReferenceEquals(live, mate.Npc)) continue;
+                        live.Sprite.CurrentAnimation = null;
+                        live.Sprite.StopAnimation();
+                    }
+                }
+            }
+        }
+
+        // Vanilla Pet's master-side update calls _OnNewBehavior() whenever the cached
+        // _currentBehavior diverges from the netfielded CurrentBehavior. There's no equivalent
+        // slave-side trigger, so on a farmhand a behavior change (e.g., dismissed pet → Sleep)
+        // never re-arms Sprite.CurrentAnimation and Pet.updateSlaveAnimation early-returns
+        // on null animation. We invoke _OnNewBehavior reflectively below to restore the
+        // missing slave-side hook for non-recruited pets.
+        private static readonly FieldInfo PetCurrentBehaviorField = typeof(Pet).GetField(
+            "_currentBehavior", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly MethodInfo PetOnNewBehaviorMethod = typeof(Pet).GetMethod(
+            "_OnNewBehavior", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        /// <summary>
+        /// <summary>
+        /// Per-process per-tick frame cycling for sustained tasks (Sitting, Fishing).
+        /// ForceApplyTaskAnimation derives the frame from <c>Game1.currentGameTime.TotalGameTime.TotalMilliseconds</c>
+        /// which is local-process; each peer drives its own NPC instances.
+        /// </summary>
+        private void DriveSustainedTaskFrames()
+        {
+            if (this._spriteManager == null) return;
             foreach (var mate in this._squadManager.Members)
             {
-                mate.ClaimedInteractionSpot = null;
-                if (mate.IsRidingWithPlayer)
-                {
-                    mate.Npc.HideShadow = false;
-                    mate.IsRidingWithPlayer = false;
-                }
+                var type = mate.Task?.Type;
+                if (type != TaskType.Sitting && type != TaskType.Fishing) continue;
+                foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                    this._spriteManager.ForceApplyTaskAnimation(live, type.ToString()!);
             }
-            this._formationManager.Reset();
-            this._lastFriendshipGainHour = -1;
-            this._wasPlayerRiding = false;
         }
 
-        private void ClearMateTask(ISquadMate mate)
+        // Splitscreen walk-cycle stilted issue. Vanilla isMoving() reads position.IsInterpolating,
+        // which has 1-tick gaps in splitscreen (Multiplayer.interpolationTicks() = 4 vs 15 in
+        // network MP) that snap the walk cycle to the idle frame mid-stride.
+        private sealed class NpcWalkState
         {
-            if (mate.Task != null) this._claimedTaskTargets.Remove(mate.Task.Tile);
-            if (mate.ClaimedInteractionSpot.HasValue)
-            {
-                this._claimedInteractionSpots.Remove(mate.ClaimedInteractionSpot.Value);
-                mate.ClaimedInteractionSpot = null;
-            }
-            mate.Task = null;
-            mate.FramesSinceTaskCleared = 0; // Start counting frames since task cleared
-            mate.LastMonsterTile = null; // Reset monster tracking when task is cleared
+            public Vector2 LastPosition;
+            public int StoppedTicks;
         }
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<NPC, NpcWalkState> _walkStates = new();
+        private const int StationaryGraceTicks = 6; // ~100ms; covers the gap without delaying actual stops perceptibly.
 
-        /// <summary>Clears a mate's task and resets their movement state.</summary>
-        public void ClearMateTaskAndReset(ISquadMate mate)
+        private static bool IsRecentlyMovingByPositionDelta(NPC npc)
         {
-            ClearMateTask(mate);
-            mate.Path.Clear();
-            mate.StuckCounter = 0;
-            mate.CurrentMoveDirection = -1;
-            mate.MimickingTaskTimer = 0;
-            mate.MimickingTaskType = null;
-            mate.Halt();
-
-            // Reset flip state in case it was set during tasks (Sitting, Fishing, etc.)
-            mate.Npc.flip = false;
+            var state = _walkStates.GetValue(npc, _ => new NpcWalkState { LastPosition = npc.Position });
+            if (npc.Position != state.LastPosition)
+            {
+                state.StoppedTicks = 0;
+                state.LastPosition = npc.Position;
+            }
+            else
+            {
+                state.StoppedTicks++;
+            }
+            return state.StoppedTicks < StationaryGraceTicks;
         }
 
-        /// <summary>Checks if a task type is configured in Mimicking mode.</summary>
-        private bool IsMimickingTask(TaskType taskType)
-        {
-            TaskMode mode = TaskPriorityManager.GetTaskMode(_config, taskType);
-            return mode == TaskMode.Mimicking;
-        }
-
-        /// <summary>Checks if the player is currently performing a specific task.</summary>
-        private bool IsPlayerPerformingTask(TaskType taskType)
-        {
-            return taskType switch
-            {
-                TaskType.Fishing => _taskService.IsPlayerFishing(),
-                TaskType.Watering => _taskService.IsPlayerWatering(),
-                TaskType.Mining => _taskService.IsPlayerMining(),
-                TaskType.Lumbering => _taskService.IsPlayerLumbering(),
-                TaskType.Harvesting => _taskService.IsPlayerHarvesting(),
-                TaskType.Petting => _taskService.IsPlayerPetting(),
-                TaskType.Shearing => _taskService.IsPlayerShearing(),
-                TaskType.Milking => _taskService.IsPlayerMilking(),
-                TaskType.Attacking => _taskService.IsPlayerInCombat(),
-                TaskType.Sitting => _taskService.IsPlayerSitting(),
-                _ => false
-            };
-        }
-
-        /// <summary>
-        /// Manages the entire mimicking timer system for all squad members.
-        /// Called on slow ticks to detect player actions and manage timer lifecycle.
-        /// </summary>
-        private void UpdateMimickingTimers()
-        {
-            // If tasks are disabled, clear all mimicking timers and task types
-            if (!_config.TasksEnabled)
-            {
-                foreach (var mate in _squadManager.Members)
-                {
-                    mate.MimickingTaskTimer = 0;
-                    mate.MimickingTaskType = null;
-                }
-                return;
-            }
-
-            // Check all task types that could be in Mimicking mode
-            // Note: Fishing is excluded - it has special handling via _wasPlayerFishing
-            TaskType[] mimickableTaskTypes = new[]
-            {
-                TaskType.Watering,
-                TaskType.Lumbering,
-                TaskType.Mining,
-                TaskType.Harvesting,
-                TaskType.Petting,
-                TaskType.Shearing,
-                TaskType.Milking,
-                TaskType.Attacking,
-                TaskType.Fishing,
-                TaskType.Sitting
-            };
-
-            // Check if player is performing any mimicking task and reset timer
-            foreach (var taskType in mimickableTaskTypes)
-            {
-                if (IsMimickingTask(taskType) && IsPlayerPerformingTask(taskType))
-                {
-                    // Player is performing a mimicking task - reset timer and update task type
-                    // The ignore flags prevent NPC actions from triggering this, so it's safe to reset continuously
-                    foreach (var mate in _squadManager.Members)
-                    {
-                        mate.MimickingTaskTimer = MimickingTaskDurationTicks;
-                        mate.MimickingTaskType = taskType;
-                    }
-                    break; // Only process one task type per update
-                }
-            }
-
-            // ALWAYS decrement timers and clear expired tasks (regardless of what player is doing)
-            foreach (var mate in _squadManager.Members)
-            {
-                // Decrement timer
-                if (mate.MimickingTaskTimer > 0)
-                {
-                    mate.MimickingTaskTimer--;
-                }
-
-                // Clear mimicking tasks if timer expired
-                if (mate.HasTask() && IsMimickingTask(mate.Task.Type))
-                {
-                    // Only clear if the timer is for THIS specific task type and has expired
-                    if (mate.MimickingTaskType == mate.Task.Type && mate.MimickingTaskTimer <= 0)
-                    {
-                        ClearMateTaskAndReset(mate);
-                    }
-                }
-
-                // Clear the task type when timer expires (even if no task is assigned)
-                if (mate.MimickingTaskTimer <= 0)
-                {
-                    mate.MimickingTaskType = null;
-                }
-            }
-        }
-
-        /// <summary>Called by Harmony patch when the player catches a fish.</summary>
-        public void OnPlayerCaughtFish()
-        {
-            if (_playerService.CurrentTool is not StardewValley.Tools.FishingRod)
-                return;
-
-            // Give nearby squad members a chance to catch fish too (matches fishing spot search radius)
-            int squadSize = _squadManager.Count;
-            foreach (var mate in _squadManager.Members)
-            {
-                // Only reward NPCs who have fishing tasks and are nearby
-                if (mate.Task?.Type == TaskType.Fishing &&
-                    Vector2.Distance(mate.Npc.Tile, _playerService.Tile) < 15f &&
-                    !mate.IsOnCooldown())
-                {
-                    _taskService.TryNpcCatchFish(mate, squadSize);
-                }
-            }
-
-            // After rewards, clear ALL fishing tasks (even for NPCs who didn't get rewards)
-            // This ensures fishing stops when player catches
-            foreach (var mate in _squadManager.Members)
-            {
-                if (mate.Task?.Type == TaskType.Fishing)
-                {
-                    ClearMateTaskAndReset(mate);
-                }
-            }
-        }
-
-        /// <summary>Called when player stops fishing without catching (cancel/walk away).</summary>
-        private void OnPlayerStoppedFishing()
-        {
-            foreach (var mate in _squadManager.Members)
-            {
-                if (mate.Task?.Type == TaskType.Fishing)
-                {
-                    ClearMateTaskAndReset(mate);
-                }
-            }
-        }
-
-        public void OnUpdateTicked(object? sender, EventArgs e)
-        {
-            if (!_gameStateService.IsWorldReady) return;
-            if (this._squadManager.Count == 0 && this._waitingNpcsManager.Count == 0) return;
-
-            // If a cutscene just ended, warp the squad to the player's new position.
-            if (this._wasInCutscene && !_gameStateService.IsEventUp)
-            {
-                WarpSquadToPlayer();
-            }
-            this._wasInCutscene = _gameStateService.IsEventUp;
-
-            this._debrisCollector.Update(this._squadManager.Members);
-
-            if (HandleFestivalState()) return;
-
-            this.HandleFriendshipGain();
-
-            // Check if player is fishing - if so, we need to keep updating fishing animations even during the mini-game menu
-            bool isPlayerFishing = _config.FishingMode != TaskMode.Disabled && _taskService.IsPlayerFishing();
-
-            if (!_gameStateService.IsPlayerFree || !_gameStateService.IsGameActive)
-            {
-                // If player is not fishing, halt all squad members and return
-                if (!isPlayerFishing)
-                {
-                    foreach (var mate in this._squadManager.Members)
-                    {
-                        mate.Halt();
-                    }
-                    return;
-                }
-                // Otherwise, continue to update fishing animations even during mini-game
-            }
-
-            this._updateCounter++;
-
-            // Update mimicking timers once per cycle (not per mate) to avoid multiple resets
-            bool isGlobalSlowTick = this._updateCounter % SlowTickInterval == 0;
-            if (isGlobalSlowTick)
-            {
-                // Track player sitting state on slow ticks (timer is set when player sits down)
-                Patches.HarmonyPatches.UpdatePlayerSittingState();
-
-                UpdateMimickingTimers();
-
-                // Detect when player stops fishing - clear immediately
-                // Works correctly now because IsPlayerFishing() returns true during reeling
-                if (_wasPlayerFishing && !isPlayerFishing)
-                {
-                    OnPlayerStoppedFishing();
-                }
-                _wasPlayerFishing = isPlayerFishing;
-            }
-
-            // Handle riding state transitions and identify the riding member
-            var ridingMate = UpdateRidingState();
-
-            var members = this._squadManager.Members.ToList();
-            for (int i = 0; i < members.Count; i++)
-            {
-                var mate = members[i];
-
-                // If this member is riding on the horse, update riding logic instead of normal following
-                if (mate == ridingMate)
-                {
-                    UpdateRidingMember(mate);
-                    continue;
-                }
-
-                bool isFastTick = this._updateCounter % FastTickInterval == 0;
-                bool isSlowTick = (this._updateCounter + i) % SlowTickInterval == 0;
-
-                // If player is not free but is fishing, only update fishing-related logic
-                if (!_gameStateService.IsPlayerFree && isPlayerFishing)
-                {
-                    UpdateFishingOnly(mate, isFastTick);
-                }
-                else
-                {
-                    UpdateSquadMember(mate, _playerService.Player, isFastTick, isSlowTick);
-                }
-            }
-
-            // Update waiting NPCs (keep them stationary and maintain control)
-            foreach (var waitingMate in this._waitingNpcsManager.WaitingMembers.ToList())
-            {
-                UpdateWaitingNpc(waitingMate);
-            }
-        }
-
-        /// <summary>
-        /// Updates a waiting NPC to keep them stationary at their wait position.
-        /// </summary>
-        private void UpdateWaitingNpc(ISquadMate mate)
-        {
-            var npc = mate.Npc;
-
-            // Maintain control over the NPC
-            SquadMateStateHelper.MaintainControl(npc);
-
-            // Keep NPC halted at their wait position
-            npc.Halt();
-
-            // Lock the NPC's facing direction so they don't turn toward the player
-            if (mate.WaitingFacingDirection.HasValue)
-            {
-                npc.FacingDirection = mate.WaitingFacingDirection.Value;
-            }
-        }
-
-        /// <summary>
-        /// Updates only fishing animations for a squad member during the fishing mini-game.
-        /// This is called when Context.IsPlayerFree is false but the player is fishing.
-        /// </summary>
-        private void UpdateFishingOnly(ISquadMate mate, bool isFastTick)
-        {
-            var npc = mate.Npc;
-
-            // Only animate if the NPC has a fishing task and is at their fishing spot
-            if (mate.Task?.Type == TaskType.Fishing && npc.TilePoint == mate.Task.InteractionTile && isFastTick)
-            {
-                _taskService.AnimateFishing(npc, mate.Task.Tile);
-            }
-        }
-
-        private void WarpSquadToPlayer()
+        // Farmhand-only. Toggles Sprite.ignoreStopAnimation so vanilla's updateSlaveAnimation
+        // skips its StopAnimation snap-back while the NPC is mid-walk. AnimateUp/Down/Left/Right
+        // (the cycle drivers) don't honor the flag, so they keep advancing.
+        private void DriveFarmhandVillagerAnimation()
         {
             foreach (var mate in this._squadManager.Members)
             {
+                if (mate.Npc is Pet) continue;
+                foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                {
+                    if (live is Pet) continue;
+                    if (live.Sprite == null) continue;
+                    live.Sprite.ignoreStopAnimation = IsRecentlyMovingByPositionDelta(live);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Farmhand-only per-tick sprite animation drive for pets.
+        /// </summary>
+        private void DriveFarmhandPetAnimation(GameTime time)
+        {
+            // PASS 1: recruited pets — explicit walk/idle drive.
+            var recruitedPetNames = new HashSet<string>();
+            foreach (var mate in this._squadManager.Members)
+            {
+                if (mate.Npc is not Pet) continue;
+                recruitedPetNames.Add(mate.Npc.Name);
+
+                foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                {
+                    if (live is not Pet pet) continue;
+
+                    if (mate.IsAnimating)
+                    {
+                        if (!pet.isMoving()) continue;
+                        mate.IsAnimating = false;
+                    }
+
+                    pet.Sprite.CurrentAnimation = null;
+                    pet.faceDirection(pet.FacingDirection);
+                    if (IsRecentlyMovingByPositionDelta(pet))
+                    {
+                        pet.animateInFacingDirection(time);
+                    }
+                    else
+                    {
+                        pet.Sprite.CurrentFrame = BehaviorManager.GetIdleFrame(pet.FacingDirection);
+                        pet.Sprite.StopAnimation();
+                    }
+                }
+            }
+
+            if (PetCurrentBehaviorField == null || PetOnNewBehaviorMethod == null) return;
+
+            Utility.ForEachLocation(loc =>
+            {
+                foreach (var c in loc.characters)
+                {
+                    if (c is not Pet pet) continue;
+                    if (recruitedPetNames.Contains(pet.Name)) continue;
+
+                    string netCurrent = pet.CurrentBehavior;
+                    string cached = (string)PetCurrentBehaviorField.GetValue(pet);
+                    if (netCurrent != cached)
+                    {
+                        PetOnNewBehaviorMethod.Invoke(pet, null);
+                    }
+                }
+                return true;
+            }, includeInteriors: true, includeGenerated: true);
+        }
+
+        /// <summary>
+        /// Host-only. Compares current <c>IsAnimating</c> against the snapshot from the
+        /// previous tick; broadcasts <c>ClearIdleAnim</c> for each mate that just transitioned
+        /// true→false. Then refreshes the snapshot and prunes entries for mates no longer
+        /// in the squad. Cheap (one dictionary lookup per mate; no allocs in steady state).
+        /// </summary>
+        private void DetectAndBroadcastAnimationClears()
+        {
+            foreach (var mate in this._squadManager.Members)
+            {
+                var key = (mate.Npc.Name, mate.RecruiterUniqueId);
+                bool wasAnim = this._wasAnimating.TryGetValue(key, out var prev) && prev;
+                bool isAnim = mate.IsAnimating;
+                if (wasAnim && !isAnim)
+                {
+                    this._dispatcher?.BroadcastClearIdleAnim(mate);
+                }
+                this._wasAnimating[key] = isAnim;
+            }
+
+            // Drop snapshot entries for mates no longer in the squad (dismissed, recruiter
+            // disconnected, etc.) so the dictionary doesn't grow unbounded across a session.
+            if (this._wasAnimating.Count > this._squadManager.Count)
+            {
+                var liveKeys = new HashSet<(string, long)>(
+                    this._squadManager.Members.Select(m => (m.Npc.Name, m.RecruiterUniqueId)));
+                foreach (var k in this._wasAnimating.Keys.ToList())
+                {
+                    if (!liveKeys.Contains(k)) this._wasAnimating.Remove(k);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Re-warps the given recruiter's mates to their location after a cutscene/event ends.
+        /// Called locally on the host when the host's cutscene ends, and by the dispatcher's
+        /// <see cref="MessageDispatcher.OnCutsceneEnded"/> handler when a farmhand reports its
+        /// own cutscene end via <see cref="CutsceneEnded"/>. Host-only; farmhands route via
+        /// the notify message.
+        /// </summary>
+        public void WarpSquadToFarmer(Farmer recruiter)
+        {
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
+            if (recruiter == null) return;
+
+            foreach (var mate in this._squadManager.Members)
+            {
+                if (mate.RecruiterUniqueId != recruiter.UniqueMultiplayerID) continue;
+
                 var npc = mate.Npc;
-                _warpService.WarpCharacter(npc, _playerService.CurrentLocation.Name, _playerService.TilePoint);
+                // Pass the GameLocation directly; in splitscreen, recruiter.currentLocation
+                // may not be in the host instance's _locationLookup, so the (string, ...)
+                // overload would fail to resolve the destination and leave a duplicate NPC
+                // in the old location.
+                Game1.warpCharacter(npc, recruiter.currentLocation, new Vector2(recruiter.TilePoint.X, recruiter.TilePoint.Y));
                 mate.Path.Clear();
                 ClearMateTask(mate);
                 mate.IsCatchingUp = false;
@@ -435,7 +419,235 @@ namespace TheStardewSquad.Framework
                 mate.Halt();
             }
         }
-        
+
+        /// <summary>
+        /// Auto-parks mates whose recruiter just disconnected, auto-resumes mates whose
+        /// recruiter just reconnected, and auto-dismisses mates whose recruiter has been
+        /// offline longer than <see cref="ModConfig.ParkTimeoutMinutes"/>. Reuses the existing
+        /// Waiting feature: <see cref="RecruitmentManager.SetWaiting"/> handles parking and
+        /// <see cref="RecruitmentManager.Recruit"/>'s waiting-resume branch handles unparking.
+        /// </summary>
+        private void HandleOfflineRecruiters()
+        {
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
+            if (!Context.IsMultiplayer) return; // SP: nobody can be offline.
+            if (this._recruitment == null) return; // Safety: not yet wired (shouldn't happen post-Entry).
+
+            // Pass A: park mates whose recruiter is currently offline.
+            foreach (var mate in this._squadManager.Members.ToList())
+            {
+                if (mate.TryGetRecruiter(out _)) continue; // recruiter online — skip
+
+                if (this._config.WarpHomeOnDisconnect)
+                {
+                    this._recruitment.Dismiss(mate, isSilent: true, DismissalWarpBehavior.GoHome);
+                    continue;
+                }
+
+                long rid = mate.RecruiterUniqueId;
+                if (!this._autoParkedAt.ContainsKey(rid))
+                    this._autoParkedAt[rid] = DateTime.UtcNow;
+                this._recruitment.SetWaiting(mate, isSilent: true);
+            }
+
+            // Pass B: resume mates whose recruiter just came back online.
+            foreach (var mate in this._waitingNpcsManager.WaitingMembers.ToList())
+            {
+                if (!this._autoParkedAt.ContainsKey(mate.RecruiterUniqueId)) continue; // not auto-parked
+                if (!mate.TryGetRecruiter(out var rec)) continue; // still offline
+
+                this._recruitment.Recruit(mate, rec, isSilent: true);
+                this._autoParkedAt.Remove(mate.RecruiterUniqueId);
+            }
+
+            // Pass C: auto-dismiss mates whose recruiter has been offline beyond the timeout.
+            if (this._config.ParkTimeoutMinutes <= 0) return;
+            var now = DateTime.UtcNow;
+            foreach (var (rid, parkedAt) in this._autoParkedAt.ToList())
+            {
+                if ((now - parkedAt).TotalMinutes < this._config.ParkTimeoutMinutes) continue;
+
+                foreach (var mate in this._waitingNpcsManager.WaitingMembers
+                    .Where(m => m.RecruiterUniqueId == rid).ToList())
+                {
+                    this._recruitment.Dismiss(mate, isSilent: true, DismissalWarpBehavior.GoHome);
+                }
+                this._autoParkedAt.Remove(rid);
+            }
+        }
+
+        #endregion
+
+        #region Tick Entry & Update Dispatch
+        // Per-tick orchestrator (OnUpdateTicked) plus the per-mate dispatch helpers it routes to.
+        // Task-clearing and session-reset utilities live here too because they're called from
+        // many of these per-mate paths.
+
+        public void OnUpdateTicked(object? sender, EventArgs e)
+        {
+            if (!Context.IsWorldReady) return;
+            if (this._squadManager.Count == 0 && this._waitingNpcsManager.Count == 0) return;
+
+            // Per-screen cutscene-end detection. Runs above the host-only guard so farmhand
+            // peers can also detect when their own local cutscene ended; they notify the host
+            // via CutsceneEnded so the host can re-warp their mates. Each split-screen player
+            // tracks its own state via PerScreen<bool>.
+            bool isInCutsceneNow = Game1.eventUp;
+            bool wasInCutscene = this._wasInCutscene.Value;
+            if (wasInCutscene && !isInCutsceneNow)
+            {
+                var localPlayer = Game1.player;
+                if (Context.IsMainPlayer)
+                {
+                    WarpSquadToFarmer(localPlayer);
+                }
+                else
+                {
+                    this._dispatcher?.SendCutsceneEnded(localPlayer.UniqueMultiplayerID);
+                }
+            }
+            this._wasInCutscene.Value = isInCutsceneNow;
+
+            // Per-process local-state maintenance. Runs on host AND farmhands because
+            // farmerPassesThrough, controller, IsWalkingInSquare are non-netfield local
+            // fields (vanilla SDV does not sync them); see SquadMateStateHelper.MaintainControl.
+            //
+            // We iterate ALL same-name NPC instances across every loaded location, not just
+            // mate.Npc, because in MP the farmhand process can hold multiple
+            // instances of the same NPC
+            foreach (var mate in this._squadManager.Members.ToList())
+            {
+                foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                {
+                    SquadMateStateHelper.MaintainControl(live);
+                }
+            }
+            foreach (var waitingMate in this._waitingNpcsManager.WaitingMembers.ToList())
+            {
+                foreach (var live in ResolveAllLiveNpcs(waitingMate.Npc))
+                {
+                    SquadMateStateHelper.MaintainControl(live);
+                }
+            }
+
+            // Farmhand-only: drive sprite animation for recruited pets. MaintainControl pins
+            // pet.CurrentBehavior to "Sleep", which makes vanilla Pet.updateSlaveAnimation
+            // early-return on its `CurrentBehavior != "Walk"` gate, so vanilla never animates
+            // the pet on the farmhand. We replicate the motion-aware drive vanilla uses for
+            // villager mates (which works because the base Character.updateSlaveAnimation has
+            // no behavior gate). The host already drives animation via ExecutePathMovement
+            // below this gate, so this pass is intentionally farmhand-only.
+            if (Context.IsMultiplayer && !Context.IsMainPlayer)
+            {
+                this.TickFarmhandIdleAnimationCooldowns();
+                this.DriveFarmhandPetAnimation(Game1.currentGameTime);
+                this.DriveFarmhandVillagerAnimation();
+            }
+
+            this.HandleFriendshipGain();
+
+            // Per-process per-tick frame drive for sustained tasks (Sitting, Fishing).
+            // Sprite.currentFrame and npc.flip aren't netfielded; ForceApplyTaskAnimation
+            // computes the frame from elapsed time, which each peer drives locally.
+            this.DriveSustainedTaskFrames();
+
+            // Track player sitting state on slow ticks (timer is set when player sits down)
+            Patches.HarmonyPatches.UpdatePlayerSittingState();
+
+            // Per-screen riding-state transitions. Sets mate.IsRidingWithPlayer (mod state) and
+            // applies the sitting sprite sheet on every process so each peer's NPC.Draw prefix
+            // computes the saddle drawOffset and renders the sitting sprite locally. Host-only
+            // authoritative writes (HideShadow netfield, ClearMateTaskAndReset, mate.Halt,
+            // BroadcastClearTaskAnim) are gated inside.
+            this.UpdateRidingState();
+
+            // Per-screen riding-mate maintenance. Drives Position/facing/sprite/HideShadow on
+            // every live duplicate visible to the active screen, so each splitscreen player's
+            // NPC instance stays glued to the saddle and on the sitting sprite. Runs above
+            // the host-only gate because the farmhand-screen's NPC instance otherwise gets no
+            // per-tick refresh and vanilla animation drifts the sprite to walking.
+            foreach (var ridingMate in this._squadManager.Members)
+            {
+                if (ridingMate.IsRidingWithPlayer)
+                    UpdateRidingMember(ridingMate);
+            }
+
+            // Host-only authority: in MP, only the main player runs squad AI mutations.
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
+
+            this._debrisCollector.Update(this._squadManager.Members);
+
+            if (HandleFestivalState()) return;
+
+            // Per-recruiter busy gate. Host-local UI state (menu open, window unfocused) only
+            // gates the HOST's own mates — farmhand-recruited mates must keep updating regardless,
+            // otherwise the host opening a menu freezes farmhand gameplay. The actual gate runs
+            // per-mate inside the loop below; here we just precompute the host-local flags.
+            // Slow-tick globals (mimicking timers, per-farmer action trackers) and the riding-state
+            // pass also need to keep firing while the host is busy so farmhand actions still reach
+            // their mates.
+            bool isHostBusy = !Context.IsPlayerFree || !Game1.game1.IsActive;
+            bool isHostFishing = _config.FishingMode != TaskMode.Disabled && TaskManager.IsFarmerFishing(Game1.player);
+
+            this._updateCounter++;
+
+            // Update mimicking timers once per cycle (not per mate) to avoid multiple resets
+            bool isGlobalSlowTick = this._updateCounter % SlowTickInterval == 0;
+            if (isGlobalSlowTick)
+            {
+                // Park mates whose recruiter disconnected, resume on reconnect, auto-dismiss
+                // after ParkTimeoutMinutes. Does nothing in SP.
+                HandleOfflineRecruiters();
+
+                UpdateMimickingTimers();
+
+                // Per-farmer state polling: detects each online farmer's tool use (Watering/
+                // Mining/Lumbering/Attacking), fishing transitions, and sitting, dispatching
+                // to OnFarmerAction so MP farmhand actions reach the host's mates.
+                UpdateFarmerActionTrackers();
+            }
+
+            var members = this._squadManager.Members.ToList();
+            for (int i = 0; i < members.Count; i++)
+            {
+                var mate = members[i];
+
+                // Riding mates are driven by the per-screen UpdateRidingMember pass above
+                // the host-only gate; skip them here so they aren't double-processed by the
+                // normal squad-AI update logic.
+                if (mate.IsRidingWithPlayer)
+                    continue;
+
+                bool isFastTick = this._updateCounter % FastTickInterval == 0;
+                bool isSlowTick = (this._updateCounter + i) % SlowTickInterval == 0;
+
+                var recruiter = ResolveRecruiterOrFallback(mate);
+                bool isHostRecruiter = recruiter.UniqueMultiplayerID == Game1.player.UniqueMultiplayerID;
+
+                // Gate on host's local UI state ONLY for host-recruited mates. Farmhand-recruited
+                // mates always update so host's menu/alt-tab doesn't freeze them.
+                if (isHostRecruiter && isHostBusy)
+                {
+                    if (isHostFishing)
+                        UpdateFishingOnly(mate, isFastTick);
+                    else if (!mate.IsAnimating)
+                        mate.Halt();
+                    // If an idle animation is mid-play, skip Halt so it isn't cleared.
+                    continue;
+                }
+
+                UpdateSquadMember(mate, recruiter, isFastTick, isSlowTick);
+            }
+
+            // Update waiting NPCs (keep them stationary and maintain control)
+            foreach (var waitingMate in this._waitingNpcsManager.WaitingMembers.ToList())
+            {
+                UpdateWaitingNpc(waitingMate);
+            }
+
+            this.DetectAndBroadcastAnimationClears();
+        }
+
         private void UpdateSquadMember(ISquadMate mate, Farmer player, bool isFastTick, bool isSlowTick)
         {
             var npc = mate.Npc;
@@ -447,13 +659,12 @@ namespace TheStardewSquad.Framework
                 ClearMateTaskAndReset(mate);
             }
 
-            // If an idle animation is playing, check if the player has moved too far away.
-            if (mate.IsAnimating && distanceToPlayer > 2.5f)
+            // Idle animations must yield to incoming work.
+            bool idleBlocksMimicking = mate.IsAnimating && !mate.HasTask() && mate.MimickingTaskTimer > 0;
+            if ((mate.IsAnimating && distanceToPlayer > 2.5f) || idleBlocksMimicking)
             {
-                mate.Halt(); // This stops the animation and resets the IsAnimating flag.
-                mate.ActionCooldown = 0; // Reset the cooldown to allow other actions.
-
-                // Manually reset the sprite to a standard idle frame, since Halt() can leave it on a weird frame.
+                mate.Halt();
+                mate.ActionCooldown = 0;
                 npc.Sprite.CurrentFrame = BehaviorManager.GetIdleFrame(npc.FacingDirection);
             }
 
@@ -486,7 +697,6 @@ namespace TheStardewSquad.Framework
                 mate.FramesSinceTaskCleared++;
             }
 
-            SquadMateStateHelper.MaintainControl(npc);
             HandleLocationAndSpeed(mate, player);
 
             // The catch-up mechanic should only trigger if the squad member has a task.
@@ -508,7 +718,7 @@ namespace TheStardewSquad.Framework
 
             if (mate.IsCatchingUp)
             {
-                GenerateAndFollowPath(mate, player.TilePoint, isSlowTick);
+                GenerateAndFollowPath(mate, player.TilePoint, isSlowTick, player);
                 return;
             }
 
@@ -518,7 +728,7 @@ namespace TheStardewSquad.Framework
                 if (_config.TasksEnabled)
                 {
                     var locationInfo = new LocationInfoWrapper(npc.currentLocation, npc);
-                    var attackingTask = _unifiedTaskManager.FindAttackingTask(mate, locationInfo, _playerService.TilePoint, npc.TilePoint, this._claimedInteractionSpots);
+                    var attackingTask = _unifiedTaskManager.FindAttackingTask(mate, locationInfo, player.TilePoint, npc.TilePoint, this._claimedInteractionSpots);
                     if (attackingTask != null)
                     {
                         // Only assign if not already attacking the same monster
@@ -538,7 +748,7 @@ namespace TheStardewSquad.Framework
                 // Special case: Fishing animation (only when at fishing spot)
                 if (mate.Task?.Type == TaskType.Fishing && npc.TilePoint == mate.Task.InteractionTile)
                 {
-                    _taskService.AnimateFishing(npc, mate.Task.Tile);
+                    TaskManager.AnimateFishing(npc, mate.Task.Tile);
                     if (Game1.random.Next(600) == 0)
                     {
                         mate.Communicate("Fishing_Waiting");
@@ -571,7 +781,7 @@ namespace TheStardewSquad.Framework
                     if (_config.TasksEnabled)
                     {
                         var locationInfo = new LocationInfoWrapper(npc.currentLocation, npc);
-                        SquadTask newTask = _unifiedTaskManager.FindUnifiedTask(mate, locationInfo, _playerService.TilePoint, npc.TilePoint, this._claimedTaskTargets, this._claimedInteractionSpots);
+                        SquadTask newTask = _unifiedTaskManager.FindUnifiedTask(mate, locationInfo, player.TilePoint, npc.TilePoint, this._claimedTaskTargets, this._claimedInteractionSpots);
                         if (newTask != null)
                         {
                             AssignTaskToMate(mate, newTask);
@@ -582,13 +792,13 @@ namespace TheStardewSquad.Framework
 
             if (mate.HasTask())
             {
-                HandleTaskExecution(mate, isSlowTick);
+                HandleTaskExecution(mate, isSlowTick, player);
             }
             else
             {
                 HandleFollowing(mate, player, isSlowTick);
             }
-            
+
             // --- IDLE BEHAVIORS ---
             if (isSlowTick && !mate.IsOnCooldown())
             {
@@ -597,13 +807,15 @@ namespace TheStardewSquad.Framework
                 {
                     mate.IdleTicks++;
 
-                    // 180 ticks = 3 seconds at 60 FPS.
-                    if (this._config.EnableIdleAnimations && mate.IdleTicks > 180 && _randomService.NextDouble() < 1.0 / 40.0)
+                    if (this._config.EnableIdleAnimations && mate.IdleTicks > 12 && _randomService.NextDouble() < 1.0 / 80.0)
                     {
                         var animationSpec = _behaviorManager.GetRandomIdleAnimation(mate.Npc);
                         if (animationSpec != null)
                         {
                             _behaviorManager.PlayIdleAnimation(mate, animationSpec);
+                            // Sprite.CurrentAnimation isn't netfielded; broadcast so peers
+                            // replay the same frames on their NPC instance. No-op in SP.
+                            this._dispatcher?.BroadcastPlayIdleAnim(mate, animationSpec);
                             return;
                         }
                     }
@@ -620,6 +832,38 @@ namespace TheStardewSquad.Framework
                         mate.Communicate(DialogueKeys.Idle);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Updates a waiting NPC to keep them stationary at their wait position.
+        /// </summary>
+        private void UpdateWaitingNpc(ISquadMate mate)
+        {
+            var npc = mate.Npc;
+
+            // Keep NPC halted at their wait position
+            npc.Halt();
+
+            // Lock the NPC's facing direction so they don't turn toward the player
+            if (mate.WaitingFacingDirection.HasValue)
+            {
+                npc.FacingDirection = mate.WaitingFacingDirection.Value;
+            }
+        }
+
+        /// <summary>
+        /// Updates only fishing animations for a squad member during the fishing mini-game.
+        /// This is called when Context.IsPlayerFree is false but the player is fishing.
+        /// </summary>
+        private void UpdateFishingOnly(ISquadMate mate, bool isFastTick)
+        {
+            var npc = mate.Npc;
+
+            // Only animate if the NPC has a fishing task and is at their fishing spot
+            if (mate.Task?.Type == TaskType.Fishing && npc.TilePoint == mate.Task.InteractionTile && isFastTick)
+            {
+                TaskManager.AnimateFishing(npc, mate.Task.Tile);
             }
         }
 
@@ -652,11 +896,316 @@ namespace TheStardewSquad.Framework
             mate.ActionCooldown = 0;
             mate.CurrentMoveDirection = -1;
 
+            // Sustained tasks need their tiles propagated to peers so the line/seat render
+            // paths can compare npc.TilePoint to mate.Task.InteractionTile. SquadEntry
+            // carries InteractionTile/TaskTile (v5+); peers rehydrate via ApplySnapshot.
+            if (Context.IsMainPlayer
+                && (newTask.Type == TaskType.Fishing || newTask.Type == TaskType.Sitting))
+            {
+                this._dispatcher?.BroadcastSnapshot();
+            }
+
             // Note: MimickingTaskTimer is now managed centrally in UpdateMimickingTimers()
             // based on player actions, not when assigning tasks
         }
 
-        private void HandleTaskExecution(ISquadMate mate, bool isSlowTick)
+        private void ClearMateTask(ISquadMate mate)
+        {
+            // Broadcast a peer clear only when the cleared task had a long-running visual
+            // that peers wouldn't terminate on their own. Sustained tasks (Sitting, Fishing)
+            // and texture swaps need an explicit clear.
+            bool clearedTaskIsSustained = mate.Task != null
+                && (mate.Task.Type == TaskType.Fishing || mate.Task.Type == TaskType.Sitting);
+            bool needsClearBroadcast = (clearedTaskIsSustained || !string.IsNullOrEmpty(mate.AppliedTaskTexture))
+                && Context.IsMainPlayer;
+
+            // Snapshot peers so they drop the stale Task object too. Without this, peers
+            // would keep rendering the line/seat at the old InteractionTile until the
+            // next recruit/dismiss-driven snapshot arrives.
+            bool needsSnapshot = Context.IsMainPlayer
+                && mate.Task != null
+                && (mate.Task.Type == TaskType.Fishing || mate.Task.Type == TaskType.Sitting);
+
+            if (mate.Task != null) this._claimedTaskTargets.Remove(mate.Task.Tile);
+            if (mate.ClaimedInteractionSpot.HasValue)
+            {
+                this._claimedInteractionSpots.Remove(mate.ClaimedInteractionSpot.Value);
+                mate.ClaimedInteractionSpot = null;
+            }
+            mate.Task = null;
+            mate.FramesSinceTaskCleared = 0; // Start counting frames since task cleared
+            mate.LastMonsterTile = null; // Reset monster tracking when task is cleared
+
+            if (needsClearBroadcast) this._dispatcher?.BroadcastClearTaskAnim(mate);
+            if (needsSnapshot) this._dispatcher?.BroadcastSnapshot();
+        }
+
+        /// <summary>Clears a mate's task and resets their movement state.</summary>
+        public void ClearMateTaskAndReset(ISquadMate mate)
+        {
+            ClearMateTask(mate);
+            mate.Path.Clear();
+            mate.StuckCounter = 0;
+            mate.CurrentMoveDirection = -1;
+            mate.MimickingTaskTimer = 0;
+            mate.MimickingTaskType = null;
+            mate.Halt();
+
+            // Reset flip state in case it was set during tasks (Sitting, Fishing, etc.)
+            mate.Npc.flip = false;
+        }
+
+        public void ResetStateForNewSession()
+        {
+            this._claimedInteractionSpots.Clear();
+            this._claimedTaskTargets.Clear();
+            foreach (var mate in this._squadManager.Members)
+            {
+                mate.ClaimedInteractionSpot = null;
+                if (mate.IsRidingWithPlayer)
+                {
+                    mate.Npc.HideShadow = false;
+                    mate.IsRidingWithPlayer = false;
+                }
+            }
+            this._formationManager.Reset();
+            this._lastFriendshipGainHour = -1;
+            this._wasFarmerRiding.ResetAllScreens();
+            this._ridingMate.ResetAllScreens();
+        }
+
+        #endregion
+
+        #region Following & Pathfinding
+
+        private void HandleFollowing(ISquadMate mate, Farmer player, bool isSlowTick)
+        {
+            // Try to get the ideal formation tile for this mate.
+            if (!this._formationManager.TryGetTargetTile(mate, player, out Point idealTile))
+            {
+                // No slot assigned, something is wrong. Halt to be safe.
+                mate.Halt();
+                return;
+            }
+
+            // Check distance to the ideal target tile.
+            float distanceToTarget = Vector2.Distance(mate.Npc.Tile, idealTile.ToVector2());
+
+            // If we're already very close to our spot (and player isn't moving), just stop and face the player.
+            if (distanceToTarget < 2.5f)
+            {
+                // Check if we're too close to other squad members before halting
+                bool tooCloseToOthers = false;
+                foreach (var otherMate in this._squadManager.Members)
+                {
+                    if (otherMate == mate)
+                        continue;
+
+                    float distanceToOther = Vector2.Distance(idealTile.ToVector2(), otherMate.Npc.Tile);
+                    if (distanceToOther < 0.5f)
+                    {
+                        tooCloseToOthers = true;
+                        break;
+                    }
+                }
+
+                // Only halt if we're not too close to others
+                if (!tooCloseToOthers)
+                {
+                    mate.Path.Clear();
+                    mate.CurrentMoveDirection = -1;
+                    mate.Halt();
+
+                    // Only face the recruiter if we haven't just cleared a task (prevents brief turn glitch)
+                    if (mate.FramesSinceTaskCleared > 15)
+                    {
+                        TaskManager.FacePosition(mate.Npc, player.getStandingPosition());
+                    }
+                }
+            }
+            else
+            {
+                // If we are far from our spot, generate a path to it.
+                GenerateAndFollowPath(mate, idealTile, isSlowTick, player);
+            }
+        }
+
+        private void GenerateAndFollowPath(ISquadMate mate, Point targetTile, bool isSlowTick, Farmer player)
+        {
+            var npc = mate.Npc;
+            Point pathableTarget = targetTile;
+
+            if (isSlowTick || mate.Path == null || mate.Path.Count == 0)
+            {
+                if (!AStarPathfinder.IsTilePassableForFollower(npc.currentLocation, pathableTarget, npc))
+                {
+                    Point? bestNeighbor = AStarPathfinder.FindClosestPassableNeighbor(npc.currentLocation, pathableTarget, npc);
+                    if (bestNeighbor.HasValue)
+                        pathableTarget = bestNeighbor.Value;
+                    else
+                    {
+                        // If the target tile and all its neighbors are impassable (e.g., tight corridor),
+                        // fall back to pathing directly to the recruiter to collapse the formation.
+                        pathableTarget = player.TilePoint;
+                    }
+                }
+
+                Stack<Point> path = null;
+                if (AStarPathfinder.IsPathUnobstructed(npc.currentLocation, npc.TilePoint, pathableTarget, npc))
+                {
+                    path = new Stack<Point>();
+                    path.Push(pathableTarget);
+                }
+                else
+                {
+                    path = AStarPathfinder.FindPath(npc.currentLocation, npc.TilePoint, pathableTarget, npc, this._monitor);
+                    if (path != null && path.Count > 0 && path.Peek() == npc.TilePoint)
+                    {
+                        path.Pop();
+                    }
+                }
+
+                if (path != null && path.Count > 0)
+                {
+                    mate.Path = path;
+                    mate.StuckCounter = 0;
+                    mate.CurrentMoveDirection = -1;
+                }
+                else
+                {
+                    mate.StuckCounter++;
+                }
+            }
+
+            if (mate.StuckCounter > 20)
+            {
+                Game1.warpCharacter(npc, npc.currentLocation.NameOrUniqueName, player.TilePoint);
+                mate.Path.Clear();
+                ClearMateTask(mate);
+                mate.StuckCounter = 0;
+                mate.CurrentMoveDirection = -1;
+                mate.IsInPool = false;
+                mate.LastTilePoint = null;
+                return;
+            }
+
+            if (mate.Path != null && mate.Path.Count > 0)
+            {
+                ExecutePathMovement(mate);
+            }
+        }
+
+        private void ExecutePathMovement(ISquadMate mate)
+        {
+            var npc = mate.Npc;
+
+            Point targetNode = mate.Path.Peek();
+            if (mate.Path.Count > 1)
+            {
+                var pathAsList = mate.Path.ToList();
+                for (int i = pathAsList.Count - 2; i >= 0; i--)
+                {
+                    // Check if there's a clear line of sight to this node
+                    if (AStarPathfinder.IsPathUnobstructed(npc.currentLocation, npc.TilePoint, pathAsList[i], npc))
+                    {
+                        // IMPORTANT: Also verify all tiles along the direct path are passable
+                        // This prevents NPCs from trying to move through water, walls, etc.
+                        if (AStarPathfinder.IsDirectPathFullyPassable(npc.currentLocation, npc.TilePoint, pathAsList[i], npc))
+                        {
+                            targetNode = pathAsList[i];
+                        }
+                        else
+                        {
+                            break; // Can't skip to this node - direct path has impassable tiles
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Vector2 targetPosition = (Utility.PointToVector2(targetNode) * 64f) + new Vector2(32, 32);
+
+            if (mate.CurrentMoveDirection == -1)
+            {
+                Vector2 directionVector = targetPosition - npc.getStandingPosition();
+                if (Math.Abs(directionVector.X) > Math.Abs(directionVector.Y))
+                {
+                    mate.CurrentMoveDirection = directionVector.X > 0 ? 1 : 3;
+                }
+                else
+                {
+                    mate.CurrentMoveDirection = directionVector.Y > 0 ? 2 : 0;
+                }
+            }
+
+            npc.faceDirection(mate.CurrentMoveDirection);
+            Vector2 velocity = Utility.getVelocityTowardPoint(npc.getStandingPosition(), targetPosition, npc.speed);
+            npc.Position += velocity;
+            npc.animateInFacingDirection(Game1.currentGameTime);
+
+            if (Vector2.Distance(npc.getStandingPosition(), targetPosition) <= npc.speed)
+            {
+                while (mate.Path.Count > 0 && mate.Path.Peek() != targetNode)
+                {
+                    mate.Path.Pop();
+                }
+                if (mate.Path.Count > 0)
+                {
+                    mate.Path.Pop();
+                }
+
+                mate.CurrentMoveDirection = -1;
+                if (mate.Path.Count == 0)
+                {
+                    npc.Halt();
+                }
+            }
+        }
+
+        private void HandleLocationAndSpeed(ISquadMate mate, Farmer player)
+        {
+            var npc = mate.Npc;
+
+            if (npc.currentLocation != player.currentLocation)
+            {
+                Game1.warpCharacter(npc, player.currentLocation, new Vector2(player.TilePoint.X, player.TilePoint.Y));
+                mate.Path.Clear();
+                ClearMateTask(mate);
+                mate.StuckCounter = 0;
+                mate.CurrentMoveDirection = -1;
+                mate.IsInPool = false;
+                mate.LastTilePoint = null;
+                return;
+            }
+
+            if (mate.HasTask() || mate.IsCatchingUp)
+            {
+                int taskSpeed = (int)player.getMovementSpeed() + 1;
+                npc.speed = Math.Max(2, taskSpeed);
+            }
+            else
+            {
+                float distanceToTarget = Vector2.Distance(npc.Tile, player.Tile);
+                float targetSpeed = player.getMovementSpeed();
+                int baseNpcSpeed = Math.Max(1, (int)targetSpeed);
+
+                if (distanceToTarget > 5f)
+                    npc.speed = baseNpcSpeed + 2;
+                else if (distanceToTarget < 2.8f)
+                    npc.speed = Math.Max(1, baseNpcSpeed - 1);
+                else
+                    npc.speed = baseNpcSpeed;
+            }
+        }
+
+        #endregion
+
+        #region Task Execution
+
+        private void HandleTaskExecution(ISquadMate mate, bool isSlowTick, Farmer player)
         {
             Point npcTile = mate.Npc.TilePoint;
             Point targetInteractionTile;
@@ -755,236 +1304,217 @@ namespace TheStardewSquad.Framework
             }
             else
             {
-                GenerateAndFollowPath(mate, targetInteractionTile, isSlowTick);
+                GenerateAndFollowPath(mate, targetInteractionTile, isSlowTick, player);
             }
         }
 
-        private void HandleFollowing(ISquadMate mate, Farmer player, bool isSlowTick)
+        #endregion
+
+        #region Mimicking Subsystem
+        // Per-farmer detection of mimickable actions (tool use, fishing, sitting, harvest, etc.)
+        // and the timer-based decay that drives same-task mimicking on co-located mates. Detection
+        // is split between Harmony postfixes (event-based: Pet/FarmAnimal/Crop/Shears/MilkPail) and
+        // per-tick state polling here (sustained: Watering/Mining/Lumbering/Attacking/Fishing/Sitting).
+
+        /// <summary>
+        /// Authoritative entry point for "a farmer just performed a mimickable task".
+        /// Sets the mimicking timer on the farmer's own squad mates that are co-located
+        /// with them. Runs on the host only — farmhand-side callers must route through
+        /// <see cref="MessageDispatcher.SendMimickingRequest"/> instead.
+        /// </summary>
+        public void OnFarmerAction(Farmer who, TaskType type)
         {
-            // Try to get the ideal formation tile for this mate.
-            if (!this._formationManager.TryGetTargetTile(mate, player, out Point idealTile))
-            {
-                // No slot assigned, something is wrong. Halt to be safe.
-                mate.Halt();
-                return;
-            }
-            
-            // Check distance to the ideal target tile.
-            float distanceToTarget = Vector2.Distance(mate.Npc.Tile, idealTile.ToVector2());
-            
-            // If we're already very close to our spot (and player isn't moving), just stop and face the player.
-            if (distanceToTarget < 2.5f)
-            {
-                // Check if we're too close to other squad members before halting
-                bool tooCloseToOthers = false;
-                foreach (var otherMate in this._squadManager.Members)
-                {
-                    if (otherMate == mate)
-                        continue;
+            if (Context.IsMultiplayer && !Context.IsMainPlayer) return;
+            if (!_config.TasksEnabled) return;
+            if (!IsMimickingTask(type)) return;
+            if (who == null) return;
 
-                    float distanceToOther = Vector2.Distance(idealTile.ToVector2(), otherMate.Npc.Tile);
-                    if (distanceToOther < 0.5f)
-                    {
-                        tooCloseToOthers = true;
-                        break;
-                    }
-                }
-
-                // Only halt if we're not too close to others
-                if (!tooCloseToOthers)
-                {
-                    mate.Path.Clear();
-                    mate.CurrentMoveDirection = -1;
-                    mate.Halt();
-
-                    // Only face the player if we haven't just cleared a task (prevents brief turn glitch)
-                    if (mate.FramesSinceTaskCleared > 15)
-                    {
-                        _taskService.FacePosition(mate.Npc, _playerService.StandingPosition);
-                    }
-                }
-            }
-            else
+            foreach (var mate in _squadManager.Members)
             {
-                // If we are far from our spot, generate a path to it.
-                GenerateAndFollowPath(mate, idealTile, isSlowTick);
+                if (mate.RecruiterUniqueId != who.UniqueMultiplayerID) continue;
+                if (mate.Npc.currentLocation != who.currentLocation) continue;
+
+                mate.MimickingTaskTimer = MimickingTaskDurationTicks;
+                mate.MimickingTaskType = type;
             }
         }
 
-        private void GenerateAndFollowPath(ISquadMate mate, Point targetTile, bool isSlowTick)
+        /// <summary>Checks if a task type is configured in Mimicking mode.</summary>
+        private bool IsMimickingTask(TaskType taskType)
         {
-            var npc = mate.Npc;
-            Point pathableTarget = targetTile;
+            TaskMode mode = TaskPriorityManager.GetTaskMode(_config, taskType);
+            return mode == TaskMode.Mimicking;
+        }
 
-            if (isSlowTick || mate.Path == null || mate.Path.Count == 0)
+        /// <summary>
+        /// Decays mimicking timers and clears expired mimicking tasks. Detection itself happens
+        /// upstream — Harmony postfixes call <see cref="OnFarmerAction"/> for event-based tasks
+        /// (Pet/FarmAnimal/Crop/Shears/MilkPail), and <see cref="UpdateFarmerActionTrackers"/>
+        /// re-asserts per-farmer state-based tasks (Watering/Mining/Lumbering/Attacking/Fishing/Sitting)
+        /// each slow tick. This method is the pure decay half.
+        /// </summary>
+        private void UpdateMimickingTimers()
+        {
+            // If tasks are disabled, clear all mimicking timers and task types
+            if (!_config.TasksEnabled)
             {
-                if (!AStarPathfinder.IsTilePassableForFollower(npc.currentLocation, pathableTarget, npc))
+                foreach (var mate in _squadManager.Members)
                 {
-                    Point? bestNeighbor = AStarPathfinder.FindClosestPassableNeighbor(npc.currentLocation, pathableTarget, npc);
-                    if (bestNeighbor.HasValue)
-                        pathableTarget = bestNeighbor.Value;
-                    else
-                    {
-                        // If the target tile and all its neighbors are impassable (e.g., tight corridor),
-                        // fall back to pathing directly to the player to collapse the formation.
-                        pathableTarget = _playerService.TilePoint;
-                    }
+                    mate.MimickingTaskTimer = 0;
+                    mate.MimickingTaskType = null;
                 }
-
-                Stack<Point> path = null;
-                if (AStarPathfinder.IsPathUnobstructed(npc.currentLocation, npc.TilePoint, pathableTarget, npc))
-                {
-                    path = new Stack<Point>();
-                    path.Push(pathableTarget);
-                }
-                else
-                {
-                    path = AStarPathfinder.FindPath(npc.currentLocation, npc.TilePoint, pathableTarget, npc, this._monitor);
-                    if (path != null && path.Count > 0 && path.Peek() == npc.TilePoint)
-                    {
-                        path.Pop();
-                    }
-                }
-                
-                if (path != null && path.Count > 0)
-                {
-                    mate.Path = path;
-                    mate.StuckCounter = 0;
-                    mate.CurrentMoveDirection = -1;
-                }
-                else
-                {
-                    mate.StuckCounter++;
-                }
-            }
-
-            if (mate.StuckCounter > 20)
-            {
-                _warpService.WarpCharacter(npc, npc.currentLocation.Name, _playerService.TilePoint);
-                mate.Path.Clear();
-                ClearMateTask(mate);
-                mate.StuckCounter = 0;
-                mate.CurrentMoveDirection = -1;
-                mate.IsInPool = false;
-                mate.LastTilePoint = null;
                 return;
             }
 
-            if (mate.Path != null && mate.Path.Count > 0)
+            foreach (var mate in _squadManager.Members)
             {
-                ExecutePathMovement(mate);
-            }
-        }
-
-        private void ExecutePathMovement(ISquadMate mate)
-        {
-            var npc = mate.Npc;
-
-            Point targetNode = mate.Path.Peek();
-            if (mate.Path.Count > 1)
-            {
-                var pathAsList = mate.Path.ToList();
-                for (int i = pathAsList.Count - 2; i >= 0; i--)
+                if (mate.MimickingTaskTimer > 0)
                 {
-                    // Check if there's a clear line of sight to this node
-                    if (AStarPathfinder.IsPathUnobstructed(npc.currentLocation, npc.TilePoint, pathAsList[i], npc))
-                    {
-                        // IMPORTANT: Also verify all tiles along the direct path are passable
-                        // This prevents NPCs from trying to move through water, walls, etc.
-                        if (AStarPathfinder.IsDirectPathFullyPassable(npc.currentLocation, npc.TilePoint, pathAsList[i], npc))
-                        {
-                            targetNode = pathAsList[i];
-                        }
-                        else
-                        {
-                            break; // Can't skip to this node - direct path has impassable tiles
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-
-            Vector2 targetPosition = (Utility.PointToVector2(targetNode) * 64f) + new Vector2(32, 32);
-
-            if (mate.CurrentMoveDirection == -1)
-            {
-                Vector2 directionVector = targetPosition - npc.getStandingPosition();
-                if (Math.Abs(directionVector.X) > Math.Abs(directionVector.Y))
-                {
-                    mate.CurrentMoveDirection = directionVector.X > 0 ? 1 : 3;
-                }
-                else
-                {
-                    mate.CurrentMoveDirection = directionVector.Y > 0 ? 2 : 0;
-                }
-            }
-
-            npc.faceDirection(mate.CurrentMoveDirection);
-            Vector2 velocity = Utility.getVelocityTowardPoint(npc.getStandingPosition(), targetPosition, npc.speed);
-            npc.Position += velocity;
-            npc.animateInFacingDirection(_gameStateService.CurrentGameTime);
-
-            if (Vector2.Distance(npc.getStandingPosition(), targetPosition) <= npc.speed)
-            {
-                while (mate.Path.Count > 0 && mate.Path.Peek() != targetNode)
-                {
-                    mate.Path.Pop();
-                }
-                if (mate.Path.Count > 0)
-                {
-                    mate.Path.Pop();
+                    mate.MimickingTaskTimer--;
                 }
 
-                mate.CurrentMoveDirection = -1;
-                if (mate.Path.Count == 0)
+                // Clear the active mimicking task when its timer expires.
+                if (mate.HasTask() && IsMimickingTask(mate.Task.Type)
+                    && mate.MimickingTaskType == mate.Task.Type
+                    && mate.MimickingTaskTimer <= 0)
                 {
-                    npc.Halt();
+                    ClearMateTaskAndReset(mate);
+                }
+
+                if (mate.MimickingTaskTimer <= 0)
+                {
+                    mate.MimickingTaskType = null;
                 }
             }
         }
 
-        private void HandleLocationAndSpeed(ISquadMate mate, Farmer player)
+        /// <summary>Called by Harmony patch when a farmer catches a fish.</summary>
+        /// <param name="who">The farmer who caught the fish (may be a remote farmhand in MP).</param>
+        public void OnPlayerCaughtFish(Farmer who)
         {
-            var npc = mate.Npc;
-
-            if (npc.currentLocation != _playerService.CurrentLocation)
-            {
-                _warpService.WarpCharacter(npc, _playerService.CurrentLocation.Name, _playerService.TilePoint);
-                mate.Path.Clear();
-                ClearMateTask(mate);
-                mate.StuckCounter = 0;
-                mate.CurrentMoveDirection = -1;
-                mate.IsInPool = false;
-                mate.LastTilePoint = null;
+            if (who.CurrentTool is not StardewValley.Tools.FishingRod)
                 return;
+
+            // Give nearby squad members of THIS recruiter a chance to catch fish too
+            // (matches fishing spot search radius). In MP another farmhand's fish catch
+            // doesn't reward this recruiter's mates.
+            int squadSize = _squadManager.Count;
+            foreach (var mate in _squadManager.Members)
+            {
+                if (mate.RecruiterUniqueId != who.UniqueMultiplayerID)
+                    continue;
+
+                // Only reward NPCs who have fishing tasks and are nearby
+                if (mate.Task?.Type == TaskType.Fishing &&
+                    Vector2.Distance(mate.Npc.Tile, who.Tile) < 15f &&
+                    !mate.IsOnCooldown())
+                {
+                    TaskManager.TryNpcCatchFish(mate, squadSize);
+                }
             }
 
-            if (mate.HasTask() || mate.IsCatchingUp)
+            // After rewards, clear ALL fishing tasks for this recruiter's mates
+            // (even for NPCs who didn't get rewards). This ensures fishing stops when
+            // the recruiter catches.
+            foreach (var mate in _squadManager.Members)
             {
-                int taskSpeed = (int)_playerService.MovementSpeed + 1;
-                npc.speed = Math.Max(2, taskSpeed);
-            }
-            else
-            {
-                float distanceToTarget = Vector2.Distance(npc.Tile, _playerService.Tile);
-                float targetSpeed = _playerService.MovementSpeed;
-                int baseNpcSpeed = Math.Max(1, (int)targetSpeed);
+                if (mate.RecruiterUniqueId != who.UniqueMultiplayerID)
+                    continue;
 
-                if (distanceToTarget > 5f)
-                    npc.speed = baseNpcSpeed + 2;
-                else if (distanceToTarget < 2.8f)
-                    npc.speed = Math.Max(1, baseNpcSpeed - 1);
-                else
-                    npc.speed = baseNpcSpeed;
+                if (mate.Task?.Type == TaskType.Fishing)
+                {
+                    ClearMateTaskAndReset(mate);
+                }
             }
         }
+
+        /// <summary>Called when a farmer stops fishing without catching (cancel/walk away). Clears only that recruiter's fishing-task mates.</summary>
+        private void OnFarmerStoppedFishing(Farmer who)
+        {
+            if (who == null) return;
+            foreach (var mate in _squadManager.Members)
+            {
+                if (mate.RecruiterUniqueId != who.UniqueMultiplayerID) continue;
+                if (mate.Task?.Type == TaskType.Fishing)
+                {
+                    ClearMateTaskAndReset(mate);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Per-farmer state polling for tool actions and fishing. Runs host-only each slow tick.
+        /// Iterates <see cref="Game1.getOnlineFarmers"/> and re-asserts the mimicking timer for any
+        /// farmer actively using a tool (Watering/Mining/Lumbering/Attacking) or fishing. For
+        /// fishing, also detects the stop transition to clear that recruiter's fishing-task mates.
+        /// Sitting is handled separately in <see cref="UpdateFarmerSittingTracker"/> so the
+        /// transition fires once on sit-down.
+        /// </summary>
+        private void UpdateFarmerActionTrackers()
+        {
+            if (!_config.TasksEnabled) return;
+
+            foreach (var f in Game1.getOnlineFarmers())
+            {
+                if (f == null) continue;
+
+                // Tool-active actions: re-assert each tick the swing is in progress so the
+                // mimicking timer stays full while the action is sustained. OnFarmerAction
+                // is a no-op for non-mimicking modes, so safe to call unconditionally.
+                if (f.UsingTool)
+                {
+                    switch (f.CurrentTool)
+                    {
+                        case StardewValley.Tools.WateringCan:
+                            OnFarmerAction(f, TaskType.Watering);
+                            break;
+                        case StardewValley.Tools.Pickaxe:
+                            OnFarmerAction(f, TaskType.Mining);
+                            break;
+                        case StardewValley.Tools.Axe:
+                            OnFarmerAction(f, TaskType.Lumbering);
+                            break;
+                        case StardewValley.Tools.MeleeWeapon:
+                        case StardewValley.Tools.Slingshot:
+                            OnFarmerAction(f, TaskType.Attacking);
+                            break;
+                    }
+                }
+
+                // Fishing has a stop transition (clear that recruiter's fishing tasks when the
+                // farmer reels in / cancels). The OnFarmerAction call re-asserts mimicking;
+                // the transition handler clears any active fishing task on stop.
+                bool isFishingNow = TaskManager.IsFarmerFishing(f);
+                if (isFishingNow)
+                {
+                    OnFarmerAction(f, TaskType.Fishing);
+                }
+                bool wasFishing = _wasFarmerFishing.GetValueOrDefault(f.UniqueMultiplayerID);
+                if (wasFishing && !isFishingNow)
+                {
+                    OnFarmerStoppedFishing(f);
+                }
+                _wasFarmerFishing[f.UniqueMultiplayerID] = isFishingNow;
+
+                // Sitting is a sustained state with no clean Harmony hook covering all sit-down
+                // entry paths (right-click vs walk-onto vs Furniture.checkForAction). Re-asserting
+                // each tick the farmer is sitting catches every sit-down implicitly and keeps the
+                // mimicking timer fresh. No stop-transition handler needed — ExecuteSittingTask
+                // (TaskManager.cs) clears its own task once IsFarmerSitting(recruiter) goes false.
+                if (TaskManager.IsFarmerSitting(f))
+                {
+                    OnFarmerAction(f, TaskType.Sitting);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Festival & Friendship
 
         private bool HandleFestivalState()
         {
-            bool isInFestival = _gameStateService.IsFestival();
+            bool isInFestival = Game1.isFestival();
             if (isInFestival && !this._wasInFestival)
             {
                 this._wasInFestival = true;
@@ -1021,7 +1551,7 @@ namespace TheStardewSquad.Framework
             if (this._config.FriendshipPointsPerHour <= 0)
                 return;
 
-            int currentHour = _gameStateService.TimeOfDay / 100;
+            int currentHour = Game1.timeOfDay / 100;
 
             if (this._lastFriendshipGainHour == -1)
             {
@@ -1038,110 +1568,192 @@ namespace TheStardewSquad.Framework
             if (pointsToAdd <= 0)
                 return;
 
+            long localId = Game1.player.UniqueMultiplayerID;
+            bool isHost = !Context.IsMultiplayer || Context.IsMainPlayer;
+
             foreach (var mate in this._squadManager.Members)
             {
                 if (mate.Npc is Pet pet)
                 {
-                    pet.friendshipTowardFarmer.Value = Math.Min(1000, pet.friendshipTowardFarmer.Value + pointsToAdd);
+                    // Pet.friendshipTowardFarmer is a host-owned netfield (Pet lives in
+                    // Game1.locations); only host-side writes replicate. Vanilla pet
+                    // friendship has no per-recruiter dimension; one shared value.
+                    if (isHost)
+                        pet.friendshipTowardFarmer.Value = Math.Min(1000, pet.friendshipTowardFarmer.Value + pointsToAdd);
                 }
                 else if (mate.Npc.isVillager())
                 {
-                    _playerService.ChangeFriendship(pointsToAdd, mate.Npc);
+                    // Each peer credits only its own Game1.player. Host writing to a
+                    // farmhand's friendshipData replica does not propagate.
+                    if (mate.RecruiterUniqueId == localId)
+                        Game1.player.changeFriendship(pointsToAdd, mate.Npc);
                 }
             }
-            
+
             this._lastFriendshipGainHour = currentHour;
         }
+
+        #endregion
 
         #region Horse Riding
 
         /// <summary>
-        /// Updates riding state transitions (mount/dismount) and identifies the riding squad member.
-        /// Returns the squad member currently riding with the player, or null if no one is riding.
+        /// Updates riding state transitions (mount/dismount) for each online farmer and
+        /// identifies the squad member riding behind a farmer (if any). In MP each online
+        /// farmer can independently mount; the first eligible mate of THAT farmer rides
+        /// with them.
         /// </summary>
-        private ISquadMate? UpdateRidingState()
+        private void UpdateRidingState()
         {
-            bool isPlayerRiding = _config.EnableRiding && _playerService.IsRiding;
+            if (!_config.EnableRiding)
+                return;
 
-            if (isPlayerRiding && !_wasPlayerRiding)
-            {
-                // Player just mounted — assign the first squad member to ride
-                var firstMate = _squadManager.Members.FirstOrDefault();
-                if (firstMate != null)
-                {
-                    ClearMateTaskAndReset(firstMate);
-                    firstMate.IsRidingWithPlayer = true;
-                    firstMate.Npc.HideShadow = true;
+            // Per-screen mount/dismount detection. Each screen (and each network process) tracks
+            // its own _wasFarmerRiding state so each can drive the visual setup against its own
+            // local NPC instance via ResolveAllLiveNpcs. Host-only authoritative work (task
+            // clear, network broadcast) is gated on Context.IsMainPlayer; in splitscreen only
+            // ScreenId 0 is IsMainPlayer, so the host-only block fires once per transition.
+            var perScreenState = _wasFarmerRiding.Value;
+            var perScreenRidingMate = _ridingMate.Value;
 
-                    // Apply sitting sprite (same as Sitting feature)
-                    _spriteManager?.TryApplySittingSpriteSheet(firstMate.Npc, firstMate, firstMate.Npc.FacingDirection);
-                }
-            }
-            else if (!isPlayerRiding && _wasPlayerRiding)
+            foreach (var farmer in Game1.getOnlineFarmers())
             {
-                // Player just dismounted — release the riding member and restore sprites
-                foreach (var mate in _squadManager.Members)
+                long farmerId = farmer.UniqueMultiplayerID;
+                bool isFarmerRiding = farmer.mount != null;
+                perScreenState.TryGetValue(farmerId, out bool wasFarmerRiding);
+
+                if (isFarmerRiding && !wasFarmerRiding)
                 {
-                    if (mate.IsRidingWithPlayer)
+                    // Two-tier mate selection: prefer a mate already marked riding (set by an
+                    // earlier screen's tick this transition), else assign a fresh eligible one.
+                    // mate.IsRidingWithPlayer lives on the shared SquadMate, so the second screen
+                    // to detect the transition reuses the first screen's choice.
+                    var rideMate = _squadManager.Members
+                        .FirstOrDefault(m => m.RecruiterUniqueId == farmerId && m.IsRidingWithPlayer)
+                        ?? _squadManager.Members.FirstOrDefault(m => m.RecruiterUniqueId == farmerId && !m.IsRidingWithPlayer);
+
+                    if (rideMate != null)
                     {
-                        mate.IsRidingWithPlayer = false;
-                        mate.Npc.drawOffset = Vector2.Zero;
-                        mate.Npc.HideShadow = false;
-                        _spriteManager?.RestoreOriginalTexture(mate.Npc, mate);
-                        mate.Npc.Sprite.StopAnimation();
-                        mate.Npc.flip = false;
-                        mate.Halt();
+                        if (!rideMate.IsRidingWithPlayer)
+                            rideMate.IsRidingWithPlayer = true;
+
+                        // Remember which mate is riding for this screen, so dismount cleanup
+                        // can target it even after another screen flips IsRidingWithPlayer off.
+                        perScreenRidingMate[farmerId] = rideMate;
+
+                        // Per-screen: HideShadow + sprite swap on every live duplicate visible to
+                        // the active screen. In splitscreen each Game1 instance has its own NPC
+                        // objects and HideShadow netfield writes don't cross instances, so each
+                        // screen must set them locally.
+                        foreach (var live in ResolveAllLiveNpcs(rideMate.Npc))
+                        {
+                            live.HideShadow = true;
+                            bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(live, rideMate, farmer.FacingDirection) ?? false;
+                            if (!usedCustomSprite)
+                                _spriteManager?.ForceApplyTaskAnimation(live, TaskType.Sitting.ToString());
+                        }
+
+                        // Host-only: shared mate-state cleanup (idempotent), and broadcast for
+                        // network MP peers (whose OnPlayTaskAnim does the same per-instance work
+                        // there). Only ScreenId 0 hits this in splitscreen, so it runs once per
+                        // mount transition regardless of which screen ticks first.
+                        if (Context.IsMainPlayer)
+                        {
+                            ClearMateTaskAndReset(rideMate);
+                            bool customForBroadcast = _spriteManager?.TryApplySittingSpriteSheet(rideMate.Npc, rideMate, farmer.FacingDirection) ?? false;
+                            if (!customForBroadcast)
+                                _dispatcher?.BroadcastPlayTaskAnim(rideMate, TaskType.Sitting.ToString(), farmer.FacingDirection, null);
+                        }
                     }
                 }
-            }
+                else if (!isFarmerRiding && wasFarmerRiding)
+                {
+                    // Use the per-screen record of who was riding here, not mate.IsRidingWithPlayer:
+                    // an earlier screen's tick this transition may have already cleared the flag.
+                    if (perScreenRidingMate.TryGetValue(farmerId, out var mate))
+                    {
+                        if (mate.IsRidingWithPlayer)
+                            mate.IsRidingWithPlayer = false;
 
-            _wasPlayerRiding = isPlayerRiding;
+                        // Per-screen: reset cosmetic state on every live duplicate visible to this
+                        // screen. NO warp here: UpdateRidingMember has been pinning each screen's
+                        // local NPC to rider.currentLocation per tick during riding, so currentLocation
+                        // already matches the rider at dismount. Issuing Game1.warpCharacter from a
+                        // non-host (IsClient) screen routes through Multiplayer.requestCharacterWarp,
+                        // which sends a server message resolved by GUID; in splitscreen that message
+                        // can land on the wrong NPC instance and write a stale (-1, 0) tile (drove
+                        // the dismount-disappears bug). HandleLocationAndSpeed runs host-side in the
+                        // normal squad iteration and will issue a real warp later if any residual
+                        // location mismatch slips through.
+                        foreach (var live in ResolveAllLiveNpcs(mate.Npc))
+                        {
+                            live.drawOffset = Vector2.Zero;
+                            live.HideShadow = false;
+                            live.Sprite?.StopAnimation();
+                            live.flip = false;
+                            _spriteManager?.RestoreOriginalTexture(live, mate);
+                        }
 
-            if (isPlayerRiding)
-            {
-                return _squadManager.Members.FirstOrDefault(m => m.IsRidingWithPlayer);
+                        if (Context.IsMainPlayer)
+                        {
+                            mate.Halt();
+                            _dispatcher?.BroadcastClearTaskAnim(mate);
+                        }
+
+                        perScreenRidingMate.Remove(farmerId);
+                    }
+                }
+
+                perScreenState[farmerId] = isFarmerRiding;
             }
-            return null;
         }
 
         /// <summary>
-        /// Updates a squad member that is riding on the horse behind the player.
-        /// Aligns the NPC to the player's visual riding position using drawOffset,
-        /// applies sitting sprite, and syncs the horse wobble animation.
+        /// Per-tick riding-mate maintenance. Runs on every screen so the active screen's
+        /// local NPC instances are pinned to the rider's saddle position and stay on the
+        /// sitting sprite (vanilla animation otherwise drifts the sprite forward as the
+        /// netfielded Position changes). Iterates ResolveAllLiveNpcs because mate.Npc may
+        /// be the orphan (per pattern-mp-npc-duplication) and because in splitscreen each
+        /// Game1 instance has its own NPC object that must be driven locally.
         /// </summary>
         private void UpdateRidingMember(ISquadMate mate)
         {
-            var npc = mate.Npc;
-            var player = _playerService.Player;
+            if (!mate.TryGetRecruiter(out var rider))
+                return;
 
-            SquadMateStateHelper.MaintainControl(npc);
+            var anchorPos = rider.mount?.Position ?? rider.Position;
+            var anchorTile = new Vector2(rider.TilePoint.X, rider.TilePoint.Y);
 
-            // Ensure the NPC is in the same location as the player
-            if (npc.currentLocation != _playerService.CurrentLocation)
+            foreach (var npc in ResolveAllLiveNpcs(mate.Npc))
             {
-                _warpService.WarpCharacter(npc, _playerService.CurrentLocation.Name, _playerService.TilePoint);
-            }
+                if (npc.currentLocation != rider.currentLocation)
+                    Game1.warpCharacter(npc, rider.currentLocation, anchorTile);
 
-            // +Y offset layers the NPC in front of the player for Up/Left/Right.
-            // For Down, HarmonyPatches.AdjustSittingNpcDepth overrides depth to slot the NPC behind the player.
-            npc.Position = new Vector2(player.Position.X, player.Position.Y + 8f);
+                // +Y offset layers the NPC in front of the rider for Up/Left/Right.
+                // For Down, HarmonyPatches.AdjustSittingNpcDepth overrides depth to slot the NPC behind the rider.
+                npc.Position = new Vector2(anchorPos.X, anchorPos.Y + 8f);
+                npc.faceDirection(rider.FacingDirection);
+                npc.HideShadow = true;
 
-            npc.faceDirection(player.FacingDirection);
-
-            bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(npc, mate, player.FacingDirection) ?? false;
-            if (!usedCustomSprite)
-            {
-                _spriteManager?.ForceApplyTaskAnimation(npc, "Sitting");
+                bool usedCustomSprite = _spriteManager?.TryApplySittingSpriteSheet(npc, mate, rider.FacingDirection) ?? false;
+                if (!usedCustomSprite)
+                    _spriteManager?.ForceApplyTaskAnimation(npc, "Sitting");
             }
         }
 
         /// <summary>
         /// Computes the riding draw offset for a squad mate. Invoked once per NPC.draw call.
+        /// Takes the live NPC instance being drawn rather than reading mate.Npc, because on
+        /// the farmhand mate.Npc may be the orphan duplicate (per pattern-mp-npc-duplication).
+        /// The visible instance's Position is what the host has been writing during riding,
+        /// so reading the orphan's Position would feed a stale anchor into lagCorrection and
+        /// push the saddle offset far enough to render the NPC offscreen.
         /// </summary>
-        internal Vector2 ComputeRidingDrawOffset(ISquadMate mate)
+        internal Vector2 ComputeRidingDrawOffset(NPC npc, ISquadMate mate)
         {
-            var npc = mate.Npc;
-            var player = _playerService.Player;
+            // Resolve the rider this mate is riding behind. Falls through to the local
+            // player only if the recruiter is offline (rare for an actively-riding mate).
+            var player = mate.TryGetRecruiter(out var rec) ? rec : Game1.player;
             if (player?.mount == null) return Vector2.Zero;
 
             // Wobble: sync to the horse's sprite animation index (same formula as Farmer.showRiding).
@@ -1179,10 +1791,27 @@ namespace TheStardewSquad.Framework
             int horseWidth = player.mount.GetSpriteWidthForPositioning();
             float xDelta = 2 * (horseWidth - horseSpriteW);
 
-            return new Vector2(
+            Vector2 baseOffset = new Vector2(
                 saddleAnchor.X - pivotBaseX - (anchorX - spriteWidth / 2f) * 4f + xDelta,
                 saddleAnchor.Y - depthOffset - wobble - pivotBaseY - (anchorY - spriteHeight * 3f / 4f) * 4f
             );
+
+            // MP smoothing: on remote screens npc.Position can trail the rider's Position by
+            // 1-2 ticks, leaving the NPC visibly behind the horse. Compute the offset against
+            // the rider's *current* anchor and exponentially smooth (Lerp 0.5 ≈ ~2-frame
+            // half-life) per screen, per recruiter. On the host this collapses to a no-op
+            // because npc.Position == rider.mount.Position + (0,8) already.
+            Vector2 currentRiderAnchor = (player.mount?.Position ?? player.Position) + new Vector2(0f, 8f);
+            var perScreenDict = _smoothedRiderAnchor.Value;
+            Vector2 lastAnchor = perScreenDict.TryGetValue(player.UniqueMultiplayerID, out var lp)
+                ? lp
+                : currentRiderAnchor;
+            Vector2 smoothedAnchor = Vector2.Lerp(lastAnchor, currentRiderAnchor, 0.5f);
+            perScreenDict[player.UniqueMultiplayerID] = smoothedAnchor;
+
+            Vector2 lagCorrection = smoothedAnchor - npc.Position;
+
+            return baseOffset + lagCorrection;
         }
 
         #endregion

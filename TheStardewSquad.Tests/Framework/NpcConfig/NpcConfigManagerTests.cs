@@ -6,6 +6,7 @@ using StardewValley.Characters;
 using TheStardewSquad.Abstractions.Data;
 using TheStardewSquad.Framework.NpcConfig;
 using TheStardewSquad.Framework.NpcConfig.Models;
+using TheStardewSquad.Tests.Helpers;
 using Xunit;
 
 namespace TheStardewSquad.Tests.Framework.NpcConfig
@@ -28,9 +29,13 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
         {
             var mockDataProvider = new Mock<INpcConfigDataProvider>();
             var mockMonitor = new Mock<IMonitor>();
+            var mockHelper = new Mock<IModHelper>();
+            mockHelper.Setup(h => h.DirectoryPath).Returns(System.IO.Path.GetTempPath());
+            var baselineLoader = new BaselineContentLoader(mockHelper.Object, mockMonitor.Object);
 
             var manager = new NpcConfigManager(
                 mockDataProvider.Object,
+                baselineLoader,
                 mockMonitor.Object
             );
 
@@ -62,11 +67,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("UnknownNpc");
+            var npc = new NPC { Name = "UnknownNpc" };
 
             // Act
-            var result = manager.GetConfig(mockNpc.Object);
+            var result = manager.GetConfig(npc);
 
             // Assert
             result.Should().NotBeNull();
@@ -95,11 +99,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Abigail");
+            var npc = new NPC { Name = "Abigail" };
 
             // Act
-            var result = manager.GetConfig(mockNpc.Object);
+            var result = manager.GetConfig(npc);
 
             // Assert
             result.Should().BeSameAs(abigailConfig);
@@ -116,12 +119,11 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("TestNpc");
+            var npc = new NPC { Name = "TestNpc" };
 
             // Act
-            manager.GetConfig(mockNpc.Object);
-            manager.GetConfig(mockNpc.Object); // Second call
+            manager.GetConfig(npc);
+            manager.GetConfig(npc); // Second call
 
             // Assert - LoadNpcConfigData should only be called once
             mockDataProvider.Verify(p => p.LoadNpcConfigData(), Times.Once);
@@ -148,12 +150,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockPet = new Mock<Pet>();
-            mockPet.Setup(p => p.Name).Returns("Fluffy");
-            mockPet.Setup(p => p.petType).Returns(new Netcode.NetString("Cat"));
+            var pet = TestPetFactory.CreatePet("Fluffy", petType: "Cat");
 
             // Act
-            var result = manager.GetConfig(mockPet.Object);
+            var result = manager.GetConfig(pet);
 
             // Assert
             result.Should().BeSameAs(catConfig);
@@ -182,12 +182,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockPet = new Mock<Pet>();
-            mockPet.Setup(p => p.Name).Returns("Dog2");
-            mockPet.Setup(p => p.petType).Returns(new Netcode.NetString("Dog"));
+            var pet = TestPetFactory.CreatePet("Dog2", petType: "Dog");
 
             // Act
-            var result = manager.GetConfig(mockPet.Object);
+            var result = manager.GetConfig(pet);
 
             // Assert
             result.Should().BeSameAs(dog2Config);
@@ -214,13 +212,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockPet = new Mock<Pet>();
-            mockPet.Setup(p => p.Name).Returns("Mittens");
-            mockPet.Setup(p => p.petType).Returns(new Netcode.NetString("Cat"));
-            mockPet.Setup(p => p.whichBreed).Returns(() => new Netcode.NetInt(1));
+            var pet = TestPetFactory.CreatePet("Mittens", petType: "Cat", breed: 1);
 
             // Act
-            var result = manager.GetConfig(mockPet.Object);
+            var result = manager.GetConfig(pet);
 
             // Assert
             result.Should().BeSameAs(cat1Config);
@@ -266,13 +261,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockPet = new Mock<Pet>();
-            mockPet.Setup(p => p.Name).Returns("Fluffy");
-            mockPet.Setup(p => p.petType).Returns(new Netcode.NetString("Cat"));
-            mockPet.Setup(p => p.whichBreed).Returns(() => new Netcode.NetInt(1));
+            var pet = TestPetFactory.CreatePet("Fluffy", petType: "Cat", breed: 1);
 
             // Act
-            var result = manager.GetConfig(mockPet.Object);
+            var result = manager.GetConfig(pet);
 
             // Assert - Should use exact name match (highest priority)
             result.Should().BeSameAs(fluffyConfig);
@@ -311,13 +303,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockPet = new Mock<Pet>();
-            mockPet.Setup(p => p.Name).Returns("Rover");
-            mockPet.Setup(p => p.petType).Returns(new Netcode.NetString("Dog"));
-            mockPet.Setup(p => p.whichBreed).Returns(() => new Netcode.NetInt(2));
+            var pet = TestPetFactory.CreatePet("Rover", petType: "Dog", breed: 2);
 
             // Act
-            var result = manager.GetConfig(mockPet.Object);
+            var result = manager.GetConfig(pet);
 
             // Assert - Should use breed match (higher priority than species-wide)
             result.Should().BeSameAs(dog2Config);
@@ -354,19 +343,12 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockCat = new Mock<Pet>();
-            mockCat.Setup(p => p.Name).Returns("Whiskers");
-            mockCat.Setup(p => p.petType).Returns(new Netcode.NetString("Cat"));
-            mockCat.Setup(p => p.whichBreed).Returns(() => new Netcode.NetInt(1));
-
-            var mockDog = new Mock<Pet>();
-            mockDog.Setup(p => p.Name).Returns("Buddy");
-            mockDog.Setup(p => p.petType).Returns(new Netcode.NetString("Dog"));
-            mockDog.Setup(p => p.whichBreed).Returns(() => new Netcode.NetInt(1));
+            var cat = TestPetFactory.CreatePet("Whiskers", petType: "Cat", breed: 1);
+            var dog = TestPetFactory.CreatePet("Buddy", petType: "Dog", breed: 1);
 
             // Act
-            var catResult = manager.GetConfig(mockCat.Object);
-            var dogResult = manager.GetConfig(mockDog.Object);
+            var catResult = manager.GetConfig(cat);
+            var dogResult = manager.GetConfig(dog);
 
             // Assert - Cat and Dog breed 1 should have different configs
             catResult.Should().BeSameAs(cat1Config);
@@ -456,11 +438,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("UnknownNpc");
+            var npc = new NPC { Name = "UnknownNpc" };
 
             // Act
-            var result = manager.HasConfig(mockNpc.Object);
+            var result = manager.HasConfig(npc);
 
             // Assert
             result.Should().BeFalse();
@@ -478,11 +459,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Abigail");
+            var npc = new NPC { Name = "Abigail" };
 
             // Act
-            var result = manager.HasConfig(mockNpc.Object);
+            var result = manager.HasConfig(npc);
 
             // Assert
             result.Should().BeTrue();
@@ -500,12 +480,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockPet = new Mock<Pet>();
-            mockPet.Setup(p => p.Name).Returns("Buddy");
-            mockPet.Setup(p => p.petType).Returns(new Netcode.NetString("Dog"));
+            var pet = TestPetFactory.CreatePet("Buddy", petType: "Dog");
 
             // Act
-            var result = manager.HasConfig(mockPet.Object);
+            var result = manager.HasConfig(pet);
 
             // Assert
             result.Should().BeTrue();
@@ -523,13 +501,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             mockDataProvider.Setup(p => p.LoadNpcConfigData()).Returns(configData);
 
-            var mockPet = new Mock<Pet>();
-            mockPet.Setup(p => p.Name).Returns("Mittens");
-            mockPet.Setup(p => p.petType).Returns(new Netcode.NetString("Cat"));
-            mockPet.Setup(p => p.whichBreed).Returns(() => new Netcode.NetInt(1));
+            var pet = TestPetFactory.CreatePet("Mittens", petType: "Cat", breed: 1);
 
             // Act
-            var result = manager.HasConfig(mockPet.Object);
+            var result = manager.HasConfig(pet);
 
             // Assert
             result.Should().BeTrue();
@@ -548,11 +523,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
             mockDataProvider.Setup(p => p.LoadNpcConfigData())
                 .Throws(new Microsoft.Xna.Framework.Content.ContentLoadException("Asset not found"));
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Abigail");
+            var npc = new NPC { Name = "Abigail" };
 
             // Act
-            var result = manager.GetConfig(mockNpc.Object);
+            var result = manager.GetConfig(npc);
 
             // Assert
             result.Should().NotBeNull();
@@ -571,11 +545,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
             mockDataProvider.Setup(p => p.LoadNpcConfigData())
                 .Throws(new Exception("Unexpected error"));
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Abigail");
+            var npc = new NPC { Name = "Abigail" };
 
             // Act
-            var result = manager.GetConfig(mockNpc.Object);
+            var result = manager.GetConfig(npc);
 
             // Assert
             result.Should().NotBeNull();
@@ -629,12 +602,10 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
 
             // Act
             var generic = manager.GetGenericConfig();
-            var mockAbigail = new Mock<NPC>();
-            mockAbigail.Setup(n => n.Name).Returns("Abigail");
-            var mockShane = new Mock<NPC>();
-            mockShane.Setup(n => n.Name).Returns("Shane");
-            var abigail = manager.GetConfig(mockAbigail.Object);
-            var shane = manager.GetConfig(mockShane.Object);
+            var abigailNpc = new NPC { Name = "Abigail" };
+            var shaneNpc = new NPC { Name = "Shane" };
+            var abigail = manager.GetConfig(abigailNpc);
+            var shane = manager.GetConfig(shaneNpc);
 
             // Assert
             generic.Dialogue.Recruit.Should().Contain("dialogue.recruit.generic.1");

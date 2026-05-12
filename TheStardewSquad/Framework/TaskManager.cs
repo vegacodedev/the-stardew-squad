@@ -22,6 +22,7 @@ namespace TheStardewSquad.Framework
         private static FollowerManager _followerManager;
         private static StardewModdingAPI.IMonitor _monitor;
         private static NpcConfig.SpriteManager _spriteManager;
+        private static Multiplayer.MessageDispatcher? _dispatcher;
 
         private static readonly Shears _sharedShears = new();
         private static readonly MilkPail _sharedMilkPail = new();
@@ -39,6 +40,24 @@ namespace TheStardewSquad.Framework
         public static void SetMonitor(StardewModdingAPI.IMonitor monitor)
         {
             _monitor = monitor;
+        }
+
+        public static void AttachDispatcher(Multiplayer.MessageDispatcher dispatcher)
+        {
+            _dispatcher = dispatcher;
+        }
+
+        /// <summary>
+        /// Calls vanilla <c>NPC.shake</c> on the host AND broadcasts a ShakeNpc message so peers
+        /// see the wobble too. Vanilla <c>shakeTimer</c> is a plain int (not NetField-wrapped).
+        /// </summary>
+        private static void ShakeAndBroadcast(NPC npc, int durationMs)
+        {
+            npc.shake(durationMs);
+            _dispatcher?.BroadcastShake(
+                npc.Name,
+                npc.currentLocation?.NameOrUniqueName ?? string.Empty,
+                durationMs);
         }
 
         /// <summary>
@@ -123,20 +142,32 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Common Helpers
-        /// <summary>Creates a chest instance connected to the squad's global inventory.</summary>
-        private static StardewValley.Objects.Chest GetSquadChest()
+        /// <summary>
+        /// Returns the per-recruiter squad inventory id. Each recruiter gets their own squad chest
+        /// so in MP each farmhand's recruited mates deposit to that farmhand's squad chest, not
+        /// a single team-wide pool. In SP this is just the local player's id.
+        /// </summary>
+        public static string GetSquadInventoryId(Farmer recruiter)
         {
+            return $"TheStardewSquad_SquadInventory_{recruiter.UniqueMultiplayerID}";
+        }
+
+        /// <summary>Creates a chest instance connected to the recruiter's squad inventory.</summary>
+        private static StardewValley.Objects.Chest GetSquadChest(Farmer? recruiter = null)
+        {
+            var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
             return new StardewValley.Objects.Chest(playerChest: true)
             {
-                GlobalInventoryId = "TheStardewSquad_SquadInventory"
+                GlobalInventoryId = GetSquadInventoryId(who)
             };
         }
 
         #endregion
 
-        private static int GetAxeUpgradeLevel()
+        private static int GetAxeUpgradeLevel(Farmer? recruiter = null)
         {
-            switch (Game1.player.ForagingLevel)
+            var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            switch (who.ForagingLevel)
             {
                 case >= 10: return 4; // Iridium
                 case >= 8: return 3;  // Gold
@@ -146,9 +177,10 @@ namespace TheStardewSquad.Framework
             }
         }
 
-        private static int GetPickaxeUpgradeLevel()
+        private static int GetPickaxeUpgradeLevel(Farmer? recruiter = null)
         {
-            switch (Game1.player.MiningLevel)
+            var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            switch (who.MiningLevel)
             {
                 case >= 10: return 4; // Iridium
                 case >= 8: return 3;  // Gold
@@ -171,12 +203,13 @@ namespace TheStardewSquad.Framework
             }
         }
 
-        public static bool CanSquadInventoryAcceptItem(Item item)
+        public static bool CanSquadInventoryAcceptItem(Item item, Farmer? recruiter = null)
         {
             if (item == null)
                 return false;
 
-            var squadInventory = Game1.player.team.GetOrCreateGlobalInventory("TheStardewSquad_SquadInventory");
+            var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            var squadInventory = Game1.player.team.GetOrCreateGlobalInventory(GetSquadInventoryId(who));
 
             // Check if any existing item in the inventory can stack with the new item.
             foreach (Item slot in squadInventory)
@@ -199,43 +232,48 @@ namespace TheStardewSquad.Framework
         }
 
         /// <summary>Checks if an item can be accepted based on the UseSquadInventory config setting.</summary>
-        public static bool CanAcceptItem(Item item)
+        /// <param name="recruiter">The recruiter whose inventory will be checked when squad-inventory mode is off. Defaults to MasterPlayer for non-MP-aware callers.</param>
+        public static bool CanAcceptItem(Item item, Farmer? recruiter = null)
         {
             if (item == null)
                 return false;
 
             if (_config.UseSquadInventory)
             {
-                return CanSquadInventoryAcceptItem(item);
+                return CanSquadInventoryAcceptItem(item, recruiter);
             }
             else
             {
-                return Game1.player.couldInventoryAcceptThisItem(item);
+                var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+                return who.couldInventoryAcceptThisItem(item);
             }
         }
 
         /// <summary>Tries to add an item to the appropriate inventory based on the UseSquadInventory config setting.</summary>
         /// <param name="item">The item to add.</param>
-        /// <param name="dropIfFullAt">If provided, falls back to the player's inventory when the squad chest is full, and drops the item as debris at this NPC's position if both are full. Always returns true in that case.</param>
+        /// <param name="dropIfFullAt">If provided, falls back to the recruiter's inventory when the squad chest is full, and drops the item as debris at this NPC's position if both are full. Always returns true in that case.</param>
+        /// <param name="recruiter">The recruiter whose inventory receives the item when squad-inventory mode is off. Defaults to MasterPlayer for non-MP-aware callers.</param>
         /// <returns>True if the item was successfully added (or dropped on the ground when <paramref name="dropIfFullAt"/> is set); false otherwise.</returns>
-        private static bool TryAddItemToInventory(Item item, NPC dropIfFullAt = null)
+        private static bool TryAddItemToInventory(Item item, NPC? dropIfFullAt = null, Farmer? recruiter = null)
         {
             if (item == null)
                 return false;
 
+            var who = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+
             if (_config.UseSquadInventory)
             {
-                var squadChest = GetSquadChest();
+                var squadChest = GetSquadChest(who);
                 if (squadChest.addItem(item) == null)
                     return true;
 
                 if (dropIfFullAt == null)
                     return false;
 
-                if (Game1.player.addItemToInventoryBool(item))
+                if (who.addItemToInventoryBool(item))
                     return true;
             }
-            else if (Game1.player.addItemToInventoryBool(item))
+            else if (who.addItemToInventoryBool(item))
             {
                 return true;
             }
@@ -245,6 +283,19 @@ namespace TheStardewSquad.Framework
 
             Game1.createItemDebris(item, dropIfFullAt.Position, -1, dropIfFullAt.currentLocation);
             return true;
+        }
+
+        private static void TransferExperienceGained(Farmer source, Farmer target, int skill, int beforeSourceExperience)
+        {
+            if (source == null || target == null || source.UniqueMultiplayerID == target.UniqueMultiplayerID)
+                return;
+
+            int gained = source.experiencePoints[skill] - beforeSourceExperience;
+            if (gained <= 0)
+                return;
+
+            source.experiencePoints[skill] = Math.Max(0, source.experiencePoints[skill] - gained);
+            target.gainExperience(skill, gained);
         }
 
         private static (Point target, Point? interactionPoint) CheckForTrellis(GameLocation location, Point target, NPC npc)
@@ -272,21 +323,6 @@ namespace TheStardewSquad.Framework
         }
 
         #region Attacking Task
-        /// <summary>Checks if the player is in combat (has weapon equipped and is using it).</summary>
-        public static bool IsPlayerInCombat()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has a weapon equipped
-            if (player.CurrentTool is not StardewValley.Tools.MeleeWeapon &&
-                player.CurrentTool is not StardewValley.Tools.Slingshot)
-                return false;
-
-            // Check if weapon is being used
-            return player.UsingTool;
-        }
-
         /// <summary>
         /// Calculates attack damage for humanoid squad members based on player combat level and professions.
         /// Level 1: 5 min / 21 max | Level 10: 50 min / 120 max
@@ -379,22 +415,7 @@ namespace TheStardewSquad.Framework
             return distanceX <= 1 && distanceY <= 1;
         }
 
-        public static Monster FindHostileMonster(NPC npc, IMonitor monitor)
-        {
-            // Backward-compatible wrapper that uses the testable version
-            var location = npc.currentLocation;
-            var playerTile = Game1.player.Tile.ToPoint();
-            int searchRadius = 8;
-
-            return FindHostileMonster(
-                new LocationInfoWrapper(location, npc),
-                playerTile,
-                npc.TilePoint,
-                searchRadius);
-        }
-
         /// <summary>
-        /// Testable version of FindHostileMonster that uses ILocationInfo abstraction.
         /// Finds a hostile monster that is targetable and reachable by the NPC.
         /// </summary>
         public static Monster FindHostileMonster(
@@ -494,11 +515,14 @@ namespace TheStardewSquad.Framework
                 return false; // Not adjacent - continue task, NPC will path closer
             }
 
-            var (minDamage, maxDamage) = CalculateAttackDamage(Game1.player);
+            // Damage and crit math are derived from the recruiter's stats so per-mate
+            // attacks reflect the recruiting farmer's combat profile (and credit them).
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+            var (minDamage, maxDamage) = CalculateAttackDamage(who);
 
             // Calculate critical hit parameters using vanilla weapon mechanics
-            float critChance = CalculateCritChance(Game1.player);
-            float critMultiplier = CalculateCritMultiplier(Game1.player);
+            float critChance = CalculateCritChance(who);
+            float critMultiplier = CalculateCritMultiplier(who);
 
             // Use extended damageMonster overload with critical hit support
             npc.currentLocation.damageMonster(
@@ -508,10 +532,10 @@ namespace TheStardewSquad.Framework
                 false,                  // isBomb
                 1.0f,                   // knockBackModifier
                 0,                      // addedPrecision
-                critChance,             // critChance (2% base + player buffs)
-                critMultiplier,         // critMultiplier (3x base + player buffs)
+                critChance,             // critChance (2% base + recruiter buffs)
+                critMultiplier,         // critMultiplier (3x base + recruiter buffs)
                 true,                   // triggerMonsterInvincibleTimer
-                Game1.player,           // who
+                who,                    // who (gets kill credit / XP)
                 true                    // isProjectile (true to always hit)
             );
             npc.currentLocation.playSound("swordswipe");
@@ -519,8 +543,8 @@ namespace TheStardewSquad.Framework
             FacePosition(npc, monster.getStandingPosition());
             AnimateAttacking(npc);
 
-            _spriteManager?.ApplyTaskAnimation(npc, "Attacking", 400);
-            npc.shake(400);
+            _spriteManager?.ApplyTaskAnimation(npc, "Attacking", 400, mate);
+            ShakeAndBroadcast(npc, 400);
 
             mate.ActionCooldown = 48;
 
@@ -543,7 +567,7 @@ namespace TheStardewSquad.Framework
             switch (npc.FacingDirection)
             {
                 case 1: // Right
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -561,7 +585,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 50 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -579,7 +603,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 100 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -597,7 +621,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 150 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -617,7 +641,7 @@ namespace TheStardewSquad.Framework
                     { delayBeforeAnimationStart = 200 });
                     break;
                 case 3: // Left
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -635,7 +659,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 50 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -653,7 +677,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 100 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -671,7 +695,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 150 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -691,7 +715,7 @@ namespace TheStardewSquad.Framework
                     { delayBeforeAnimationStart = 200 });
                     break;
                 case 0: // Up
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -709,7 +733,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 50 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -727,7 +751,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 100 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -745,7 +769,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 150 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -765,7 +789,7 @@ namespace TheStardewSquad.Framework
                     { delayBeforeAnimationStart = 200 });
                     break;
                 case 2: // Down
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -783,7 +807,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 50 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -801,7 +825,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 100 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -819,7 +843,7 @@ namespace TheStardewSquad.Framework
                         rotationChange: 0f
                     )
                     { delayBeforeAnimationStart = 150 });
-                    location.temporarySprites.Add(new TemporaryAnimatedSprite(
+                    Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                         textureName: Tool.weaponsTextureName,
                         sourceRect,
                         animationInterval: 50f,
@@ -880,12 +904,14 @@ namespace TheStardewSquad.Framework
                 return false; // Not adjacent - continue task, NPC will path closer
             }
 
-            var (minDamage, maxDamage) = CalculateAttackDamage(Game1.player);
+            // Damage / crit derived from recruiter so the pet's owner gets the kill credit.
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+            var (minDamage, maxDamage) = CalculateAttackDamage(who);
 
             // Calculate critical hit parameters using vanilla weapon mechanics
             // Pets now use the same crit calculations as humanoid NPCs
-            float critChance = CalculateCritChance(Game1.player);
-            float critMultiplier = CalculateCritMultiplier(Game1.player);
+            float critChance = CalculateCritChance(who);
+            float critMultiplier = CalculateCritMultiplier(who);
 
             // Use extended damageMonster overload with critical hit support
             npc.currentLocation.damageMonster(
@@ -895,10 +921,10 @@ namespace TheStardewSquad.Framework
                 false,                  // isBomb
                 1.0f,                   // knockBackModifier
                 0,                      // addedPrecision
-                critChance,             // critChance (1.5% base + player buffs)
-                critMultiplier,         // critMultiplier (3x base + player buffs)
+                critChance,             // critChance (1.5% base + recruiter buffs)
+                critMultiplier,         // critMultiplier (3x base + recruiter buffs)
                 true,                   // triggerMonsterInvincibleTimer
-                Game1.player,           // who
+                who,                    // who (gets kill credit / XP)
                 true                    // isProjectile (true to always hit)
             );
             npc.currentLocation.playSound("daggerswipe");
@@ -906,7 +932,7 @@ namespace TheStardewSquad.Framework
             FacePosition(npc, monster.getStandingPosition());
             AnimatePetAttacking(npc);
             _spriteManager?.ApplyTaskAnimation(npc, "Attacking", 250);
-            npc.shake(250); // A little shake instead of a full animation
+            ShakeAndBroadcast(npc, 250); // A little shake instead of a full animation
             mate.ActionCooldown = 40; // Pets can attack a bit faster
 
             if (Game1.random.Next(8) == 0)
@@ -922,25 +948,25 @@ namespace TheStardewSquad.Framework
             switch (npc.FacingDirection)
             {
                 case 1: // Right
-                    npc.currentLocation.temporarySprites.Add(new TemporaryAnimatedSprite(15, npc.Position + new Vector2(40f, -100f), Color.White, 4, flipped: false, 80f, 0, 128, 1f, 128)
+                    Game1.Multiplayer.broadcastSprites(npc.currentLocation, new TemporaryAnimatedSprite(15, npc.Position + new Vector2(40f, -100f), Color.White, 4, flipped: false, 80f, 0, 128, 1f, 128)
                     {
                         layerDepth = (float)(npc.GetBoundingBox().Bottom + 1) / 10000f
                     });
                     break;
                 case 3: // Left
-                    npc.currentLocation.temporarySprites.Add(new TemporaryAnimatedSprite(15, npc.Position + new Vector2(-92f, -100f), Color.White, 4, flipped: true, 80f, 0, 128, 1f, 128)
+                    Game1.Multiplayer.broadcastSprites(npc.currentLocation, new TemporaryAnimatedSprite(15, npc.Position + new Vector2(-92f, -100f), Color.White, 4, flipped: true, 80f, 0, 128, 1f, 128)
                     {
                         layerDepth = (float)(npc.GetBoundingBox().Bottom + 1) / 10000f
                     });
                     break;
                 case 0: // Up
-                    npc.currentLocation.temporarySprites.Add(new TemporaryAnimatedSprite(18, npc.Position + new Vector2(40f, -132f), Color.White, 4, flipped: false, 100f, 0, 64, 1f, 64)
+                    Game1.Multiplayer.broadcastSprites(npc.currentLocation, new TemporaryAnimatedSprite(18, npc.Position + new Vector2(40f, -132f), Color.White, 4, flipped: false, 100f, 0, 64, 1f, 64)
                     {
                         layerDepth = (float)(npc.StandingPixel.Y - 9) / 10000f
                     });
                     break;
                 case 2: // Down
-                    npc.currentLocation.temporarySprites.Add(new TemporaryAnimatedSprite(19, npc.Position + new Vector2(60f, -128f), Color.White, 4, flipped: false, 80f, 0, 128, 1f, 128)
+                    Game1.Multiplayer.broadcastSprites(npc.currentLocation, new TemporaryAnimatedSprite(19, npc.Position + new Vector2(60f, -128f), Color.White, 4, flipped: false, 80f, 0, 128, 1f, 128)
                     {
                         layerDepth = (float)(npc.GetBoundingBox().Bottom + 1) / 10000f
                     });
@@ -950,35 +976,9 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Watering Task
-        /// <summary>Checks if the player is currently watering with a watering can.</summary>
-        public static bool IsPlayerWatering()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has a watering can equipped
-            if (player.CurrentTool is not StardewValley.Tools.WateringCan)
-                return false;
-
-            // Check if watering can is being used
-            return player.UsingTool;
-        }
-
-        public static (Point? target, Point? interactionPoint) FindWaterableTile(NPC npc, ISet<Point> claimedTaskTargets)
-        {
-            GameLocation location = npc.currentLocation;
-            var searchRadius = 5;
-
-            return FindWaterableTile(
-                new LocationInfoWrapper(location, npc),
-                npc.TilePoint,
-                searchRadius,
-                claimedTaskTargets
-            );
-        }
 
         /// <summary>
-        /// Testable version: Finds the nearest dry HoeDirt tile that needs watering within a search radius around the NPC.
+        /// Finds the nearest dry HoeDirt tile that needs watering within a search radius around the NPC.
         /// </summary>
         /// <param name="locationInfo">Location information provider.</param>
         /// <param name="npcPosition">The NPC's current position (center of search area).</param>
@@ -1031,16 +1031,16 @@ namespace TheStardewSquad.Framework
                 dirt.state.Value = HoeDirt.watered;
                 location.playSound("wateringCan");
 
-                location.temporarySprites.Add(new TemporaryAnimatedSprite(
-                    Game1.animationsName, new Rectangle(294, 1856, 16, 16), 100f, 4, 1,
-                    (tileVector * 64f) + new Vector2(Game1.random.Next(-16, 16), Game1.random.Next(-16, 16)),
-                    false, false, (tile.Y * 64 + 32) / 10000f, 0.01f, Color.White, 4f, 0.01f, 0f, 0f));
+                // Row-13 splash from vanilla TileSheets/animations, matching WateringCan.DoFunction.
+                Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
+                    13, tileVector * 64f, Color.White, 10, Game1.random.Next(2) == 0, 70f, 0, 64,
+                    (tile.Y * 64f + 32f) / 10000f - 0.01f));
 
                 var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
                 FacePosition(npc, targetWorldPosition);
                 AnimateWatering(npc);
-                _spriteManager?.ApplyTaskAnimation(npc, "Watering", 400);
-                npc.shake(230);
+                _spriteManager?.ApplyTaskAnimation(npc, "Watering", 400, mate);
+                ShakeAndBroadcast(npc, 300);
 
                 mate.ActionCooldown = 48;
 
@@ -1072,7 +1072,7 @@ namespace TheStardewSquad.Framework
                 case 2: default: sourceRect = new Rectangle(0, 208, 16, 32); positionOffset = new Vector2(0, -32); break;
             }
 
-            location.temporarySprites.Add(new TemporaryAnimatedSprite(
+            Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                 textureName: Game1.toolSpriteSheet.Name,
                 sourceRect,
                 animationInterval,
@@ -1104,19 +1104,6 @@ namespace TheStardewSquad.Framework
             Both
         }
 
-        /// <summary>Checks if the player is currently lumbering with an axe.</summary>
-        public static bool IsPlayerLumbering()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has an axe equipped
-            if (player.CurrentTool is not StardewValley.Tools.Axe)
-                return false;
-
-            // Check if axe is being used
-            return player.UsingTool;
-        }
 
         public static (Point? target, Point? interactionPoint) FindLumberingTarget(
             ILocationInfo locationInfo,
@@ -1179,20 +1166,16 @@ namespace TheStardewSquad.Framework
             return (null, null); // No suitable target found
         }
 
-        /// <summary>Finds a lumbering target (damaged tree or twig). (Backward-compatible overload)</summary>
-        public static (Point? target, Point? interactionPoint) FindLumberingTarget(NPC npc, IMonitor monitor, ISet<Vector2> claimedInteractionSpots, ISet<Point> claimedTaskTargets)
-        {
-            var locationInfo = new LocationInfoWrapper(npc.currentLocation, npc);
-            return FindLumberingTarget(locationInfo, Game1.player.TilePoint, npc.TilePoint, 10, claimedTaskTargets, claimedInteractionSpots, monitor);
-        }
-
         public static bool ExecuteLumberingTask(ISquadMate mate, Point tile)
         {
             NPC npc = mate.Npc;
 
             var location = npc.currentLocation;
             var tileVector = tile.ToVector2();
-            var tempAxe = new Axe { lastUser = Game1.player, UpgradeLevel = GetAxeUpgradeLevel() };
+            // Use recruiter for tool ownership and upgrade level so wood goes to the
+            // right farmer's inventory and tool-tier rules respect their ForagingLevel.
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+            var tempAxe = new Axe { lastUser = who, UpgradeLevel = GetAxeUpgradeLevel(who) };
             bool taskCompleted = true; // Assume done if target vanishes.
             bool targetFound = false;
 
@@ -1229,8 +1212,8 @@ namespace TheStardewSquad.Framework
                 FacePosition(npc, targetWorldPosition);
                 AnimateLumbering(npc);
                 SpawnToolSwipeOverlay(npc);
-                _spriteManager?.ApplyTaskAnimation(npc, "Lumbering", 400);
-                npc.shake(230);
+                _spriteManager?.ApplyTaskAnimation(npc, "Lumbering", 400, mate);
+                ShakeAndBroadcast(npc, 400);
                 mate.ActionCooldown = 48;
                 if (Game1.random.Next(10) == 0)
                 {
@@ -1284,7 +1267,7 @@ namespace TheStardewSquad.Framework
                     break;
             }
 
-            location.temporarySprites.Add(new TemporaryAnimatedSprite(
+            Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                 textureName: Game1.animationsName,
                 sourceRect: sourceRect,
                 animationInterval: interval,
@@ -1322,8 +1305,7 @@ namespace TheStardewSquad.Framework
                         // Frame 2: Strike
                         var swingFrame2 = new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(64, -48), false, false, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 };
 
-                        location.temporarySprites.Add(swingFrame1);
-                        location.temporarySprites.Add(swingFrame2);
+                        Game1.Multiplayer.broadcastSprites(location, swingFrame1, swingFrame2);
                         break;
                     }
                 case 3: // Left
@@ -1336,8 +1318,7 @@ namespace TheStardewSquad.Framework
                         // Frame 2: Strike
                         var swingFrame2 = new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(-64, -48), false, true, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 };
 
-                        location.temporarySprites.Add(swingFrame1);
-                        location.temporarySprites.Add(swingFrame2);
+                        Game1.Multiplayer.broadcastSprites(location, swingFrame1, swingFrame2);
                         break;
                     }
                 case 0: // Up
@@ -1346,7 +1327,7 @@ namespace TheStardewSquad.Framework
                     {
                         Rectangle sourceRect = (npc.FacingDirection == 0) ? new Rectangle(48, 144, 16, 32) : new Rectangle(0, 144, 16, 32);
                         Vector2 positionOffset = (npc.FacingDirection == 0) ? new Vector2(0, -128) : new Vector2(0, -80);
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 200f, 2, 0, npc.Position + positionOffset, false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 200f, 2, 0, npc.Position + positionOffset, false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
                         break;
                     }
             }
@@ -1354,19 +1335,6 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Mining Task
-        /// <summary>Checks if the player is currently mining with a pickaxe.</summary>
-        public static bool IsPlayerMining()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has a pickaxe equipped and is using it
-            if (player.CurrentTool is not StardewValley.Tools.Pickaxe)
-                return false;
-
-            return player.UsingTool;
-        }
-
         /// <summary>Finds a minable rock within search radius (testable version accepting ILocationInfo).</summary>
         public static (Point? target, Point? interactionPoint) FindMinableRock(
             ILocationInfo locationInfo,
@@ -1427,11 +1395,12 @@ namespace TheStardewSquad.Framework
             return (null, null);
         }
 
-        /// <summary>Finds a minable rock within search radius (backward-compatible overload).</summary>
-        public static (Point? target, Point? interactionPoint) FindMinableRock(NPC npc, IMonitor monitor, ISet<Vector2> claimedInteractionSpots)
+        /// <summary>Finds a minable rock within search radius. Convenience wrapper for non-MP-aware callers.</summary>
+        public static (Point? target, Point? interactionPoint) FindMinableRock(NPC npc, IMonitor monitor, ISet<Vector2> claimedInteractionSpots, Farmer? recruiter = null)
         {
             var locationInfo = new LocationInfoWrapper(npc.currentLocation, npc);
-            return FindMinableRock(locationInfo, Game1.player.TilePoint, npc.TilePoint, 15, claimedInteractionSpots, monitor);
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            return FindMinableRock(locationInfo, anchor.TilePoint, npc.TilePoint, 15, claimedInteractionSpots, monitor);
         }
 
         public static bool ExecuteMiningTask(ISquadMate mate, Point tile)
@@ -1443,20 +1412,23 @@ namespace TheStardewSquad.Framework
 
             if (location.objects.TryGetValue(tileVector, out var rock))
             {
-                var tempPickaxe = new Pickaxe { lastUser = Game1.player, UpgradeLevel = GetPickaxeUpgradeLevel() };
+                // Use recruiter for tool ownership / upgrade level and OnStoneDestroyed credit
+                // so the recruiting farmer gets mining XP and the right pickaxe tier rules apply.
+                var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+                var tempPickaxe = new Pickaxe { lastUser = who, UpgradeLevel = GetPickaxeUpgradeLevel(who) };
                 rock.performToolAction(tempPickaxe);
 
                 var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
                 FacePosition(npc, targetWorldPosition);
                 AnimateMining(npc);
                 SpawnToolSwipeOverlay(npc);
-                _spriteManager?.ApplyTaskAnimation(npc, "Mining", 400);
-                npc.shake(230);
+                _spriteManager?.ApplyTaskAnimation(npc, "Mining", 400, mate);
+                ShakeAndBroadcast(npc, 300);
                 mate.ActionCooldown = 48;
 
                 if (rock.minutesUntilReady.Value <= 0 && location.objects.ContainsKey(tileVector))
                 {
-                    location.OnStoneDestroyed(rock.ItemId, tile.X, tile.Y, Game1.player);
+                    location.OnStoneDestroyed(rock.ItemId, tile.X, tile.Y, who);
                     rock.performRemoveAction();
                     location.Objects.Remove(tileVector);
                     location.playSound("stoneCrack", tileVector);
@@ -1489,16 +1461,16 @@ namespace TheStardewSquad.Framework
                     {
                         var strikeRotation = (float)Math.PI / 2f;
                         var sourceRect = new Rectangle(32, 80, 16, 32); // Pickaxe sprite
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 75f, 1, 0, npc.Position + new Vector2(16, -103), false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(64, -48), false, false, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 });
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 75f, 1, 0, npc.Position + new Vector2(16, -103), false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(64, -48), false, false, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 });
                         break;
                     }
                 case 3: // Left
                     {
                         var strikeRotation = (float)-Math.PI / 2f;
                         var sourceRect = new Rectangle(32, 80, 16, 32); // Pickaxe sprite
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 75f, 1, 0, npc.Position + new Vector2(-16, -103), false, true, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(-64, -48), false, true, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 });
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 75f, 1, 0, npc.Position + new Vector2(-16, -103), false, true, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 325f, 1, 0, npc.Position + new Vector2(-64, -48), false, true, layerDepth, 0f, Color.White, 4f, 0f, strikeRotation, 0f) { delayBeforeAnimationStart = 75 });
                         break;
                     }
                 case 0: // Up
@@ -1507,7 +1479,7 @@ namespace TheStardewSquad.Framework
                     {
                         Rectangle sourceRect = (npc.FacingDirection == 0) ? new Rectangle(48, 80, 16, 32) : new Rectangle(0, 80, 16, 32); // Pickaxe sprite
                         Vector2 positionOffset = (npc.FacingDirection == 0) ? new Vector2(0, -128) : new Vector2(0, -80);
-                        location.temporarySprites.Add(new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 200f, 2, 0, npc.Position + positionOffset, false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
+                        Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(Game1.toolSpriteSheet.Name, sourceRect, 200f, 2, 0, npc.Position + positionOffset, false, false, layerDepth, 0f, Color.White, 4f, 0f, 0f, 0f));
                         break;
                     }
             }
@@ -1516,19 +1488,6 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Harvesting Task
-        /// <summary>Checks if the player is currently harvesting crops.</summary>
-        public static bool IsPlayerHarvesting()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if a crop has been harvested within the last 3 seconds (180 ticks at 60 FPS)
-            // This works with MimickingTaskTimer (10 seconds) to provide smooth task management:
-            // - IsPlayerHarvesting() returns true for 3 seconds after harvesting
-            // - MimickingTaskTimer gives NPCs 10 seconds grace period to complete their tasks
-            return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerHarvestingTick()) < 180;
-        }
-
         /// <summary>Checks if a crop tile is within the specified radius of any beehouse.</summary>
         private static bool IsNearBeehouse(Point cropTile, Abstractions.Location.ILocationInfo locationInfo, int radius)
         {
@@ -1537,24 +1496,8 @@ namespace TheStardewSquad.Framework
             return beehouses.Any();
         }
 
-        public static (Point? target, Point? interactionPoint) FindHarvestableCrop(NPC npc, ISet<Point> claimedTaskTargets)
-        {
-            GameLocation location = npc.currentLocation;
-            var searchRadius = 10;
-            var playerTile = Game1.player.TilePoint;
-
-            return FindHarvestableCrop(
-                new LocationInfoWrapper(location, npc),
-                playerTile,
-                npc.TilePoint,
-                searchRadius,
-                claimedTaskTargets,
-                _config?.ProtectBeehouseFlowers
-            );
-        }
-
         /// <summary>
-        /// Testable version: Finds the nearest harvestable crop within a search radius.
+        /// Finds the nearest harvestable crop within a search radius.
         /// </summary>
         /// <param name="locationInfo">Location information provider.</param>
         /// <param name="searchCenter">The center point of the search area (typically player position).</param>
@@ -1626,6 +1569,7 @@ namespace TheStardewSquad.Framework
             var npc = mate.Npc;
             var location = npc.currentLocation;
             var tileVector = tile.ToVector2();
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
 
             if (!location.terrainFeatures.TryGetValue(tileVector, out var feature) || feature is not HoeDirt { crop: { } } dirt || !dirt.readyForHarvest())
             {
@@ -1636,20 +1580,26 @@ namespace TheStardewSquad.Framework
             Patches.HarmonyPatches.BeginIgnoreHarvest();
             try
             {
+                int hostFarmingExperience = Game1.player.experiencePoints[0];
+                int hostForagingExperience = Game1.player.experiencePoints[2];
+
                 dirt.crop.harvest(tile.X, tile.Y, dirt, null, true);
 
                 if (dirt.crop == null || dirt.crop.RegrowsAfterHarvest() == false)
                 {
                     dirt.destroyCrop(showAnimation: true);
                 }
+
+                TransferExperienceGained(Game1.player, who, 0, hostFarmingExperience);
+                TransferExperienceGained(Game1.player, who, 2, hostForagingExperience);
             }
             finally
             {
                 Patches.HarmonyPatches.EndIgnoreHarvest();
             }
 
-            _spriteManager?.ApplyTaskAnimation(npc, "Harvesting", 400);
-            npc.shake(400);
+            _spriteManager?.ApplyTaskAnimation(npc, "Harvesting", 400, mate);
+            ShakeAndBroadcast(npc, 400);
             mate.ActionCooldown = 48;
             location.playSound("harvest");
 
@@ -1679,7 +1629,8 @@ namespace TheStardewSquad.Framework
             Point searchCenter,
             Point npcPosition,
             int searchRadius,
-            ISet<Point> claimedTaskTargets)
+            ISet<Point> claimedTaskTargets,
+            Farmer? recruiter = null)
         {
             var candidates = new List<Point>();
 
@@ -1693,7 +1644,7 @@ namespace TheStardewSquad.Framework
                 // Check if the inventory can accept this item before considering it
                 // If GetObjectAt returns null (test environment), skip the check
                 var obj = locationInfo.GetObjectAt(foragePoint);
-                if (obj == null || CanAcceptItem(obj))
+                if (obj == null || CanAcceptItem(obj, recruiter))
                 {
                     candidates.Add(foragePoint);
                 }
@@ -1740,8 +1691,7 @@ namespace TheStardewSquad.Framework
             // Check for a berry bush first
             if (bushFeature is Bush bush && bush.tileSheetOffset.Value == 1 && bush.readyForHarvest() && bush.inBloom() && !bush.townBush.Value)
             {
-                // The shake method handles dropping the item and changing the bush state.
-                bush.shake(bush.Tile, true);
+                HarvestBushForNpc(mate, bush);
                 location.playSound("leafrustle");
                 performedAction = true;
             }
@@ -1774,8 +1724,8 @@ namespace TheStardewSquad.Framework
             if (performedAction)
             {
                 // Animate and set cooldown
-                _spriteManager?.ApplyTaskAnimation(npc, "Foraging", 400);
-                npc.shake(400);
+                _spriteManager?.ApplyTaskAnimation(npc, "Foraging", 400, mate);
+                ShakeAndBroadcast(npc, 400);
                 mate.ActionCooldown = 48;
 
                 if (Game1.random.Next(7) == 0)
@@ -1788,36 +1738,85 @@ namespace TheStardewSquad.Framework
             return true;
         }
 
-        /// <summary>Handles picking up a loose forage item, applying player professions, and adding it to the appropriate inventory.</summary>
+        private static void HarvestBushForNpc(ISquadMate mate, Bush bush)
+        {
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+            string shakeOff = bush.GetShakeOffItem();
+            if (shakeOff == null)
+                return;
+
+            bush.tileSheetOffset.Value = 0;
+            bush.setUpSourceRect();
+
+            if (bush.size.Value == 3)
+            {
+                Game1.createItemDebris(
+                    ItemRegistry.Create(shakeOff),
+                    bush.Tile * 64f + new Vector2(32f, 32f),
+                    Game1.random.Next(1, 4),
+                    bush.Location);
+                return;
+            }
+
+            int number = Utility.CreateRandom(
+                bush.Tile.X,
+                (double)bush.Tile.Y * 5000.0,
+                Game1.uniqueIDForThisGame,
+                Game1.stats.DaysPlayed).Next(1, 2) + who.ForagingLevel / 4;
+
+            for (int i = 0; i < number; i++)
+            {
+                Item item = ItemRegistry.Create(shakeOff);
+                if (who.professions.Contains(Farmer.botanist))
+                {
+                    item.Quality = 4;
+                }
+
+                Game1.createItemDebris(
+                    item,
+                    Utility.PointToVector2(bush.getBoundingBox().Center),
+                    Game1.random.Next(1, 4),
+                    bush.Location);
+            }
+
+            who.gainExperience(2, number);
+        }
+
+        /// <summary>Handles picking up a loose forage item, applying recruiter professions, and adding it to the appropriate inventory.</summary>
         /// <returns>True if the item was successfully picked up; false otherwise.</returns>
         private static bool ExecuteForagePickup(ISquadMate mate, Item item)
         {
-            if (item == null || !CanAcceptItem(item))
+            // Profession bonuses (Botanist iridium-quality, Gatherer double-pick) come from
+            // the recruiter so a farmhand's mate uses the farmhand's profession choices.
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+
+            if (item == null || !CanAcceptItem(item, who))
                 return false;
 
             Item itemToAdd = item.getOne();
 
             // Apply Botanist profession (iridium quality on forage)
-            if (Game1.player.professions.Contains(Farmer.botanist))
+            if (who.professions.Contains(Farmer.botanist))
             {
                 itemToAdd.Quality = 4;
             }
 
             // Add the primary item. If it fails, something is wrong, so abort.
-            if (!TryAddItemToInventory(itemToAdd))
+            if (!TryAddItemToInventory(itemToAdd, recruiter: who))
             {
                 return false;
             }
 
             // Apply Gatherer profession (20% chance for double forage)
-            if (Game1.player.professions.Contains(Farmer.gatherer) && Game1.random.NextDouble() < 0.20)
+            if (who.professions.Contains(Farmer.gatherer) && Game1.random.NextDouble() < 0.20)
             {
                 // Try to add a second item. We don't care if this one fails.
-                TryAddItemToInventory(itemToAdd.getOne());
+                TryAddItemToInventory(itemToAdd.getOne(), recruiter: who);
             }
 
-            // Grant the player foraging experience
-            Game1.player.gainExperience(2, 7); // 2 = Foraging, 7 = XP amount per item
+            // Grant foraging XP to the recruiter (matches vanilla MP semantics where the
+            // actor of the action is credited).
+            who.gainExperience(2, 7); // 2 = Foraging, 7 = XP amount per item
 
             return true;
         }
@@ -1826,13 +1825,15 @@ namespace TheStardewSquad.Framework
         /// <returns>True if the item was successfully picked up; false otherwise.</returns>
         private static bool ExecuteAnimalProductPickup(ISquadMate mate, Item item, GameLocation location)
         {
-            if (item == null || !CanAcceptItem(item))
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+
+            if (item == null || !CanAcceptItem(item, who))
                 return false;
 
             Item itemToAdd = item.getOne();
 
             // Add the item. If it fails, something is wrong, so abort.
-            if (!TryAddItemToInventory(itemToAdd))
+            if (!TryAddItemToInventory(itemToAdd, recruiter: who))
             {
                 return false;
             }
@@ -1844,11 +1845,11 @@ namespace TheStardewSquad.Framework
 
             if (isInsideCoopOrBarn)
             {
-                Game1.player.gainExperience(0, 5); // 0 = Farming
+                who.gainExperience(0, 5); // 0 = Farming, credited to recruiter
             }
             else
             {
-                Game1.player.gainExperience(2, 5); // 2 = Foraging
+                who.gainExperience(2, 5); // 2 = Foraging, credited to recruiter
             }
 
             return true;
@@ -1856,42 +1857,19 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Fishing Task
-        /// <summary>Checks if the player is currently fishing (includes mini-game AND reeling animation).</summary>
-        public static bool IsPlayerFishing()
+        /// <summary>
+        /// Checks if the given farmer is currently fishing. Used for per-farmer detection in MP —
+        /// the host can read every online farmer's rod state (CurrentTool + FishingRod netfields)
+        /// directly. Omits the BobberBar check because that's local-screen UI not visible across peers.
+        /// </summary>
+        public static bool IsFarmerFishing(Farmer who)
         {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
-
-            // Check if player has a fishing rod equipped
-            if (player.CurrentTool is not StardewValley.Tools.FishingRod rod)
-                return false;
-
-            // Player is fishing if line is cast or fish is hooked
-            if (rod.isFishing || rod.hit)
-                return true;
-
-            // Also check if the fishing mini-game (BobberBar) is active
-            // This covers the case where the mini-game is open but rod.isFishing might be false
-            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu.GetType().Name == "BobberBar")
-                return true;
-
-            // Check if player is reeling in a fish (animation after mini-game)
-            // This keeps fishing tasks alive until after OnPlayerCaughtFish() is called
-            if (rod.pullingOutOfWater)
-                return true;
-
-            return false;
+            if (who == null) return false;
+            if (who.CurrentTool is not StardewValley.Tools.FishingRod rod) return false;
+            return rod.isFishing || rod.hit || rod.pullingOutOfWater;
         }
 
-        /// <summary>Creates a fishing task for an NPC when the player is fishing. Returns null if no valid fishing spot is found.</summary>
-        public static SquadTask? CreateFishingTask(NPC npc, ISet<Vector2> claimedInteractionSpots, ISet<Point> claimedTaskTargets, IMonitor monitor)
-        {
-            var location = npc.currentLocation;
-            var locationInfo = new LocationInfoWrapper(location, npc);
-            return CreateFishingTask(locationInfo, Game1.player.TilePoint, npc.TilePoint, claimedInteractionSpots, claimedTaskTargets, monitor);
-        }
-
-        /// <summary>Creates a fishing task for an NPC (testable overload).</summary>
+        /// <summary>Creates a fishing task for an NPC. Returns null if no valid fishing spot is found.</summary>
         public static SquadTask? CreateFishingTask(
             ILocationInfo locationInfo,
             Point playerPosition,
@@ -2033,11 +2011,12 @@ namespace TheStardewSquad.Framework
             return null;
         }
 
-        /// <summary>Finds a valid fishing spot adjacent to or near a water tile. (Backward-compatible overload)</summary>
-        private static Point? FindFishingSpot(GameLocation location, Point waterTile, NPC npc, ISet<Vector2> claimedInteractionSpots, IMonitor monitor)
+        /// <summary>Finds a valid fishing spot adjacent to or near a water tile. Convenience wrapper for non-MP-aware callers.</summary>
+        private static Point? FindFishingSpot(GameLocation location, Point waterTile, NPC npc, ISet<Vector2> claimedInteractionSpots, IMonitor monitor, Farmer? recruiter = null)
         {
             var locationInfo = new LocationInfoWrapper(location, npc);
-            return FindFishingSpot(locationInfo, waterTile, Game1.player.TilePoint, npc.TilePoint, claimedInteractionSpots, monitor);
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            return FindFishingSpot(locationInfo, waterTile, anchor.TilePoint, npc.TilePoint, claimedInteractionSpots, monitor);
         }
 
         /// <summary>Checks if an NPC can pathfind away from a fishing spot (to avoid getting trapped).</summary>
@@ -2076,11 +2055,12 @@ namespace TheStardewSquad.Framework
             return false;
         }
 
-        /// <summary>Checks if an NPC can pathfind away from a fishing spot. (Backward-compatible overload)</summary>
-        private static bool IsSpotEscapable(GameLocation location, Point spot, NPC npc, IMonitor monitor)
+        /// <summary>Checks if an NPC can pathfind away from a fishing spot. Convenience wrapper for non-MP-aware callers.</summary>
+        private static bool IsSpotEscapable(GameLocation location, Point spot, NPC npc, IMonitor monitor, Farmer? recruiter = null)
         {
             var locationInfo = new LocationInfoWrapper(location, npc);
-            return IsSpotEscapable(locationInfo, spot, Game1.player.TilePoint, npc.TilePoint, monitor);
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            return IsSpotEscapable(locationInfo, spot, anchor.TilePoint, npc.TilePoint, monitor);
         }
 
         /// <summary>Checks if a water tile is valid for fishing (no objects, not blocked by buildings).</summary>
@@ -2141,11 +2121,12 @@ namespace TheStardewSquad.Framework
             return true;
         }
 
-        /// <summary>Checks if a tile is a valid fishing spot. (Backward-compatible overload)</summary>
-        private static bool IsValidFishingSpot(GameLocation location, Point tile, ISet<Vector2> claimedInteractionSpots, NPC npc)
+        /// <summary>Checks if a tile is a valid fishing spot. Convenience wrapper for non-MP-aware callers.</summary>
+        private static bool IsValidFishingSpot(GameLocation location, Point tile, ISet<Vector2> claimedInteractionSpots, NPC npc, Farmer? recruiter = null)
         {
             var locationInfo = new LocationInfoWrapper(location, npc);
-            return IsValidFishingSpot(locationInfo, tile, Game1.player.TilePoint, claimedInteractionSpots, npc.TilePoint);
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            return IsValidFishingSpot(locationInfo, tile, anchor.TilePoint, claimedInteractionSpots, npc.TilePoint);
         }
 
         /// <summary>Executes the fishing task - handles animation.</summary>
@@ -2363,9 +2344,13 @@ namespace TheStardewSquad.Framework
         {
             var npc = mate.Npc;
 
+            // Credit the recruiter (farmhand for farmhand-recruited NPCs) so the fish
+            // routes to the right player's inventory in MP. Mirrors ExecuteForagePickup.
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+
             // Add the fish to the appropriate inventory
             Item fishCopy = fish.getOne();
-            if (!TryAddItemToInventory(fishCopy))
+            if (!TryAddItemToInventory(fishCopy, recruiter: who))
             {
                 // Inventory full, don't give fish
                 return;
@@ -2422,7 +2407,7 @@ namespace TheStardewSquad.Framework
                 yStopCoordinate = (int)(position.Y + FishingConstants.FishIconStopOffset)
             };
 
-            location.temporarySprites.Add(fishIcon);
+            Game1.Multiplayer.broadcastSprites(location, fishIcon);
         }
 
         /// <summary>Draws fishing rod and bobber sprites on NPC to mimic fishing action.</summary>
@@ -2450,7 +2435,7 @@ namespace TheStardewSquad.Framework
             float bobberLayerDepth = bobberPos.Y / 10000f;
 
             // Add the bobber as a temporary sprite
-            location.temporarySprites.Add(new TemporaryAnimatedSprite(
+            Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                 textureName: Game1.bobbersTexture.Name,
                 sourceRect: bobberSourceRect,
                 animationInterval: FishingConstants.RodAnimationInterval,
@@ -2507,7 +2492,7 @@ namespace TheStardewSquad.Framework
             }
 
             // Add the fishing rod as a temporary sprite overlay on the NPC
-            location.temporarySprites.Add(new TemporaryAnimatedSprite(
+            Game1.Multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(
                 textureName: Game1.toolSpriteSheetName,
                 sourceRect: sourceRect,
                 animationInterval: FishingConstants.RodAnimationInterval,
@@ -2675,29 +2660,18 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Petting Task
-        /// <summary>Checks if the player is currently petting animals.</summary>
-        public static bool IsPlayerPetting()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
 
-            // Check if player has petted an animal within the last 3 seconds (180 ticks at 60 FPS)
-            // This works with MimickingTaskTimer (10 seconds) to provide smooth task management:
-            // - IsPlayerPetting() returns true for 3 seconds after petting
-            // - MimickingTaskTimer gives NPCs 10 seconds grace period to complete their tasks
-            return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerPettingTick()) < 180;
-        }
-
-        /// <summary>Finds an unpetted animal (farm animal or player's pet) for an NPC to pet.</summary>
+        /// <summary>Finds an unpetted animal (farm animal or pet) for an NPC to pet. Convenience wrapper for non-MP-aware callers.</summary>
         public static (Point? target, Point? interactionPoint) FindPettableAnimal(
             NPC npc,
             IMonitor monitor,
             ISet<Vector2> claimedInteractionSpots,
-            ISet<Point> claimedTaskTargets)
+            ISet<Point> claimedTaskTargets,
+            Farmer? recruiter = null)
         {
-            // Backward-compatible wrapper that uses the testable version
             var location = npc.currentLocation;
-            var playerTile = Game1.player.Tile.ToPoint();
+            var anchor = recruiter ?? Game1.MasterPlayer ?? Game1.player;
+            var playerTile = anchor.Tile.ToPoint();
             int searchRadius = 15;
 
             return FindPettableAnimal(
@@ -2766,6 +2740,7 @@ namespace TheStardewSquad.Framework
             NPC npc = mate.Npc;
             var location = npc.currentLocation;
             var tileVector = tile.ToVector2();
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
 
             // Find the animal at this tile
             Character targetAnimal = null;
@@ -2778,14 +2753,26 @@ namespace TheStardewSquad.Framework
                     .FirstOrDefault(a => a.TilePoint == tile);
             }
 
-            // Check player's pet if not found
+            // Find any pet at this tile in the current location, regardless of owner.
+            // Old code restricted to Game1.player's home, which in MP misses other farmhands'
+            // pets that are roaming on the farm or visiting the cabin.
             if (targetAnimal == null)
             {
-                var home = Utility.getHomeOfFarmer(Game1.player);
-                if (home != null)
+                targetAnimal = location.characters.OfType<StardewValley.Characters.Pet>()
+                    .FirstOrDefault(p => p.TilePoint == tile);
+
+                // Fallback: if not at this exact location, walk all farmer homes (handles
+                // pets that are inside their farmhouse / cabin while the petting NPC is also there).
+                if (targetAnimal == null)
                 {
-                    targetAnimal = home.characters.OfType<StardewValley.Characters.Pet>()
-                        .FirstOrDefault(p => p.TilePoint == tile);
+                    foreach (var farmer in Game1.getAllFarmers())
+                    {
+                        var home = Utility.getHomeOfFarmer(farmer);
+                        if (home == null) continue;
+                        var pet = home.characters.OfType<StardewValley.Characters.Pet>()
+                            .FirstOrDefault(p => p.TilePoint == tile);
+                        if (pet != null) { targetAnimal = pet; break; }
+                    }
                 }
             }
 
@@ -2803,36 +2790,42 @@ namespace TheStardewSquad.Framework
                     return true; // Already petted
                 }
 
-                // Save player state to prevent side effects from the pet() method
-                var playerPosition = Game1.player.Position;
-                var playerFacingDirection = Game1.player.FacingDirection;
-                var playerIsMoving = Game1.player.isMoving();
+                // Save farmer state to prevent side effects from the pet() method
+                var playerPosition = who.Position;
+                var playerFacingDirection = who.FacingDirection;
+                var playerIsMoving = who.isMoving();
 
                 Patches.HarmonyPatches.BeginIgnorePetting();
                 try
                 {
                     // Use the game's built-in pet method (manual mode for full friendship bonus)
                     // This properly sets wasPet.Value = true and gives full friendship
-                    farmAnimal.pet(Game1.player, is_auto_pet: false);
+                    farmAnimal.pet(who, is_auto_pet: false);
                 }
                 finally
                 {
                     Patches.HarmonyPatches.EndIgnorePetting();
                 }
 
-                // Restore player state so they aren't affected by the NPC's petting action
-                Game1.player.Position = playerPosition;
-                Game1.player.FacingDirection = playerFacingDirection;
+                // Vanilla FarmAnimal.pet calls base.doEmote(20) on the host's instance, but
+                // doEmote isn't netfielded — peers see no heart. Mirror to all screens.
+                _dispatcher?.BroadcastAnimalEmote(
+                    location?.NameOrUniqueName ?? string.Empty,
+                    tile.X, tile.Y, 20);
+
+                // Restore farmer state so they aren't affected by the NPC's petting action
+                who.Position = playerPosition;
+                who.FacingDirection = playerFacingDirection;
                 if (playerIsMoving)
                 {
-                    Game1.player.setMoving((byte)playerFacingDirection);
+                    who.setMoving((byte)playerFacingDirection);
                 }
             }
             // Check if it's a pet
             else if (targetAnimal is StardewValley.Characters.Pet pet)
             {
                 // Check if already petted today using the pet's tracking system
-                if (pet.lastPetDay.TryGetValue(Game1.player.UniqueMultiplayerID, out var lastDay)
+                if (pet.lastPetDay.TryGetValue(who.UniqueMultiplayerID, out var lastDay)
                     && lastDay == Game1.Date.TotalDays)
                 {
                     return true; // Already petted
@@ -2843,12 +2836,17 @@ namespace TheStardewSquad.Framework
                 {
                     // Use the game's built-in checkAction method to pet
                     // This handles friendship increase and sets lastPetDay
-                    pet.checkAction(Game1.player, location);
+                    pet.checkAction(who, location);
 
                     // Ensure emote and sound play (checkAction already calls these, but we ensure they happen)
                     // The pet's playContentSound() method is species-specific (cat, dog, etc.)
                     pet.doEmote(20); // Heart emote
                     pet.playContentSound(); // Species-specific sound
+
+                    // doEmote isn't netfielded — peers see no heart without this broadcast.
+                    _dispatcher?.BroadcastAnimalEmote(
+                        location?.NameOrUniqueName ?? string.Empty,
+                        tile.X, tile.Y, 20);
                 }
                 finally
                 {
@@ -2864,8 +2862,8 @@ namespace TheStardewSquad.Framework
             var targetWorldPosition = tileVector * 64f + new Vector2(32f, 32f);
             FacePosition(npc, targetWorldPosition);
 
-            _spriteManager?.ApplyTaskAnimation(npc, "Petting", 400);
-            npc.shake(400);
+            _spriteManager?.ApplyTaskAnimation(npc, "Petting", 400, mate);
+            ShakeAndBroadcast(npc, 400);
 
             mate.ActionCooldown = 48;
 
@@ -2882,14 +2880,12 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Sitting Task
-        /// <summary>Checks if the player is currently sitting on furniture or a bench.</summary>
-        public static bool IsPlayerSitting()
-        {
-            var player = Game1.player;
-            if (player == null) return false; // Handle unit test scenarios
 
-            // Player is sitting if they are on furniture or the isSitting flag is set
-            return player.sittingFurniture != null || player.isSitting.Value;
+        /// <summary>Checks if the given farmer is currently sitting on furniture or a bench.</summary>
+        public static bool IsFarmerSitting(Farmer who)
+        {
+            if (who == null) return false;
+            return who.sittingFurniture != null || who.isSitting.Value;
         }
 
         /// <summary>
@@ -3032,8 +3028,11 @@ namespace TheStardewSquad.Framework
             // Fall back to InteractionTile.ToVector2() if SeatPosition is not set (backwards compatibility)
             Vector2 seatPosition = mate.Task.SeatPosition ?? mate.Task.InteractionTile.ToVector2();
 
-            // Check if player is still sitting - if not, stop sitting and complete task
-            if (!IsPlayerSitting())
+            // Check if the recruiter is still sitting - if not, stop sitting and complete task.
+            // In MP, the recruiter may be a farmhand; reading Game1.player here would always
+            // see the host and prematurely clear the task.
+            var recruiter = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
+            if (!IsFarmerSitting(recruiter))
             {
                 // Only call StopSitting if the task is still a Sitting task
                 if (mate.Task != null && mate.Task.Type == TaskType.Sitting)
@@ -3173,24 +3172,6 @@ namespace TheStardewSquad.Framework
         #endregion
 
         #region Shearing and Milking Tasks
-        /// <summary>Checks if the player has sheared an animal within the last 3 seconds.</summary>
-        public static bool IsPlayerShearing()
-        {
-            var player = Game1.player;
-            if (player == null) return false;
-
-            return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerShearingTick()) < 180;
-        }
-
-        /// <summary>Checks if the player has milked an animal within the last 3 seconds.</summary>
-        public static bool IsPlayerMilking()
-        {
-            var player = Game1.player;
-            if (player == null) return false;
-
-            return (Game1.ticks - Patches.HarmonyPatches.GetLastPlayerMilkingTick()) < 180;
-        }
-
         /// <summary>Finds a nearby farm animal that has produce ready to shear.</summary>
         public static (Point? target, Point? interactionPoint) FindShearableAnimal(
             ILocationInfo locationInfo,
@@ -3265,6 +3246,8 @@ namespace TheStardewSquad.Framework
             NPC npc = mate.Npc;
             var location = npc.currentLocation;
             var tileVector = tile.ToVector2();
+            // Resolve the recruiter for XP credit; fall back to MasterPlayer if offline.
+            var who = mate.TryGetRecruiter(out var rec) ? rec : (Game1.MasterPlayer ?? Game1.player);
 
             Tool tool = isMilking ? (Tool)_sharedMilkPail : _sharedShears;
             string taskName = isMilking ? "Milking" : "Shearing";
@@ -3294,23 +3277,30 @@ namespace TheStardewSquad.Framework
                 produce.Stack = 2;
 
             location.playSound(soundName);
-            if (isMilking) targetAnimal.doEmote(20);
+            if (isMilking)
+            {
+                targetAnimal.doEmote(20);
+                // doEmote isn't netfielded — broadcast so peers see the heart too.
+                _dispatcher?.BroadcastAnimalEmote(
+                    location?.NameOrUniqueName ?? string.Empty,
+                    tile.X, tile.Y, 20);
+            }
 
             int producedStack = produce.Stack;
-            TryAddItemToInventory(produce, npc);
+            TryAddItemToInventory(produce, npc, recruiter: who);
 
             targetAnimal.HandleStatsOnProduceCollected(produce, (uint)producedStack);
             targetAnimal.currentProduce.Value = null;
             location.playSound("coin");
             targetAnimal.friendshipTowardFarmer.Value = Math.Min(1000, targetAnimal.friendshipTowardFarmer.Value + 5);
             targetAnimal.ReloadTextureIfNeeded();
-            Game1.player.gainExperience(0, 5);
+            who.gainExperience(0, 5); // 0 = Farming, credited to recruiter
 
             if (isMilking)
                 targetAnimal.pauseTimer = 1500;
 
-            _spriteManager?.ApplyTaskAnimation(npc, taskName, 400);
-            npc.shake(400);
+            _spriteManager?.ApplyTaskAnimation(npc, taskName, 400, mate);
+            ShakeAndBroadcast(npc, 400);
             mate.ActionCooldown = 120;
 
             if (Game1.random.Next(7) == 0)

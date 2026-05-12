@@ -37,12 +37,16 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
             Mock<INpcDialogueService> mockNpcDialogueService
         ) CreateTestContext()
         {
+            var mockMonitor = new Mock<IMonitor>();
+            var mockHelper = new Mock<IModHelper>();
+            mockHelper.Setup(h => h.DirectoryPath).Returns(System.IO.Path.GetTempPath());
+            var baselineLoader = new BaselineContentLoader(mockHelper.Object, mockMonitor.Object);
             var mockConfigManager = new Mock<NpcConfigManager>(
                 Mock.Of<INpcConfigDataProvider>(),
+                baselineLoader,
                 Mock.Of<IMonitor>()
             );
             var mockDataProvider = new Mock<INpcConfigDataProvider>();
-            var mockMonitor = new Mock<IMonitor>();
             var mockRandomSelector = new Mock<IRandomSelector>();
             var mockGameStateChecker = new Mock<IGameStateChecker>();
             var mockGameContext = new Mock<IGameContext>();
@@ -465,15 +469,14 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
             var (manager, mockConfigManager, _, _, _, _, _, _, _) = CreateTestContext();
             var npcConfig = new NpcConfigData(); // No Behavior defined
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("TestNpc");
+            var npc = new NPC { Name = "TestNpc" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // Act
-            var result = manager.GetAllowedTasks(mockNpc.Object);
+            var result = manager.GetAllowedTasks(npc);
 
             // Assert
-            result.Should().Be("Watering, Lumbering, Mining, Attacking, Harvesting, Foraging, Fishing, Petting, Sitting");
+            result.Should().Be("Watering, Lumbering, Mining, Attacking, Harvesting, Foraging, Fishing, Petting, Sitting, Shearing, Milking");
         }
 
         [Fact]
@@ -489,12 +492,11 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Maru");
+            var npc = new NPC { Name = "Maru" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // Act
-            var result = manager.GetAllowedTasks(mockNpc.Object);
+            var result = manager.GetAllowedTasks(npc);
 
             // Assert
             result.Should().Be("Watering, Harvesting");
@@ -528,8 +530,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Abigail");
+            var npc = new NPC { Name = "Abigail" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // First condition matches - should return immediately
@@ -540,7 +541,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 .Returns(true);
 
             // Act
-            var result = manager.GetAllowedTasks(mockNpc.Object);
+            var result = manager.GetAllowedTasks(npc);
 
             // Assert - First match wins, even if second condition might also match
             result.Should().Be("Attacking, Mining");
@@ -580,8 +581,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Penny");
+            var npc = new NPC { Name = "Penny" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // First condition fails
@@ -599,7 +599,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 .Returns(true);
 
             // Act
-            var result = manager.GetAllowedTasks(mockNpc.Object);
+            var result = manager.GetAllowedTasks(npc);
 
             // Assert
             result.Should().Be("Watering, Harvesting");
@@ -632,8 +632,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Harvey");
+            var npc = new NPC { Name = "Harvey" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // Conditional entry fails
@@ -644,7 +643,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 .Returns(false);
 
             // Act
-            var result = manager.GetAllowedTasks(mockNpc.Object);
+            var result = manager.GetAllowedTasks(npc);
 
             // Assert - Should use fallback (no condition)
             result.Should().Be("Watering, Petting");
@@ -667,12 +666,11 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Leah");
+            var npc = new NPC { Name = "Leah" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // Act
-            var result = manager.GetAllowedTasks(mockNpc.Object);
+            var result = manager.GetAllowedTasks(npc);
 
             // Assert
             result.Should().Be("Watering, Harvesting, Foraging");
@@ -689,12 +687,11 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
             var (manager, mockConfigManager, _, _, _, _, _, _, _) = CreateTestContext();
             var npcConfig = new NpcConfigData(); // No Behavior.Recruitment
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("TestNpc");
+            var npc = new NPC { Name = "TestNpc" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // Act
-            var result = manager.CanRecruit(mockNpc.Object);
+            var result = manager.CanRecruit(npc);
 
             // Assert
             result.Should().BeTrue(); // Default: recruitment enabled
@@ -716,12 +713,11 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Pierre");
+            var npc = new NPC { Name = "Pierre" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // Act
-            var result = manager.CanRecruit(mockNpc.Object);
+            var result = manager.CanRecruit(npc);
 
             // Assert
             result.Should().BeFalse();
@@ -744,8 +740,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Penny");
+            var npc = new NPC { Name = "Penny" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             mockGameStateChecker.Setup(g => g.CheckConditions(
@@ -755,7 +750,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 .Returns(true);
 
             // Act
-            var result = manager.CanRecruit(mockNpc.Object);
+            var result = manager.CanRecruit(npc);
 
             // Assert
             result.Should().BeTrue();
@@ -778,8 +773,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("JojaMart");
+            var npc = new NPC { Name = "JojaMart" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             mockGameStateChecker.Setup(g => g.CheckConditions(
@@ -789,7 +783,7 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 .Returns(false);
 
             // Act
-            var result = manager.CanRecruit(mockNpc.Object);
+            var result = manager.CanRecruit(npc);
 
             // Assert
             result.Should().BeFalse();
@@ -812,12 +806,11 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Abigail");
+            var npc = new NPC { Name = "Abigail" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // Act
-            var result = manager.CanRecruit(mockNpc.Object);
+            var result = manager.CanRecruit(npc);
 
             // Assert
             result.Should().BeTrue();
@@ -840,12 +833,11 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Pierre");
+            var npc = new NPC { Name = "Pierre" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // Act
-            var result = manager.GetRecruitmentRefusalDialogueKey(mockNpc.Object);
+            var result = manager.GetRecruitmentRefusalDialogueKey(npc);
 
             // Assert
             result.Should().Be("dialogue.recruitment.refusal.pierre.busy");
@@ -868,12 +860,11 @@ namespace TheStardewSquad.Tests.Framework.NpcConfig
                 }
             };
 
-            var mockNpc = new Mock<NPC>();
-            mockNpc.Setup(n => n.Name).Returns("Abigail");
+            var npc = new NPC { Name = "Abigail" };
             mockConfigManager.Setup(m => m.GetConfig(It.IsAny<NPC>())).Returns(npcConfig);
 
             // Act
-            var result = manager.GetRecruitmentRefusalDialogueKey(mockNpc.Object);
+            var result = manager.GetRecruitmentRefusalDialogueKey(npc);
 
             // Assert
             result.Should().BeNull();

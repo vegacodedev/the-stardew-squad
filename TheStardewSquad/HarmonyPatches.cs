@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Characters;
 using StardewValley.Locations;
@@ -25,14 +27,13 @@ namespace TheStardewSquad.Patches
         private static FollowerManager _followerManager;
         private static DebrisCollector _debrisCollector;
         private static ModEntry _modEntry;
-        private static int _lastPlayerPettingTick = 0;
-        private static int _lastPlayerHarvestingTick = 0;
-        private static int _lastPlayerShearingTick = 0;
-        private static int _lastPlayerMilkingTick = 0;
-        private static int _ignoreHarvestDepth = 0;
-        private static int _ignorePettingDepth = 0;
-        private static long? _playerSittingStartTime = null;
-        private static bool _wasPlayerSitting = false;
+        // Ignore-depth counters guard against re-entrancy from our own NPC actions; per-screen
+        // since the NPC action runs on the local screen.
+        private static readonly PerScreen<int> _ignoreHarvestDepth = new(() => 0);
+        private static readonly PerScreen<int> _ignorePettingDepth = new(() => 0);
+        // Sitting start time / wasSitting are local-screen UX state.
+        private static readonly PerScreen<long?> _playerSittingStartTime = new(() => null);
+        private static readonly PerScreen<bool> _wasPlayerSitting = new(() => false);
         private static bool _lowerHorseBodyDepth = false;
 
         #endregion
@@ -49,30 +50,6 @@ namespace TheStardewSquad.Patches
             _modEntry = modEntry;
         }
 
-        /// <summary>Gets the last game tick when the player petted an animal.</summary>
-        public static int GetLastPlayerPettingTick() => _lastPlayerPettingTick;
-
-        /// <summary>Gets the last game tick when the player harvested a crop.</summary>
-        public static int GetLastPlayerHarvestingTick() => _lastPlayerHarvestingTick;
-
-        /// <summary>Begins ignoring harvest actions (for NPC harvests). Use in try/finally with EndIgnoreHarvest().</summary>
-        public static void BeginIgnoreHarvest() => _ignoreHarvestDepth++;
-
-        /// <summary>Ends ignoring harvest actions. Always call in finally block.</summary>
-        public static void EndIgnoreHarvest() => _ignoreHarvestDepth = Math.Max(0, _ignoreHarvestDepth - 1);
-
-        /// <summary>Begins ignoring petting actions (for NPC petting). Use in try/finally with EndIgnorePetting().</summary>
-        public static void BeginIgnorePetting() => _ignorePettingDepth++;
-
-        /// <summary>Ends ignoring petting actions. Always call in finally block.</summary>
-        public static void EndIgnorePetting() => _ignorePettingDepth = Math.Max(0, _ignorePettingDepth - 1);
-
-        /// <summary>Gets the last game tick when the player sheared an animal.</summary>
-        public static int GetLastPlayerShearingTick() => _lastPlayerShearingTick;
-
-        /// <summary>Gets the last game tick when the player milked an animal.</summary>
-        public static int GetLastPlayerMilkingTick() => _lastPlayerMilkingTick;
-
         /// <summary>
         /// Updates player sitting state tracking. Call this from FollowerManager.OnUpdateTicked
         /// to ensure sitting start time is recorded when player actually sits down.
@@ -84,18 +61,18 @@ namespace TheStardewSquad.Patches
 
             bool isCurrentlySitting = player.sittingFurniture != null || player.isSitting.Value;
 
-            // Detect when player starts sitting
-            if (isCurrentlySitting && !_wasPlayerSitting)
+            // Detect when local-screen player starts sitting
+            if (isCurrentlySitting && !_wasPlayerSitting.Value)
             {
-                _playerSittingStartTime = (long)Game1.currentGameTime.TotalGameTime.TotalMilliseconds;
+                _playerSittingStartTime.Value = (long)Game1.currentGameTime.TotalGameTime.TotalMilliseconds;
             }
-            // Detect when player stops sitting
-            else if (!isCurrentlySitting && _wasPlayerSitting)
+            // Detect when local-screen player stops sitting
+            else if (!isCurrentlySitting && _wasPlayerSitting.Value)
             {
-                _playerSittingStartTime = null;
+                _playerSittingStartTime.Value = null;
             }
 
-            _wasPlayerSitting = isCurrentlySitting;
+            _wasPlayerSitting.Value = isCurrentlySitting;
         }
 
         /// <summary>Logs all Harmony patches applied to a method for debugging conflicts.</summary>
@@ -179,6 +156,11 @@ namespace TheStardewSquad.Patches
             harmony.Patch(
                 original: AccessTools.Method(typeof(Pet), nameof(Pet.RunState)),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(RunState_Prefix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Pet), nameof(Pet.behaviorOnFarmerLocationEntry)),
+                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(BehaviorOnFarmerLocationEntry_Prefix))
             );
 
             harmony.Patch(
@@ -563,13 +545,14 @@ namespace TheStardewSquad.Patches
 
             // Enforce minimum sitting duration (0.1 seconds = 100ms)
             // If timer is null (slow tick hasn't run yet), treat as "just sat down" and block
-            if (!_playerSittingStartTime.HasValue)
+            var sittingStart = _playerSittingStartTime.Value;
+            if (!sittingStart.HasValue)
             {
                 return false; // Timer not set yet - block until slow tick runs
             }
 
             long currentTime = (long)Game1.currentGameTime.TotalGameTime.TotalMilliseconds;
-            long elapsedTime = currentTime - _playerSittingStartTime.Value;
+            long elapsedTime = currentTime - sittingStart.Value;
 
             if (elapsedTime < 100) // Less than 0.1 seconds has passed
             {
@@ -632,6 +615,23 @@ namespace TheStardewSquad.Patches
             }
 
             // Otherwise, let the pet behave as normal when not recruited.
+            return true;
+        }
+
+        /// <summary>
+        /// Prevents a recruited pet's behavior from being flipped to "Sleep" when any farmer
+        /// enters the pet's current location (vanilla rolls a 50% chance to do that during the day).
+        /// MaintainControl pins behavior to "Walk" so vanilla's slave-animation drives walking
+        /// frames on the farmhand; if vanilla flips Walk→Sleep here, MaintainControl resets next tick
+        /// and OnNewBehavior's RandomizeDirection branch fires on the host, briefly setting a random
+        /// FacingDirection that the farmhand renders for one frame as a "split-second turn".
+        /// </summary>
+        private static bool BehaviorOnFarmerLocationEntry_Prefix(Pet __instance)
+        {
+            if (_squadManager.IsRecruited(__instance))
+            {
+                return false;
+            }
             return true;
         }
 
@@ -902,12 +902,21 @@ namespace TheStardewSquad.Patches
             if (mate == null)
                 return;
 
+            // Disable cardinal-stair-step netfield interpolation (see NPC_Draw_Prefix
+            // comment).
+            __instance.position.Field.AxisAlignedMovement = false;
+
             // Apply riding draw offset — mirrors NPC_Draw_Prefix.
             // Necessary because Pet.draw is a custom override that does not call
             // base.draw, so the NPC.draw prefix never fires for Pet instances.
             if (mate.IsRidingWithPlayer && _followerManager != null)
             {
-                __instance.drawOffset = _followerManager.ComputeRidingDrawOffset(mate);
+                __instance.drawOffset = _followerManager.ComputeRidingDrawOffset(__instance, mate);
+
+                if (mate.TryGetRecruiter(out var rider))
+                {
+                    __instance.facingDirection.Value = rider.FacingDirection;
+                }
             }
 
             // Swimming visuals (only applies when actually swimming)
@@ -1074,8 +1083,11 @@ namespace TheStardewSquad.Patches
         /// </summary>
         private static void PlayerCaughtFishEndFunction_Postfix(StardewValley.Tools.FishingRod __instance)
         {
-            // Notify the FollowerManager that the player just caught a fish
-            _followerManager?.OnPlayerCaughtFish();
+            // The fishing farmer is the rod's lastUser. In MP this may be a remote farmhand,
+            // not Game1.player on the local screen. Pass it through so mimicking filters by recruiter id.
+            var who = __instance.lastUser;
+            if (who == null) return;
+            _followerManager?.OnPlayerCaughtFish(who);
         }
 
         #endregion
@@ -1092,9 +1104,26 @@ namespace TheStardewSquad.Patches
             if (mate == null)
                 return;
 
+            // Disable cardinal-stair-step netfield interpolation.
+            // Without this, on remote farmhand screens the
+            // netfield interpolates the position in cardinal stair-step between syncs.
+            __instance.position.Field.AxisAlignedMovement = false;
+
             if (mate.IsRidingWithPlayer && _followerManager != null)
             {
-                __instance.drawOffset = _followerManager.ComputeRidingDrawOffset(mate);
+                __instance.drawOffset = _followerManager.ComputeRidingDrawOffset(__instance, mate);
+
+                // Per-process facingDirection sync. Position is NetVector2 with built-in
+                // interpolation so it feels tight even with sync lag; facingDirection is a
+                // NetInt with no interpolation, so the round trip (rider → host writes via
+                // UpdateRidingMember → sync back) is visibly stale. Pull the rider's current
+                // facing locally and write to the visible duplicate so the sprite frame
+                // (set per tick by DriveSustainedTaskFrames from npc.FacingDirection)
+                // tracks the rider without the round trip.
+                if (mate.TryGetRecruiter(out var rider))
+                {
+                    __instance.facingDirection.Value = rider.FacingDirection;
+                }
             }
 
             // Handle fishing line rendering
@@ -1123,7 +1152,57 @@ namespace TheStardewSquad.Patches
 
         #endregion
 
-        #region Animal and Pet Petting Patches
+        #region Mimicking Detection Patches
+
+        // Routes farmer actions (petting, harvesting, tool use, etc.) into FollowerManager's
+        // per-recruiter mimicking system. In MP, farmhand-side patches forward through a
+        // ModMessage so the host's mates owned by that farmhand react too.
+        //
+        // Each postfix runs on the actor's machine and calls DispatchMimicking(who, type),
+        // which either calls FollowerManager.OnFarmerAction directly (host) or sends a
+        // MimickingRequest to the host (farmhand). FollowerManager filters by RecruiterUniqueId
+        // so only the actor's own mates mimic.
+
+        // ---- Re-entrancy suppression (NPC behaviors raise these around their own actions) ----
+
+        /// <summary>Begins ignoring harvest actions (for NPC harvests). Use in try/finally with EndIgnoreHarvest().</summary>
+        public static void BeginIgnoreHarvest() => _ignoreHarvestDepth.Value++;
+
+        /// <summary>Ends ignoring harvest actions. Always call in finally block.</summary>
+        public static void EndIgnoreHarvest() => _ignoreHarvestDepth.Value = Math.Max(0, _ignoreHarvestDepth.Value - 1);
+
+        /// <summary>Begins ignoring petting actions (for NPC petting). Use in try/finally with EndIgnorePetting().</summary>
+        public static void BeginIgnorePetting() => _ignorePettingDepth.Value++;
+
+        /// <summary>Ends ignoring petting actions. Always call in finally block.</summary>
+        public static void EndIgnorePetting() => _ignorePettingDepth.Value = Math.Max(0, _ignorePettingDepth.Value - 1);
+
+        // ---- Routing primitive ----
+
+        /// <summary>
+        /// Routes a "farmer just performed a mimickable task" event. On the host this
+        /// updates squad mate timers directly via <see cref="FollowerManager.OnFarmerAction"/>;
+        /// on a farmhand it sends a <c>MimickingRequest</c> to the host so the host's mates
+        /// owned by this farmhand can react.
+        /// </summary>
+        private static void DispatchMimicking(Farmer who, TaskType type)
+        {
+            if (who == null) return;
+
+            if (Context.IsMainPlayer)
+            {
+                _followerManager?.OnFarmerAction(who, type);
+            }
+            else if (Context.IsMultiplayer)
+            {
+                _modEntry?.MessageDispatcher?.SendMimickingRequest(
+                    who.UniqueMultiplayerID,
+                    type,
+                    who.currentLocation?.NameOrUniqueName ?? string.Empty);
+            }
+        }
+
+        // ---- Petting ----
 
         /// <summary>
         /// Postfix patch for FarmAnimal.pet.
@@ -1131,14 +1210,15 @@ namespace TheStardewSquad.Patches
         /// </summary>
         private static void FarmAnimal_Pet_Postfix(Farmer who, bool is_auto_pet)
         {
-            // Skip if we're ignoring petting (NPC is petting)
-            if (_ignorePettingDepth > 0)
+            // Skip if we're ignoring petting (NPC is petting). Per-screen so the host's
+            // ignore depth doesn't suppress a split-screen player's petting tracking.
+            if (_ignorePettingDepth.Value > 0)
                 return;
 
-            // Only track manual petting by the player (not auto-petters)
-            if (who == Game1.player && !is_auto_pet)
+            // Only the actor's own machine dispatches; DispatchMimicking routes to the host.
+            if (who.IsLocalPlayer && !is_auto_pet)
             {
-                _lastPlayerPettingTick = Game1.ticks;
+                DispatchMimicking(who, TaskType.Petting);
             }
         }
 
@@ -1149,11 +1229,11 @@ namespace TheStardewSquad.Patches
         private static void Pet_CheckAction_Postfix(Pet __instance, Farmer who, bool __result)
         {
             // Skip if we're ignoring petting (NPC is petting)
-            if (_ignorePettingDepth > 0)
+            if (_ignorePettingDepth.Value > 0)
                 return;
 
-            // Only track if the interaction was successful and done by the player
-            if (__result && who == Game1.player)
+            // Only track if the interaction was successful and done by the local-screen player
+            if (__result && who.IsLocalPlayer)
             {
                 // Verify it was actually a petting action by checking if lastPetDay was updated
                 bool wasPetted = __instance.lastPetDay.TryGetValue(who.UniqueMultiplayerID, out var lastDay)
@@ -1161,44 +1241,12 @@ namespace TheStardewSquad.Patches
 
                 if (wasPetted)
                 {
-                    _lastPlayerPettingTick = Game1.ticks;
+                    DispatchMimicking(who, TaskType.Petting);
                 }
             }
         }
 
-        #endregion
-
-        #region Animal Harvesting Patches
-
-        private static void Shears_DoFunction_Prefix(StardewValley.Tools.Shears __instance, out FarmAnimal __state)
-        {
-            __state = __instance.animal;
-        }
-
-        private static void Shears_DoFunction_Postfix(FarmAnimal __state, Farmer who)
-        {
-            if (who != Game1.player || __state == null || __state.currentProduce.Value != null)
-                return;
-
-            _lastPlayerShearingTick = Game1.ticks;
-        }
-
-        private static void MilkPail_DoFunction_Prefix(StardewValley.Tools.MilkPail __instance, out FarmAnimal __state)
-        {
-            __state = __instance.animal;
-        }
-
-        private static void MilkPail_DoFunction_Postfix(FarmAnimal __state, Farmer who)
-        {
-            if (who != Game1.player || __state == null || __state.currentProduce.Value != null)
-                return;
-
-            _lastPlayerMilkingTick = Game1.ticks;
-        }
-
-        #endregion
-
-        #region Crop Harvesting Patches
+        // ---- Crop harvesting ----
 
         /// <summary>
         /// Postfix patch for Crop.harvest.
@@ -1213,7 +1261,7 @@ namespace TheStardewSquad.Patches
                 return;
 
             // Skip if we're ignoring harvests (NPC is harvesting)
-            if (_ignoreHarvestDepth > 0)
+            if (_ignoreHarvestDepth.Value > 0)
                 return;
 
             // Check if harvest was successful:
@@ -1223,8 +1271,41 @@ namespace TheStardewSquad.Patches
 
             if (isSuccessfulHarvest)
             {
-                _lastPlayerHarvestingTick = Game1.ticks;
+                // Crop.harvest doesn't receive a Farmer parameter; the local screen's
+                // player is whoever triggered the harvest (their tool ran the call).
+                DispatchMimicking(Game1.player, TaskType.Harvesting);
             }
+        }
+
+        // ---- Animal product gathering (Shears, MilkPail) ----
+        // Prefix captures __instance.animal into __state because DoFunction may null/swap
+        // the animal reference before the postfix runs.
+
+        private static void Shears_DoFunction_Prefix(StardewValley.Tools.Shears __instance, out FarmAnimal __state)
+        {
+            __state = __instance.animal;
+        }
+
+        private static void Shears_DoFunction_Postfix(FarmAnimal __state, Farmer who)
+        {
+            // Track only the local-screen player's shearing action.
+            if (!who.IsLocalPlayer || __state == null || __state.currentProduce.Value != null)
+                return;
+
+            DispatchMimicking(who, TaskType.Shearing);
+        }
+
+        private static void MilkPail_DoFunction_Prefix(StardewValley.Tools.MilkPail __instance, out FarmAnimal __state)
+        {
+            __state = __instance.animal;
+        }
+
+        private static void MilkPail_DoFunction_Postfix(FarmAnimal __state, Farmer who)
+        {
+            if (!who.IsLocalPlayer || __state == null || __state.currentProduce.Value != null)
+                return;
+
+            DispatchMimicking(who, TaskType.Milking);
         }
 
         #endregion
@@ -1327,17 +1408,29 @@ namespace TheStardewSquad.Patches
             if (!_squadManager.IsRecruited(character))
                 return npcDepth;
 
-            // Riding Down: slot the mate behind the player. Anchoring off horse
-            // body depth would be unsafe because drawLayerDisambiguator is 0 in single-player.
-            if (character is StardewValley.NPC ridingNpc
-                && player.isRidingHorse()
-                && player.FacingDirection == 2
-                && player.mount != null)
+            if (character is StardewValley.NPC ridingNpc)
             {
                 var mate = _squadManager.GetMember(ridingNpc);
-                if (mate != null && mate.IsRidingWithPlayer)
+                if (mate != null && mate.IsRidingWithPlayer
+                    && mate.TryGetRecruiter(out var rider)
+                    && rider.isRidingHorse()
+                    && rider.mount != null)
                 {
-                    return MathF.BitDecrement(player.getDrawLayer());
+                    if (rider.FacingDirection == 0)
+                    {
+                        return rider.getDrawLayer() + 0.0001f;
+                    }
+
+                    // Riding Down: slot the mate behind the rider. Resolve through the mate's
+                    // recruiter rather than Game1.player so this fires on every screen, not just
+                    // the local rider's. Without this, observers (host watching farmhand ride, or
+                    // farmhand watching host ride) skip the depth adjustment entirely and the NPC
+                    // renders above the rider instead of between rider and horse. Anchoring off
+                    // horse body depth would be unsafe because drawLayerDisambiguator is 0 in SP.
+                    if (rider.FacingDirection == 2)
+                    {
+                        return MathF.BitDecrement(rider.getDrawLayer());
+                    }
                 }
             }
 
